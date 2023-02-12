@@ -1,0 +1,95 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(LineRenderer))]
+public class EyeTrackingRay : MonoBehaviour
+{
+
+    [SerializeField]
+    private float   rayDistance = 1.0f,
+                    rayWidth = 0.01f;
+
+    [SerializeField]
+    private LayerMask layersToInclude;
+
+    [SerializeField]
+    private Color   rayColorDefaultState = Color.white,
+                    rayColorHoverState = Color.red;
+
+    private LineRenderer lr;
+    private Transform eyeTarget = null;
+
+    [SerializeField]
+    private Transform targetReticle = null;
+    [SerializeField]
+    private float targetReticleSize = 0.025f;
+
+    [SerializeField]
+    private bool m_debugMode = false;
+
+    private void Awake() {
+        lr = GetComponent<LineRenderer>();
+        SetupRay();
+    }
+
+    private void SetupRay() {
+        lr.enabled = m_debugMode;
+        if (m_debugMode) {
+            lr.useWorldSpace = true;
+            lr.positionCount = 2;
+            lr.startWidth = rayWidth;
+            lr.endWidth = rayWidth;
+            lr.startColor = rayColorDefaultState;
+            lr.endColor = rayColorDefaultState;
+            lr.SetPosition(0, transform.position);
+            lr.SetPosition(1, new Vector3(transform.position.x, transform.position.y, transform.position.z + rayDistance));
+        }
+    }
+
+    private void Update() {
+
+        // Get positions
+        Vector3 rayOriginPosition = transform.position,
+                raycastDirection = transform.TransformDirection(Vector3.forward),
+                rayTargetPosition = transform.position + raycastDirection*rayDistance;
+        RaycastHit hit;
+        float distanceToTarget = rayDistance;
+        if (Physics.Raycast(transform.position, raycastDirection, out hit, 100f, layersToInclude)) {
+            lr.startColor = rayColorHoverState;
+            lr.endColor = rayColorHoverState;
+            SetTarget(hit.transform);
+            rayTargetPosition = hit.point;
+            distanceToTarget = Vector3.Distance(hit.point,transform.position);
+        }
+        else {
+            lr.startColor = rayColorDefaultState;
+            lr.endColor = rayColorDefaultState;
+            UnsetTarget();
+        }
+
+        if (targetReticle != null) {
+            targetReticle.position = rayTargetPosition;
+            float targetScale = targetReticleSize * distanceToTarget;
+            targetReticle.localScale = Vector3.one * targetScale;
+        }
+        if (m_debugMode) {
+            lr.SetPosition(0, rayOriginPosition);
+            lr.SetPosition(1, rayTargetPosition);
+        }
+    }
+
+    private void UnsetTarget() {
+        if (eyeTarget != null && eyeTarget.GetComponent<EyeInteractable>() != null) {
+            eyeTarget.GetComponent<EyeInteractable>().IsHovered = false;
+        }
+        eyeTarget = null;
+    }
+    private void SetTarget(Transform target) {
+        if (eyeTarget != target) UnsetTarget();
+        eyeTarget = target;
+        if (eyeTarget.GetComponent<EyeInteractable>() != null) {
+            eyeTarget.GetComponent<EyeInteractable>().IsHovered = true;
+        }
+    }
+}

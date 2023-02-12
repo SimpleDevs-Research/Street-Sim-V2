@@ -8,9 +8,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/AR_Template.unity
     guid: 4bcfe8f92d3370e4cb593ae8bea6b156
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/VR_Template.unity
     guid: d987c9d0661656341a7b82f3c63bbe30
+  - enabled: 1
+    path: Assets/Scenes/Head_Eccentricity.unity
+    guid: c90cc7122241132469cd98439dae383b
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 4478419d75759e44e800b81324ef7afa, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b90efe3bab373d34fbbca430a1ceac9c, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: ac099ad23d8d40741ab77ea968b0a485, type: 2}
