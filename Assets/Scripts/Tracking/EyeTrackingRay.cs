@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
+[RequireComponent(typeof(OVREyeGaze))]
 public class EyeTrackingRay : MonoBehaviour
 {
 
@@ -17,7 +17,8 @@ public class EyeTrackingRay : MonoBehaviour
     private Color   rayColorDefaultState = Color.white,
                     rayColorHoverState = Color.red;
 
-    private LineRenderer lr;
+    [SerializeField]
+    private LineRenderer lr = null;
     private Transform eyeTarget = null;
 
     [SerializeField]
@@ -34,8 +35,11 @@ public class EyeTrackingRay : MonoBehaviour
     }
 
     private void SetupRay() {
-        lr.enabled = m_debugMode;
         if (m_debugMode) {
+            if (lr == null) {
+                lr = gameObject.AddComponent<LineRenderer>();
+            }
+            lr.enabled = true;
             lr.useWorldSpace = true;
             lr.positionCount = 2;
             lr.startWidth = rayWidth;
@@ -44,6 +48,8 @@ public class EyeTrackingRay : MonoBehaviour
             lr.endColor = rayColorDefaultState;
             lr.SetPosition(0, transform.position);
             lr.SetPosition(1, new Vector3(transform.position.x, transform.position.y, transform.position.z + rayDistance));
+        } else {
+            if (lr != null) lr.enabled = false;
         }
     }
 
