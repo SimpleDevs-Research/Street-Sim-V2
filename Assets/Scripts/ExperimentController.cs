@@ -7,6 +7,7 @@ public class ExperimentController : MonoBehaviour
 {
     [System.Serializable]
     public class ExperimentStep {
+        public string stepName = "";
         public UnityEvent stepEvent;
         public string instruction;
         public List<GameObject> activateObjects = new List<GameObject>();
@@ -28,6 +29,11 @@ public class ExperimentController : MonoBehaviour
     private Transform centerEye = null;
     [SerializeField]
     private InstructionsUI instructionsTextbox = null;
+
+    [SerializeField]
+    private MoveWithJoystick heightReticle;
+    [SerializeField]
+    private GetHeightFromFloor heightFromFloor;
 
     // Start is called before the first frame update
     private void Start() {
@@ -84,8 +90,9 @@ public class ExperimentController : MonoBehaviour
         SetStep(0);
     }
     
-    public void ConfirmHeight() {
-        Debug.Log("Confirming Height!");
+    public void PositionReticle() {
+        heightReticle.SetPosition(new Vector3(0f, heightFromFloor.height, 5f));
+        Debug.Log("Positioning Reticle!");
     }
 
     public void ConfirmLeftLimit() {
