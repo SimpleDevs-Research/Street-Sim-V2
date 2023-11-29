@@ -22,6 +22,7 @@ public class EEGStreetSim : MonoBehaviour
     public Transform xrCamera;
     public EyeTrackingRay leftEyeTracker, rightEyeTracker;
     public LayerMask positionRaycastLayerMask;
+    public InstructionsUI textboxUI;
 
     [SerializeField] private string filePath;
     [SerializeField] private long startTime;
@@ -55,6 +56,8 @@ public class EEGStreetSim : MonoBehaviour
         while(true) {
             // Calculate the current time
             long currentTime = GetUnixTime();
+            // Print the text to our textboxUI if it exists
+            if (textboxUI != null) textboxUI.SetText(currentTime.ToString());
             // Check what's underneath the player currently
             RaycastHit hit;
             string belowTargetName = "Unknown";

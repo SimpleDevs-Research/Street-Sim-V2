@@ -864,7 +864,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 724007037}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &116208815 stripped
 GameObject:
@@ -1657,7 +1657,7 @@ RectTransform:
   m_Children:
   - {fileID: 1467900789}
   m_Father: {fileID: 897939483}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2308,7 +2308,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &350123163
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2324,8 +2324,8 @@ RectTransform:
   - {fileID: 490734022}
   - {fileID: 610148353}
   - {fileID: 1787101675}
-  m_Father: {fileID: 897939483}
-  m_RootOrder: 0
+  m_Father: {fileID: 452259458}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2405,7 +2405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a750314adeef36e4fac839342e16340a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positionTarget: {fileID: 963954769}
+  positionTarget: {fileID: 115786084}
   lookAtTarget: {fileID: 724007037}
   textbox: {fileID: 1624218181}
   movementSpeed: 3
@@ -2433,6 +2433,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  displayType: 3
+  distanceThreshold: 2
+  fadeTimeThreshold: 5
+  fadeTimeRate: 3
 --- !u!225 &350123168
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3092,7 +3096,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 897939483}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 112.5, y: 170, z: 0}
 --- !u!108 &446495300
 Light:
@@ -3189,6 +3193,7 @@ Transform:
   - {fileID: 256881697}
   - {fileID: 2004840137}
   - {fileID: 107239653}
+  - {fileID: 350123163}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3269,15 +3274,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 473806717}
-  m_LocalRotation: {x: 0.08508985, y: -0.21561591, z: 0.018863956, w: 0.97258097}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 963954769}
+  m_Children: []
   m_Father: {fileID: 724007037}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 10, y: -25, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &473806719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3360,7 +3364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &476338538
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3535,7 +3539,7 @@ RectTransform:
   m_Children:
   - {fileID: 22949634}
   m_Father: {fileID: 897939483}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3582,6 +3586,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  displayType: 2
+  distanceThreshold: 2
+  fadeTimeThreshold: 2
+  fadeTimeRate: 0.5
 --- !u!225 &499440791
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -5583,7 +5591,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 350123163}
   - {fileID: 499440789}
   - {fileID: 281555062}
   - {fileID: 1998199607}
@@ -6369,13 +6376,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963954768}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalRotation: {x: 0.08508985, y: -0.21561591, z: 0.018863956, w: 0.97258097}
+  m_LocalPosition: {x: -4.161976, y: -1.7364826, z: 8.92539}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 473806718}
-  m_RootOrder: 0
+  m_Father: {fileID: 724007037}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &966355823
 PrefabInstance:
@@ -7425,6 +7432,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1090631948}
   - component: {fileID: 1090631949}
+  - component: {fileID: 1090631950}
   m_Layer: 0
   m_Name: EEGStreetSim
   m_TagString: Untagged
@@ -7466,8 +7474,24 @@ MonoBehaviour:
   positionRaycastLayerMask:
     serializedVersion: 2
     m_Bits: 640
+  textboxUI: {fileID: 350123167}
   filePath: 
   startTime: 0
+--- !u!114 &1090631950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090631947}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa33681170b26bd45ab2aeb17099130c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  adjustmentTime: 10
+  headRef: {fileID: 473806718}
+  newForwardRef: {fileID: 0}
 --- !u!1 &1120813768
 GameObject:
   m_ObjectHideFlags: 0
@@ -8426,7 +8450,7 @@ Transform:
   - {fileID: 1510206067}
   - {fileID: 2130822628}
   m_Father: {fileID: 897939483}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1304834447
 GameObject:
@@ -8457,7 +8481,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 724007037}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1309138949 stripped
 GameObject:
@@ -9664,7 +9688,7 @@ RectTransform:
   m_GameObject: {fileID: 1496941323}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.75, y: 0.4, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.2, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 610148353}
@@ -9780,7 +9804,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayDistance: 100
-  rayWidth: 0.05
+  rayWidth: 0.1
   layersToInclude:
     serializedVersion: 2
     m_Bits: 2147484352
@@ -10496,8 +10520,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: These are your first instructions for the day. Do them well, and you will
-    get time off next week. Good luck!
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10531,8 +10554,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -11338,7 +11361,7 @@ Transform:
   - {fileID: 1722765470}
   - {fileID: 1837060982}
   m_Father: {fileID: 897939483}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1782063288 stripped
 GameObject:
@@ -11396,7 +11419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1787101675
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12054,7 +12077,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1827773751
 Transform:
   m_ObjectHideFlags: 0
@@ -12404,7 +12427,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayDistance: 100
-  rayWidth: 0.05
+  rayWidth: 0.1
   layersToInclude:
     serializedVersion: 2
     m_Bits: 2147484352
@@ -13459,7 +13482,7 @@ Transform:
   - {fileID: 354951865}
   - {fileID: 1079215234}
   m_Father: {fileID: 897939483}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2004840136
 GameObject:
