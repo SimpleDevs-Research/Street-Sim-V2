@@ -10,13 +10,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - EVRA
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Vehicle
+  - Crosswalk
+  - Agent
+  - Road
   - Character
   - MirroredCharacter
   - HiddenMesh

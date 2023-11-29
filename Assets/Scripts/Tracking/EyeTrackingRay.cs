@@ -21,6 +21,15 @@ public class EyeTrackingRay : MonoBehaviour
     private LineRenderer lr = null;
     private Transform eyeTarget = null;
 
+    private bool _rayHit = false;
+    public bool rayHit => _rayHit;
+    private Vector3 _rayTargetPosition = Vector3.zero;
+    public Vector3 rayTargetPosition => _rayTargetPosition;
+    private Vector3 _rayTargetRelPosition = Vector3.zero;
+    public Vector3 rayTargetRelPosition => _rayTargetRelPosition;
+    private string _rayTargetName = "";
+    public string rayTargetName => _rayTargetName;
+
     [SerializeField]
     private Transform targetReticle = null;
     [SerializeField]
@@ -57,15 +66,21 @@ public class EyeTrackingRay : MonoBehaviour
 
         // Get positions
         Vector3 rayOriginPosition = transform.position,
-                raycastDirection = transform.TransformDirection(Vector3.forward),
-                rayTargetPosition = transform.position + raycastDirection*rayDistance;
+                raycastDirection = transform.TransformDirection(Vector3.forward);
+        _rayTargetPosition = transform.position + raycastDirection*rayDistance;
+        _rayTargetRelPosition = Vector3.zero;
+        _rayTargetName = "";
+        _rayHit = false;
         RaycastHit hit;
         float distanceToTarget = rayDistance;
         if (Physics.Raycast(transform.position, raycastDirection, out hit, 100f, layersToInclude)) {
             lr.startColor = rayColorHoverState;
             lr.endColor = rayColorHoverState;
             SetTarget(hit.transform);
-            rayTargetPosition = hit.point;
+            _rayHit = true;
+            _rayTargetPosition = hit.point;
+            _rayTargetRelPosition = hit.transform.InverseTransformPoint(hit.point);
+            _rayTargetName = hit.transform.gameObject.name;
             distanceToTarget = Vector3.Distance(hit.point,transform.position);
         }
         else {
