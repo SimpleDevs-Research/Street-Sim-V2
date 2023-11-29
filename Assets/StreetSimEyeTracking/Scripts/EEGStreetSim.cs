@@ -24,7 +24,7 @@ public class EEGStreetSim : MonoBehaviour
     public LayerMask positionRaycastLayerMask;
 
     [SerializeField] private string filePath;
-    [SerializeField] private float startTime;
+    [SerializeField] private long startTime;
     private StreamWriter eventWriter;
     private IEnumerator eventCoroutine = null;
 
@@ -43,7 +43,7 @@ public class EEGStreetSim : MonoBehaviour
     {
         eventWriter = new StreamWriter(new FileStream(filePath, FileMode.Create), Encoding.UTF8);
         // Header Line
-        eventWriter.WriteLine("unix_ts,event_type,title,description,x,y,z");
+        eventWriter.WriteLine("unix_ms,event_type,title,description,x,y,z");
         // First Entry: Start
         eventWriter.WriteLine(EventLine(startTime,"Simulation", Vector3.zero, "Simulation Start"));
         // Start the event coroutine
@@ -54,7 +54,7 @@ public class EEGStreetSim : MonoBehaviour
     private IEnumerator EventCoroutine() {
         while(true) {
             // Calculate the current time
-            float currentTime = GetUnixTime();
+            long currentTime = GetUnixTime();
             // Check what's underneath the player currently
             RaycastHit hit;
             string belowTargetName = "Unknown";
@@ -83,14 +83,14 @@ public class EEGStreetSim : MonoBehaviour
         // Only continue if the event writer is not null
         if (eventWriter == null) return;
         // Calculate the current time
-        float currentTime = GetUnixTime();
+        long currentTime = GetUnixTime();
         // Write to the event writer
         eventWriter.WriteLine(EventLine(currentTime, event_type, xyz, title, description));
     }
 
     void OnDisable() {
         // Write the final line
-        float endTime = GetUnixTime();
+        long endTime = GetUnixTime();
         eventWriter.WriteLine(EventLine(endTime, "Simulation", Vector3.zero, "Simulation End"));
         // Close and flush the writer
         eventWriter.Flush();
@@ -99,17 +99,17 @@ public class EEGStreetSim : MonoBehaviour
         StopCoroutine(eventCoroutine);
     }
 
-    public static float GetUnixTime() {
+    public static long GetUnixTime() {
         DateTime currentTime = DateTime.UtcNow;
-        return ((float)((DateTimeOffset)currentTime).ToUnixTimeSeconds());
+        return ((DateTimeOffset)currentTime).ToUnixTimeMilliseconds();
     }
 
-    public static string EventLine(float unix_ts, string event_type, Vector3 xyz, string title="", string description="") {
+    public static string EventLine(long unix_ts, string event_type, Vector3 xyz, string title="", string description="") {
         return $"{unix_ts},{event_type},{title},{description},{xyz.x},{xyz.y},{xyz.z}";
     }
 
-    public static string EventLine(float unix_ts, string event_type, Quaternion q, string title="", string description="") {
+    public static string EventLine(long unix_ts, string event_type, Quaternion q, string title="", string description="") {
         Vector3 xyz = q.eulerAngles;
-        return $"{unix_ts.ToString("0.000")},{event_type},{title},{description},{xyz.x},{xyz.y},{xyz.z}";
+        return $"{unix_ts},{event_type},{title},{description},{xyz.x},{xyz.y},{xyz.z}";
     }
 }
