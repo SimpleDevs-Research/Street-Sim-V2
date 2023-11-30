@@ -15,7 +15,9 @@ public class EyeTrackingRay : MonoBehaviour
 
     [SerializeField]
     private Color   rayColorDefaultState = Color.white,
-                    rayColorHoverState = Color.red;
+                    rayColorHoverState = Color.red,
+                    rayNoTargetState = Color.red,
+                    rayTargetHitState = Color.blue;
 
     [SerializeField]
     private LineRenderer lr = null;
@@ -34,12 +36,14 @@ public class EyeTrackingRay : MonoBehaviour
     private Transform targetReticle = null;
     [SerializeField]
     private float targetReticleSize = 0.025f;
+    private Material reticleMaterial = null;
 
     [SerializeField]
     private bool m_debugMode = false;
 
     private void Awake() {
         lr = GetComponent<LineRenderer>();
+        reticleMaterial = targetReticle.GetComponent<MeshRenderer>().materials[0];
         SetupRay();
     }
 
@@ -72,10 +76,12 @@ public class EyeTrackingRay : MonoBehaviour
         _rayTargetName = "";
         _rayHit = false;
         RaycastHit hit;
+        Color reticleColor = rayNoTargetState;
         float distanceToTarget = rayDistance;
         if (Physics.Raycast(transform.position, raycastDirection, out hit, 100f, layersToInclude)) {
             lr.startColor = rayColorHoverState;
             lr.endColor = rayColorHoverState;
+            reticleColor = rayTargetHitState;
             SetTarget(hit.transform);
             _rayHit = true;
             _rayTargetPosition = hit.point;
@@ -93,6 +99,7 @@ public class EyeTrackingRay : MonoBehaviour
             targetReticle.position = rayTargetPosition;
             float targetScale = targetReticleSize * distanceToTarget;
             targetReticle.localScale = Vector3.one * targetScale;
+            reticleMaterial.SetColor("_Color", reticleColor);
         }
         if (m_debugMode) {
             lr.SetPosition(0, rayOriginPosition);
