@@ -35,7 +35,6 @@ public class StreetSimCar : MonoBehaviour
     private float m_originalDeceleration;
 
     private Transform currentTarget;
-    [SerializeField] private float currentSpeed = 0f;
     private Vector3 prevTargetPos;
 
     [SerializeField] private Transform[] wheels;
@@ -78,7 +77,6 @@ public class StreetSimCar : MonoBehaviour
     }
 
     public void Initialize(Transform xrCamera, bool addToHistory) {
-        //transform.position = pathCreator.path.GetClosestPointOnPath(transform.position);
         transform.position = startTarget.position;
         transform.rotation = startTarget.rotation;
         
@@ -146,30 +144,17 @@ public class StreetSimCar : MonoBehaviour
         Velocity.manualSpeed = 0f;
     }
 
-    private float CalculateDistanceUntilDeceleration() {
-        return (currentSpeed*currentSpeed)/(2f*deceleration);
-    }
+    /*
     private Vector3 SuperSmoothLerp(Vector3 x0, Vector3 y0, Vector3 yt, float t, float k) {
         Vector3 f = x0 - y0 + (yt - y0) / (k * t);
         return yt - (yt - y0) / (k*t) + f * Mathf.Exp(-k*t);
     }
-
-    private Vector3 GetPositionBeforeObject(Transform obstacle) {
-        // Z and Y axis positions must be consistent
-        Vector3 pos = obstacle.position + (-transform.forward.normalized * 0.5f) + (-transform.forward.normalized * 0.5f * m_lengthOfCar);
-        return new Vector3(
-            pos.x,
-            transform.position.y,
-            transform.position.z
-        );
-    }
-    private Vector3 GetPositionBeforeCar(StreetSimCar otherCar) {
-        return otherCar.backOfCar.position + (-otherCar.transform.forward.normalized * 0.5f) + (-otherCar.transform.forward.normalized * 0.5f * m_lengthOfCar);
-    }
+    */
 
     private void Update() {
         // Don't do anything if we're idle
         if (status == StreetSimCarStatus.Idle) return;
+
         // update testTurrret with most recent list of active entities
         List<Transform> agentTargets = new List<Transform>();
         if (StreetSimAgentManager.AM != null) {
@@ -182,6 +167,7 @@ public class StreetSimCar : MonoBehaviour
             agentTargets.Add(currentXRCamera);
         }
         testTurret.SetObjects(agentTargets);
+        
         // Check if there's a car in front of us.
         //  foundInFront = global variable : boolean
         //  out carRaycastHit = global variable : RaycastHit
@@ -226,36 +212,16 @@ public class StreetSimCar : MonoBehaviour
         float O = (foundInFront)
             ? 1f
             : 0f;
-        /*
-        float P = (originalSpeedTargeted <= 10f && agentDetector.numColliders > 0)
-            ? 1f
-            : 0f;
-        */
-        
         float mSpeed = Mathf.Clamp(originalSpeedTargeted+originalSpeedTargeted*0.1f*(1f-O),0f,15f);
         L = (mSpeed <= 14f)
             ? L
             : 0f;
 
-        //float mSpeed = (foundInFront) ? originalSpeedTargeted : originalSpeedTargeted * 1.5f;
         positionDiff = (carRaycastHit.point-frontOfCar.position)*O + 
             (
                 (middleTarget.position-frontOfCar.position)*L + 
                 new Vector3(spaceOptimal+1f,0f,0f)*(1f-L)
-                /*
-                (
-                    (middleTarget.position-frontOfCar.position) * P +
-                    new Vector3(spaceOptimal+1f,0f,0f) * (1f-P)
-                )*(1f-L)
-                */
             )*(1f-O);
-        /*
-        positionDiff = (foundInFront) 
-            ? carRaycastHit.point - frontOfCar.position 
-            : (!passedTraffic && trafficSignal.status != TrafficSignal.TrafficSignalStatus.Go) 
-                ? middleTarget.position - frontOfCar.position
-                : new Vector3(spaceOptimal+1f,0f,0f);
-        */
         // The bottom SHOULD be how we do this...
         // float speedDiff = (speed-carRaycastHit.transform.GetComponent<StreetSimCar>().speed)*O + (speed*L)*(1f-O);
         float speedDiff = (foundInFront) 
@@ -276,14 +242,6 @@ public class StreetSimCar : MonoBehaviour
             *(1f-O)
             //*(1f-P)
         )*(spaceMinimal + Velocity.manualSpeed * timePref) + (Velocity.manualSpeed*speedDiff)/(2*Mathf.Pow(accelerationMax*accelerationPref,0.5f));
-        /*
-        spaceOptimal = (foundInFront) 
-            ? spaceMinimal + speed * timePref + ((speed*speedDiff)/(2*Mathf.Pow(accelerationMax*accelerationPref,0.5f))) 
-//            : (!passedTraffic && trafficSignal.status != TrafficSignal.TrafficSignalStatus.Go && (speed < 14f || (speed >= 14f && positionDiff.magnitude < spaceMinimal))) 
-            : (!passedTraffic && trafficSignal.status != TrafficSignal.TrafficSignalStatus.Go) 
-                ? spaceMinimal + speed * timePref + ((speed*speedDiff)/(2*Mathf.Pow(accelerationMax*accelerationPref,0.5f)))
-                : 0f;
-        */
         accelerationExpected = accelerationMax * (
             1f - Mathf.Pow((Velocity.manualSpeed/mSpeed),4f) 
             - Mathf.Pow((spaceOptimal/positionDiff.magnitude),2f)
@@ -306,7 +264,6 @@ public class StreetSimCar : MonoBehaviour
         // We also pause if any values are missing
         if (trafficSignal == null || middleTarget == null || endTarget == null) return;
         
-        //UpdateSequence1();
         UpdateSequence2();
     }
 
@@ -320,71 +277,9 @@ public class StreetSimCar : MonoBehaviour
         if (wheels.Length > 0) {
             foreach(Transform wheel in wheels) wheel.Rotate(Velocity.manualSpeed,0f,0f,Space.Self);
         }
-        // There is a raatio between manualSpeed and speedTargeted
-        //float speedRatio = Mathf.Min(Velocity.manualSpeed / originalSpeedTargeted, 1.0f);
-        //float angleDiff = Mathf.Min( speedRatio * (minMaxViewAngles.x - minMaxViewAngles.y) * 1.5f, minMaxViewAngles.x - minMaxViewAngles.y);
-        //float newAngle = minMaxViewAngles.x - angleDiff;
-        //testTurret.SetAngle(newAngle);
-    }
-
-    private void UpdateSequence1() {
-        // We need to determine which target position to aim towards.
-        // Just because the traffic light shines red that doesn't mean we should stop.
-        // overall, we should prioritize if there's something in front of us first
-        // CONDITION 1: is there something in front of us?
-        //      IF SO, we stop at a reasonable distance
-        //      IF NOT:...
-        //  Assuming we don't see anything, we need to check if our traffic light is red/warning and if we're still behind `middleTarget`
-        //  CONDITION 2: Traffic light red/warning && we're still in front of the traffic light
-        //      IF SO, we stop at `middleTarget`
-        //      IF NOT...
-        //  At this point, there's nothing stopping us. Just keep going!
-        //  IF NOT... we keep going to `endTarget`.
-
-        StreetSimCar potentialFrontCar;
-        maxSpeed = (foundInFront) ? m_originalMaxSpeed : Mathf.Clamp(m_originalMaxSpeed * 1.25f,0f,15f);
-        deceleration = (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Warning || trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop) 
-            ? m_originalDeceleration * 5f
-            : m_originalDeceleration;
-        Vector3 positionToStopAt = (trafficSignal != null && trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop) 
-            ? (foundInFront && HelperMethods.HasComponent<StreetSimCar>(carRaycastHit.transform, out potentialFrontCar) && potentialFrontCar.status == StreetSimCarStatus.Active) // Traffic light is WARNING or STOP
-                ? GetPositionBeforeCar(potentialFrontCar)    // The car is still before the traffic point. Let's follow it.
-                : (Vector3.Dot(transform.forward,(middleTarget.position-transform.position)) < 0) // Nothing's in front of us
-                    ? endTarget.position        // We're beyond the traffic point, so we keep going until the end target
-                    : middleTarget.position     // We're still before the traffic point. So we stop in front of the light
-            : (foundInFront && HelperMethods.HasComponent<StreetSimCar>(carRaycastHit.transform, out potentialFrontCar) && potentialFrontCar.status == StreetSimCarStatus.Active)  // Traffic light is GO
-                ? GetPositionBeforeCar(potentialFrontCar)                                   // It's a car in front of us. Let's follow it
-                : endTarget.position;   // We don't have something in front of us. Let's keep going until the end.
-
-        float distToDecelerate = CalculateDistanceUntilDeceleration();
-        // float distBetweenTargets = Vector3.Distance(startTarget.position,currentTarget.position);
-        float distBetweenTargets = Vector3.Distance(startTarget.position,positionToStopAt);
-        // float distToTarget = Vector3.Distance(transform.position,currentTarget.position);
-        float distToTarget = Vector3.Distance(transform.position,positionToStopAt);
-
-        // update speed based on acceleration
-        currentSpeed = (distToTarget <= distToDecelerate) 
-            ? currentSpeed - deceleration * Time.fixedDeltaTime
-            : currentSpeed + acceleration * Time.fixedDeltaTime;
-        currentSpeed = Mathf.Clamp(currentSpeed,0f,maxSpeed);
-
-        // Calculate the distance covered based on speed;
-        float distCovered = (transform.position - startTarget.position).magnitude + (currentSpeed * Time.fixedDeltaTime);
-        // Fraction of journey completed equals current distance divided by total distance.
-        float fractionOfJourney = distCovered / distBetweenTargets;
-        // Set our position as a fraction of the distance between the markers.
-        // transform.position = Vector3.Lerp(startTarget.position, currentTarget.position, fractionOfJourney);
-        transform.position = Vector3.Lerp(startTarget.position, positionToStopAt, fractionOfJourney);
-
-        // Spin our wheels, if we have any
-        if (wheels.Length > 0) {
-            foreach(Transform wheel in wheels) {
-                wheel.Rotate(currentSpeed,0f,0f,Space.Self);
-            }
-        }
     }
 
     public float GetCurrentSpeed() {
-        return currentSpeed;
+        return Velocity.manualSpeed;
     }
 }
