@@ -3,27 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Helpers;
+using Random = UnityEngine.Random;
 
 public class StreetSimAgentManager : MonoBehaviour
 {
-    public static StreetSimAgentManager AM;
-    public enum AgentManagerStatus {
-        Off,
-        NoCongestion,
-        MinimalCongestion,
-        SomeCongestion,
-        Congestion
-    }
-    public Dictionary<AgentManagerStatus, int> numAgentValues = new Dictionary<AgentManagerStatus, int> {
-        { AgentManagerStatus.Off, 0 },
-        { AgentManagerStatus.NoCongestion, 5 },
-        { AgentManagerStatus.MinimalCongestion, 10},
-        { AgentManagerStatus.SomeCongestion, 15 },
-        { AgentManagerStatus.Congestion, 20 }
-    };
-    public AgentManagerStatus status = AgentManagerStatus.Off;
 
-    [SerializeField] private Transform agentParentFolder;
+    public enum AgentManagerStatus { Off=0, NoCongestion=2, MinimalCongestion=4, SomeCongestion=6, Congestion=8 }
+
+    [Header("Status")]
+    public static StreetSimAgentManager AM;
+    public enum CrossingCongestionStatus { Off=0, NoCongestion=2, MinimalCongestion=4, SomeCongestion=6, Congestion=8 }
+    public enum BackgroundCongestionStatus { Off=0, NoCongestion=5, MinimalCongestion=10, SomeCongestion=20, Congestion=40 }
+    public CrossingCongestionStatus crossingSetting = CrossingCongestionStatus.Off;
+    public BackgroundCongestionStatus backgroundSetting = BackgroundCongestionStatus.Off;
+
+    [Header("References")]
+    [SerializeField] private Transform agentParent;
+    public Transform WestLookAtTarget, EastLookAtTarget;
+    [SerializeField] private AudioClip[] footstepAudio;
+
+    [Header("Agents")]
+    [SerializeField] private List<StreetSimAgent> agentPrefabs = new List<StreetSimAgent>();
+    [SerializeField] private List<StreetSimAgent> crossingAgents = new List<StreetSimAgent>();
+    [SerializeField] private List<StreetSimAgent> backgroundAgents = new List<StreetSimAgent>();
+    private Queue<StreetSimAgent> crossingAgentsQueue = new Queue<StreetSimAgent>();
+    private Queue<StreetSimAgent> backgroundAgentsQueue = new Queue<StreetSimAgent>();
+
+    [Header("Colliders")]
+    [SerializeField] private List<RemoteCollider> southColliders, northColliders;
+
+    /*
     [SerializeField] private Transform idleTargetRef;
 
     [SerializeField] private List<StreetSimAgent> m_agents = new List<StreetSimAgent>();
@@ -52,18 +61,57 @@ public class StreetSimAgentManager : MonoBehaviour
 
     [SerializeField] private List<Collider> southEndColliders = new List<Collider>();
     [SerializeField] private List<Collider> northEndColliders = new List<Collider>();
+    */
 
     private void Awake() {
         AM = this;
-        if (agentParentFolder == null) agentParentFolder = this.transform;
+        if (agentParent == null) agentParent = this.transform;
+
+        /*
         m_inactiveAgents = new Queue<StreetSimAgent>(m_agents.Shuffle());
         modelPathsByDirection = new Dictionary<StreetSimTrial.TrialDirection, List<NPCPath>>(){
             { StreetSimTrial.TrialDirection.NorthToSouth, modelPaths_NorthToSouth },
             { StreetSimTrial.TrialDirection.SouthToNorth, modelPaths_SouthToNorth }
         };
         StartCoroutine(PrintAgents());
+        */
     }
 
+    public void SpawnBackgroundAgent(int side = 0) {
+        // Stopgap based on our background setting
+        if (backgroundAgents.Count + backgroundAgentsQueue.Count >= (int)backgroundSetting) return;
+        // side == 0: random, -1 = south, 1 = north
+        int sideclamp = Mathf.Clamp(side, -1, 1);
+        switch(sideclamp) {
+            case -1:
+                SpawnBackgroundSouth();
+                return;
+            case 1:
+                SpawnBackgroundNorth();
+                return;
+            default:
+                float rand = Random.Range(0f, 1f);
+                if (rand <= 0.5f) {
+                    SpawnBackgroundSouth();
+                } else {
+                    SpawnBackgroundNorth();
+                }
+                return;            
+        }
+    }
+
+    private void SpawnBackgroundSouth() {
+        
+    }
+    private void SpawnBackgroundNorth() {
+
+    }
+
+    public void SpawnCrossingAgent() {
+
+    }
+
+    /*
     private void Update() {
         if (m_activeAgents.Count + m_waitingAgents.Count < numAgentValues[status]) QueueNextAgent();
     }
@@ -110,15 +158,6 @@ public class StreetSimAgentManager : MonoBehaviour
 
             // We initialize the agent
             InitializeAgent(agent, newPathTargets);
-
-            /*
-            StreetSimAgent agent;
-            PrintAgent(
-                agentPrefabs[newAgentIndex],
-                newPathTargets,
-                out agent
-            );
-            */
 
             yield return new WaitForSeconds(1f);
         }
@@ -201,34 +240,6 @@ public class StreetSimAgentManager : MonoBehaviour
         );
     }
 
-
-
-    /*
-    private bool PrintAgent(
-        StreetSimAgent prefab, 
-        Transform[] path,
-        out StreetSimAgent newAgent,
-        StreetSimTrial.ModelBehavior behavior = StreetSimTrial.ModelBehavior.Safe, 
-        bool shouldLoop = false, 
-        bool shouldWarpOnLoop = false, 
-        bool shouldAddToActive = true
-    ) {
-        newAgent = Instantiate(
-            prefab,
-            path[0].position,
-            path[1].rotation,
-            agentParentFolder
-        ) as StreetSimAgent;
-        newAgent.Initialize(path, behavior, shouldLoop, shouldWarpOnLoop);
-        if (shouldAddToActive) activeAgents.Add(newAgent);
-        return true;
-    }
-    public void DestroyAgent(StreetSimAgent agent) {
-        if (activeAgents.Contains(agent)) activeAgents.Remove(agent);
-        Destroy(agent.gameObject);
-    }
-    */
-
     public void AddAgentManually(StreetSimAgent agent, int pathIndex, StreetSimTrial.ModelBehavior behavior = StreetSimTrial.ModelBehavior.Safe, float agentSpeed = 0.4f, bool isModel = false, StreetSimTrial.TrialDirection direction = StreetSimTrial.TrialDirection.NorthToSouth, StreetSimTrial.ModelConfidence confidence = StreetSimTrial.ModelConfidence.NotConfident) {
         //StreetSimAgent newAgent = default(StreetSimAgent);
         if (isModel) {
@@ -275,12 +286,18 @@ public class StreetSimAgentManager : MonoBehaviour
             DestroyAgent(model);
         }
         m_currentModels = new List<StreetSimAgent>();
-        /*
-        StreetSimModelMapper.M.DestroyMesh();
-        if (m_currentModel == null) return;
-        DestroyAgent(m_currentModel);
-        m_currentModel = null;
-        */
+    }
+
+
+    */
+
+    public void SetCongestionStatus(AgentManagerStatus newStatus, bool shouldReset = false) {}
+
+    public void AddAgentManually(StreetSimAgent agent, int pathIndex, StreetSimTrial.ModelBehavior behavior = StreetSimTrial.ModelBehavior.Safe, float agentSpeed = 0.4f, bool isModel = false, StreetSimTrial.TrialDirection direction = StreetSimTrial.TrialDirection.NorthToSouth, StreetSimTrial.ModelConfidence confidence = StreetSimTrial.ModelConfidence.NotConfident) {}
+
+
+    public List<StreetSimAgent> GetActiveAgents() {
+        return new List<StreetSimAgent>();
     }
 
     public AudioClip GetRandomFootstep() {
@@ -288,7 +305,7 @@ public class StreetSimAgentManager : MonoBehaviour
         return footstepAudio[index];
     }
 
-    public List<StreetSimAgent> GetActiveAgents() {
-        return m_currentModels;
-    }
+    public void DestroyModels() {}
+
+    public void DestroyAgent(StreetSimAgent agent) {}
 }

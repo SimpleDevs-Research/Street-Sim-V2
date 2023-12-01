@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PathCreation;
 using Helpers;
+using Random = UnityEngine.Random;
 
 public class StreetSimCar : MonoBehaviour
 {
@@ -38,9 +40,11 @@ public class StreetSimCar : MonoBehaviour
 
     [SerializeField] private Transform[] wheels;
     [SerializeField] private AudioSource m_audioSource;
+    [SerializeField] private AudioSource m_honkSource;
 
     private RaycastHit carRaycastHit;
     [SerializeField] private bool foundInFront = false;
+    [SerializeField] private bool agentInFront = false;
     [SerializeField] private StreetSimCar followingCar = null;
     private bool m_hitMid = false;
 
@@ -54,6 +58,8 @@ public class StreetSimCar : MonoBehaviour
     [SerializeField] private float speedTargeted = 10f;
     private float originalSpeedTargeted;
     [SerializeField] private float timePref = 1f;
+    [SerializeField] private float delayUntilHonk = 5f;
+    [SerializeField] private float timeAgentInFront = -1f;
     private float m_distanceTraveled = 0f;
     [SerializeField] private bool passedTraffic = false;
 
@@ -83,6 +89,7 @@ public class StreetSimCar : MonoBehaviour
         prevTargetPos = endTarget.position;
         
         m_audioSource.enabled = true;
+        m_honkSource.enabled = true;
         testTurret.enabled = true;
 
         m_hitMid = false;
@@ -98,6 +105,8 @@ public class StreetSimCar : MonoBehaviour
         spaceMinimal = UnityEngine.Random.Range(0.25f,0.75f);
         timePref = UnityEngine.Random.Range(0.25f,0.75f);
         m_distanceTraveled = 0f;
+        timeAgentInFront = -1f;
+        delayUntilHonk = Random.Range(3f,7f);
         passedTraffic = false;
 
         status = StreetSimCarStatus.Active;
@@ -129,6 +138,7 @@ public class StreetSimCar : MonoBehaviour
     private void ReturnToIdle() {
         StreetSimCarManager.CM.SetCarToIdle(this);
         m_audioSource.enabled = false;
+        m_honkSource.enabled = false;
         testTurret.SetObjects(new List<Transform>());
         testTurret.enabled = false;
         foreach(Collider col in gazeColliders) col.enabled = false;
@@ -179,7 +189,19 @@ public class StreetSimCar : MonoBehaviour
         followingCar = (foundInFront) 
             ? carRaycastHit.transform.GetComponent<StreetSimCar>()
             : null;
-        // Calcualte position and velocity changes
+        agentInFront = testTurret.AnyInRange();
+        if (trafficSignal.status != TrafficSignal.TrafficSignalStatus.Stop && currentSpeed == 0f && (agentInFront || foundInFront)) {
+            if (timeAgentInFront == -1) timeAgentInFront = Time.time;
+            if (Time.time - timeAgentInFront >= delayUntilHonk) {
+                m_honkSource.Play();
+                timeAgentInFront = Time.time;
+                delayUntilHonk = Random.Range(2f,5f);
+            } 
+        } else {
+            timeAgentInFront = -1f;
+        }
+
+        // Calculate position and velocity changes
         CalculateAcceleration();
         // Check how far we've moved
         CalculateDistanceFromStart();
@@ -193,7 +215,7 @@ public class StreetSimCar : MonoBehaviour
 
     private void CalculateAcceleration() {
         passedTraffic = Vector3.Dot((middleTarget.position - frontOfCar.position).normalized, frontOfCar.forward) < 0f;
-        float L = (!passedTraffic && (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop || testTurret.AnyInRange()) )
+        float L = (!passedTraffic && (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop || agentInFront) )
             ? 1f
             : 0f;
         float O = (foundInFront)

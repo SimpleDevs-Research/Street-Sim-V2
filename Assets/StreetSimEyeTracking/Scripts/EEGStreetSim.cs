@@ -7,6 +7,11 @@ using System.Text;
 
 public class EEGStreetSim : MonoBehaviour
 {
+    [System.Serializable]
+    public class SetCarManager {
+        public StreetSimCarManager.CarManagerStatus setCarsTo;
+        public int numCrossings;
+    }
 
     public class StreetSimEvent {
         public long unix_ts;
@@ -18,12 +23,21 @@ public class EEGStreetSim : MonoBehaviour
 
     public static EEGStreetSim ESS;
 
-    public string name;
+    [Header("References")]
     public Transform xrCamera;
     public EyeTrackingRay leftEyeTracker, rightEyeTracker;
     public LayerMask positionRaycastLayerMask;
     public InstructionsUI textboxUI;
 
+    [Header("Experiment Settings")]
+    public string name;
+    public List<SetCarManager> trialCarEscalation = new List<SetCarManager>();
+    [SerializeField] private string belowTargetName = "Unknown";
+    [SerializeField] private string currentSide = "Unknown";
+    [SerializeField] private int numSuccessfulTrials = 0;
+    [SerializeField] private int carEscalationIndex = 0;
+
+    [Header("Trial Metrics")]
     [SerializeField] private string filePath;
     [SerializeField] private long startTime;
     private StreamWriter eventWriter;
@@ -46,7 +60,7 @@ public class EEGStreetSim : MonoBehaviour
         // Header Line
         eventWriter.WriteLine("unix_ms,event_type,title,description,x,y,z");
         // First Entry: Start
-        eventWriter.WriteLine(EventLine(startTime,"Simulation", Vector3.zero, "Simulation Start"));
+        eventWriter.WriteLine(EventLine(startTime,"Simulation", Vector3.zero, $"Trial {numSuccessfulTrials+1} Start"));
         // Start the event coroutine
         eventCoroutine = EventCoroutine();
         StartCoroutine(eventCoroutine);
@@ -60,9 +74,23 @@ public class EEGStreetSim : MonoBehaviour
             if (textboxUI != null) textboxUI.SetText(currentTime.ToString());
             // Check what's underneath the player currently
             RaycastHit hit;
-            string belowTargetName = "Unknown";
             if (Physics.Raycast(xrCamera.position, -Vector3.up, out hit, 5f, positionRaycastLayerMask)) {
                 belowTargetName = hit.transform.gameObject.name;
+                if (belowTargetName == "SouthSidewalk" || belowTargetName == "NorthSidewalk") {
+                    if (currentSide != "Unknown" && currentSide != belowTargetName) {
+                        // At this point, we've crossed successfully. We'll add to our count of successful trials and modify our congestion if necessary
+                        numSuccessfulTrials += 1;
+                        eventWriter.WriteLine(EventLine(currentTime,"Simulation", Vector3.zero, $"Trial {numSuccessfulTrials+1} Start"));
+                        if (carEscalationIndex < trialCarEscalation.Count && numSuccessfulTrials == trialCarEscalation[carEscalationIndex].numCrossings) {
+                            StreetSimCarManager.CM.SetCongestionStatus(trialCarEscalation[carEscalationIndex].setCarsTo);
+                            carEscalationIndex += 1;
+                            TrafficSignalController.current.StartAtSessionIndex(0);
+                        }
+                    }
+                    currentSide = belowTargetName;
+                }
+            } else {
+                belowTargetName = "-";
             }
             // Create a record for the player's current position
             eventWriter.WriteLine(EventLine(currentTime,"Player",xrCamera.position,"position",belowTargetName));
