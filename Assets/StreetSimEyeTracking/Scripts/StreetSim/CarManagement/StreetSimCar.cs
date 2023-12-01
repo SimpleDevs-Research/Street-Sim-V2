@@ -60,6 +60,7 @@ public class StreetSimCar : MonoBehaviour
     [SerializeField] private float timePref = 1f;
     [SerializeField] private float delayUntilHonk = 5f;
     [SerializeField] private float timeAgentInFront = -1f;
+    [SerializeField] private float durationAgentInFront = 0f;
     private float m_distanceTraveled = 0f;
     [SerializeField] private bool passedTraffic = false;
 
@@ -190,15 +191,19 @@ public class StreetSimCar : MonoBehaviour
             ? carRaycastHit.transform.GetComponent<StreetSimCar>()
             : null;
         agentInFront = testTurret.AnyInRange();
-        if (trafficSignal.status != TrafficSignal.TrafficSignalStatus.Stop && currentSpeed == 0f && (agentInFront || foundInFront)) {
-            if (timeAgentInFront == -1) timeAgentInFront = Time.time;
-            if (Time.time - timeAgentInFront >= delayUntilHonk) {
+        if (trafficSignal.status != TrafficSignal.TrafficSignalStatus.Stop && Velocity.manualSpeed < 1f && (agentInFront || foundInFront)) {
+            if (timeAgentInFront == -1) {
+                timeAgentInFront = Time.time;
+            }
+            durationAgentInFront = Time.time - timeAgentInFront;
+            if (durationAgentInFront >= delayUntilHonk) {
                 m_honkSource.Play();
                 timeAgentInFront = Time.time;
                 delayUntilHonk = Random.Range(2f,5f);
             } 
         } else {
             timeAgentInFront = -1f;
+            durationAgentInFront = 0f;
         }
 
         // Calculate position and velocity changes
