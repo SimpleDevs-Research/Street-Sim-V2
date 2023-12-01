@@ -22,17 +22,16 @@ public class StreetSimAgent : MonoBehaviour
     [SerializeField] private Collider collider;
     [SerializeField] private Rigidbody rigidbody;
     private AgentHeadTurn headTurn;
-    [SerializeField] private EVRA_Pointer forwardPointer, downwardPointer;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] footstepAudio;
     [SerializeField] private Vector3[] targetPositions; // note that the 1st position is the starting position
     private int currentTargetIndex = -1;
-    private bool shouldLoop, shouldWarpOnLoop;
-    [SerializeField] private Collider m_meshCollider;
+    [SerializeField] private bool shouldLoop, shouldWarpOnLoop;
     [SerializeField] private GameObject m_meshCopy = null;
     [SerializeField] private Component[] m_meshFollowers;
 
     private bool startingOnSouth = false;
-    private float m_originalSpeed = 0.4f;
+    [SerializeField] private float m_originalSpeed = 0.4f;
     [SerializeField] private float m_crossDelayTime = 5f;
     [SerializeField] private float m_canCrossDelayTime = 0f;
     private bool m_canCrossDelayInitialized = false, m_canCrossDelayDone = false;
@@ -57,44 +56,10 @@ public class StreetSimAgent : MonoBehaviour
         set {}
     }
 
-    public void GetAllChildren() {
-        string parentName = id.id;
-        Dictionary<string, string> idDict = new Dictionary<string, string>() {
-            {"Root","Hips"},
-            {"Spine1","Abdomen"},
-            {"Spine2","Diaphragm"},
-            {"Chest","Chest"},
-            {"Clavicle.L","ClavicleLeft"},
-            {"Shoulder.L","ShoulderLeft"},
-            {"Forearm.L","ElbowLeft"},
-            {"Hand.L","HandLeft"},
-            {"Clavicle.R","ClavicleRight"},
-            {"Shoulder.R","ShoulderRight"},
-            {"Forearm.R","ElbowRight"},
-            {"Hand.R","HandRight"},
-            {"Neck","Neck"},
-            {"Head","Head"},
-            {"Thigh.L","LeftThigh"},
-            {"Shin.L","LeftKnee"},
-            {"Foot.L","LeftAnkle"},
-            {"Toe.L","LeftToes"},
-            {"Thigh.R","RightThigh"},
-            {"Shin.R","RightKnee"},
-            {"Foot.R","RightAnkle"},
-            {"Toe.R","RightToes"}
-        };
-        Component[] children = GetComponentsInChildren<Transform>();
-        ExperimentID childID;
-        foreach(Transform child in children) {
-            if (idDict.ContainsKey(child.gameObject.name)) {
-                childID = child.gameObject.GetComponent<ExperimentID>();
-                if(childID==null) childID = child.gameObject.AddComponent<ExperimentID>();
-                childID.SetID(parentName+"_"+idDict[child.name]);
-                childID.SetParent(id);
-            }
-        }
-    }
+    
+    public void GetAllChildren() {}
 
+    
     public void GenerateMesh() {
         List<string> meshList = new List<string>() {
             "Root",
@@ -119,38 +84,39 @@ public class StreetSimAgent : MonoBehaviour
         follower.toFollow = this.transform;
         follower.offset = Vector3.up * -20f;
         MeshCollider col = newMeshObject.AddComponent<MeshCollider>();
-        m_meshCollider = col;
         SkinnedMeshRendererHelper helper = newMeshObject.AddComponent<SkinnedMeshRendererHelper>();
         helper.meshRenderer = renderer;
         helper.collider= col;
         helper.updateDelay = 0.05f;
-        ExperimentID newExpID = newMeshObject.GetComponent<ExperimentID>();
-        newExpID.SetRefID(newExpID.id);
-        newExpID.SetID(newExpID.id+"Mesh");
-        Component[] children = newMeshObject.GetComponentsInChildren<ExperimentID>();
-        foreach(ExperimentID child in children) {
-            if (meshList.Contains(child.gameObject.name)) {
-                child.SetRefID(child.id);
-                child.SetID(child.id+"Mesh");
-            }
-        }
     }
 
+
     private void Awake() {
-        if (id == null) id = GetComponent<ExperimentID>();
+        //if (id == null) id = GetComponent<ExperimentID>();
         if (agent == null) agent = GetComponent<NavMeshAgent>();
         if (character == null) character = GetComponent<ThirdPersonCharacter>();
         if (animator == null) animator = GetComponent<Animator>();
         if (rigidbody == null) rigidbody = GetComponent<Rigidbody>();
         headTurn = GetComponent<AgentHeadTurn>();
-        if (m_meshCopy != null) {
-            m_meshFollowers = m_meshCopy.GetComponentsInChildren<FollowPosition>();
-            if (m_meshFollowers.Length > 0) {
-                foreach(FollowPosition fp in m_meshFollowers) {
-                    fp.enabled = false;
-                }
-            }
+
+        targetPositions = new Vector3[2];
+        Vector3 st = new Vector3(transform.position.x, 0f,transform.position.z);
+        Vector3 en = new Vector3(transform.position.x, 0f, transform.position.z);
+        if (transform.position.x >= 0f) {
+            // We're on the east side, we need to move to the west side
+            st.x = -70f;
+            en.x = 70f;
+        } else {
+            st.x = 70f;
+            en.x = -70f;
         }
+        targetPositions[0] = st;
+        targetPositions[1] = en;
+        ManualInitialize();
+    }
+
+    private void Start() {
+        agent.isStopped = false;
     }
 
     private void OnDrawGizmosSelected() {
@@ -172,12 +138,7 @@ public class StreetSimAgent : MonoBehaviour
         StreetSimTrial.TrialDirection direction,
         AgentType s_agentType
     ) {
-        if (m_meshFollowers.Length > 0) {
-            foreach(FollowPosition fp in m_meshFollowers) {
-                fp.enabled = true;
-            }
-        }
-        targetPositions = targets;
+        //targetPositions = targets;
         this.shouldLoop = shouldLoop;
         this.shouldWarpOnLoop = shouldWarpOnLoop;
         this.behavior = behavior;
@@ -193,23 +154,21 @@ public class StreetSimAgent : MonoBehaviour
         animator.enabled = true;
         agent.isStopped = false;
         currentTargetIndex = -1;
-        //currentTargetIndex = targetPositions.Length - 2;
-        m_meshCollider.enabled = true;
         m_riskyButCrossing = false;
-
-        startingOnSouth = transform.position.z < 0f;
-        m_canCross = false;
-        m_canCrossDelayTime = (canCrossDelay == 0f) 
-            ? UnityEngine.Random.Range(0f , canCrossDelay+0.05f)
-            : UnityEngine.Random.Range(canCrossDelay-0.05f,canCrossDelay+0.05f);
-        m_canCrossDelayInitialized = false;
-        m_canCrossDelayDone = false;
-        StartCoroutine(CanCrossCoroutine());
         StartCoroutine(WalkAnimationStepAudio());
-        if (this.confidence == StreetSimTrial.ModelConfidence.NotConfident) {
-            beCautiousCoroutine = BeCautious();
-            StartCoroutine(beCautiousCoroutine);
-        }
+        SetNextTarget();
+    }
+
+    public void ManualInitialize() {
+        collider.enabled = true;
+        rigidbody.isKinematic = false;
+        agent.enabled = true;
+        agent.speed = m_originalSpeed;
+        character.enabled = true;
+        animator.enabled = true;
+        agent.isStopped = false;
+        currentTargetIndex = 0;
+        StartCoroutine(WalkAnimationStepAudio());
         SetNextTarget();
     }
 
@@ -217,13 +176,12 @@ public class StreetSimAgent : MonoBehaviour
         animator.SetBool("Crouch",false);
         float prevFoot = Mathf.Sign(animator.GetFloat("JumpLeg"));
         float curFoot = 0;
+        AudioClip footstep;
         while(agent.enabled) {
             curFoot = Mathf.Sign(animator.GetFloat("JumpLeg"));
             if (curFoot != prevFoot) {
-                AudioClip footstep = StreetSimAgentManager.AM.GetRandomFootstep();
+                footstep = GetRandomFootstep();
                 audioSource.PlayOneShot(footstep,1f);
-                //audioSource.clip = footstep;
-                //audioSource.Play();
             }
             prevFoot = curFoot;
             yield return null;
@@ -231,52 +189,9 @@ public class StreetSimAgent : MonoBehaviour
         yield return null;
     }
 
-    private IEnumerator BeCautious() {
-        // We're waiting
-        //agent.speed = m_originalSpeed * 0.9f;
-        headTurn.currentTargetTransform = (UnityEngine.Random.Range(0f,1f) > 0.5f) 
-            ? StreetSimAgentManager.AM.EastLookAtTarget
-            : StreetSimAgentManager.AM.WestLookAtTarget;
-        while(true) {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(2.5f,4f));
-            if (m_riskyButCrossing) {
-                yield return null;
-                break;
-            }
-            // Loop back and forth between targets
-            headTurn.currentTargetTransform = (headTurn.currentTargetTransform == StreetSimAgentManager.AM.WestLookAtTarget) 
-                ? StreetSimAgentManager.AM.EastLookAtTarget
-                : StreetSimAgentManager.AM.WestLookAtTarget;
-        }
-        //yield return null;
-        while(true) {
-            yield return null;
-            if (m_canCrossDelayDone) break;
-        }
-        yield return new WaitForSeconds(1f);
-        headTurn.currentTargetTransform = null;
-        //agent.speed = m_originalSpeed;
-    }
-
-    private IEnumerator CanCrossCoroutine() {
-        m_canCross = false;
-        yield return new WaitForSeconds(m_crossDelayTime);
-        m_canCross = true;
-    }
-
-    private IEnumerator CheckCarsOnSide() {
-        Vector3 dir;
-        RaycastHit hit;
-        while(agent.enabled) {
-            dir = (transform.position.z < 0) ? Vector3.left : Vector3.right;
-            if (Physics.SphereCast(transform.position,1f,dir,out hit,25f,carMask)) {
-                agent.speed = m_originalSpeed * 1.5f;
-            } else {
-                agent.speed = m_originalSpeed;
-            }
-            yield return new WaitForSeconds(0.05f);
-        }
-        yield return null;
+    public AudioClip GetRandomFootstep() {
+        int index = UnityEngine.Random.Range(0,footstepAudio.Length);
+        return footstepAudio[index];
     }
 
     private void Update() {
@@ -287,177 +202,9 @@ public class StreetSimAgent : MonoBehaviour
             if (CheckDistanceToCurrentTarget(out dist)) {
                 // We've reached our destination; setting new target
                 SetNextTarget();
-            } else {
-                // We haven't reached our target yet, so let's adjust the speed
-                // We need to first check if we're normally walking or if we're at a crosswalk
-                // At this point, it's been deemed safe to cross including the cross delay time. We're just waiting for the right moment.
-                if (forwardPointer.raycastTarget != null || downwardPointer.raycastTarget != null) {
-                    // We're at a crosswalk - we need to worry about the crosswalk signals
-                    // If the light is safe, we'll cross no matter what.
-                    switch(TrafficSignalController.current.GetFacingWalkingSignal(transform.forward, out angleDiff).status) {
-                        case TrafficSignal.TrafficSignalStatus.Go:
-                            if (TrafficSignalController.current.carAtCrosswalkDetector.numColliders > 0 && TrafficSignalController.current.GetSafety(startingOnSouth,agent.speed,0f)) {
-                                character.Move(Vector3.zero,false,false);
-                                agent.isStopped = true;
-                            } else {
-                                Debug.Log("Going because it's Green");
-                                agent.isStopped = false;
-                                character.Move(agent.desiredVelocity,false,false);
-                                if (beCautiousCoroutine != null) {
-                                    StopCoroutine(beCautiousCoroutine);
-                                    beCautiousCoroutine = null;
-                                }
-                                headTurn.currentTargetTransform = null;
-                            };
-                            break;
-                        case TrafficSignal.TrafficSignalStatus.Warning:
-                            agent.isStopped = false;
-                            character.Move(agent.desiredVelocity,false,false);
-                            break;
-                        default:
-                            // We now need to worry based on the participant's behavior
-                            switch(behavior) {
-                                case StreetSimTrial.ModelBehavior.Risky:
-                                    // We need to wait until it's safe to cross
-                                    // Firstly, we have a buffer we need to get done with
-                                    if (!m_canCross) {
-                                        character.Move(Vector3.zero,false,false);
-                                        agent.isStopped = true;
-                                        break;
-                                    }
-                                    // At this point, we need to start looking left and right
-                                    safe = TrafficSignalController.current.GetSafety(startingOnSouth, agent.speed, m_canCrossDelayTime);
-                                    // m_riskyButCrossing becomes and stays true at the moment it calculates that it's safe
-                                    m_riskyButCrossing = m_riskyButCrossing || safe;
-                                    // If it's NOT riskyButCrossable, we wait still
-                                    if (!m_riskyButCrossing) {
-                                        character.Move(Vector3.zero,false,false);
-                                        agent.isStopped = true;
-                                        break;
-                                    }
-                                    // If it's riskyButCrossable, we need to wait for a tad until the cross delay is completed
-                                    if (!m_canCrossDelayInitialized) {
-                                        character.Move(Vector3.zero,false,false);
-                                        agent.isStopped = true;
-                                        m_canCrossDelayInitialized = true;
-                                        StartCoroutine(DelayCrossing());
-                                        break;
-                                    }
-                                    if (m_canCrossDelayDone) {
-                                        agent.isStopped = false;
-                                        character.Move(agent.desiredVelocity,false,false);
-                                        if (beCautiousCoroutine != null) {
-                                            StopCoroutine(beCautiousCoroutine);
-                                            beCautiousCoroutine = null;
-                                        }
-                                        headTurn.currentTargetTransform = null;
-                                        break;
-                                    }
-                                    character.Move(Vector3.zero,false,false);
-                                    agent.isStopped = true;
-                                    break;
-                                default:
-                                    // We simply wait until it's time to cross
-                                    character.Move(Vector3.zero,false,false);
-                                    agent.isStopped = true;
-                                    break;
-                            }
-                            break;
-                    }
-                    /*
-                    if (TrafficSignalController.current.GetFacingWalkingSignal(transform.forward, out angleDiff).status == TrafficSignal.TrafficSignalStatus.Go) {
-                    }
-                    
-
-                    // This will be entirely dependent on the model's behavior, which we've passed during initialization
-                    if (m_riskyButCrossing && m_canCrossDelayDone) {
-                        if (m_canCrossDelayDone) {
-                            agent.isStopped = false;
-                            character.Move(agent.desiredVelocity,false,false);
-                        }
-                        else if (!m_canCrossDelayInitialized) {
-                            Debug.Log("CanCrossDelayInitialized");
-                            character.Move(Vector3.zero,false,false);
-                            agent.isStopped = true;
-                            m_canCrossDelayInitialized = true;
-                            StartCoroutine(DelayCrossing());
-                        } else {
-                            character.Move(Vector3.zero,false,false);
-                            agent.isStopped = true;
-                        }
-                    }
-                    switch(behavior) {
-                        case StreetSimTrial.ModelBehavior.Risky:
-                            // Prevent the model from doing anything if we can't cross just yet because of the initial delay
-                            if (!m_canCross) {
-                                character.Move(Vector3.zero,false,false);
-                                agent.isStopped = true;
-                                break;
-                            }
-                            if (TrafficSignalController.current.GetFacingWalkingSignal(transform.forward, out angleDiff).status == TrafficSignal.TrafficSignalStatus.Go) {
-                                m_riskyButCrossing = true;
-                                safe = true;
-                                agent.isStopped = false;
-                                character.Move(agent.desiredVelocity,false,false);
-                                break;
-                            }
-                            // Calculate safety of crosswalk traversal, including the delay time
-                            safe = TrafficSignalController.current.GetSafety(transform.position.z < 0f, agent.speed, m_canCrossDelayTime);
-                            // m_riskyButCrossing becomes and stays true at the moment it calculates that it's safe
-                            m_riskyButCrossing = m_riskyButCrossing || safe;
-                            break;
-                        case StreetSimTrial.ModelBehavior.Safe:
-                            // We need to intuite which crosswalk signal to look at. We can use the dot product for that. CLosest to -1 is the most relevant
-                            // To get the walking signals, we refer to TrafficSignalController.current
-                            TrafficSignal signal = TrafficSignalController.current.GetFacingWalkingSignal(transform.forward, out angleDiff);
-                            switch(signal.status) {
-                                case TrafficSignal.TrafficSignalStatus.Go:
-                                    // GO GO GO
-                                    m_riskyButCrossing = true;
-                                    agent.isStopped = false;
-                                    character.Move(agent.desiredVelocity,false,false);
-                                    break;
-                                case TrafficSignal.TrafficSignalStatus.Warning:
-                                    // HURRY HURRY HURRY
-                                    m_riskyButCrossing = true;
-                                    agent.isStopped = false;
-                                    character.Move(agent.desiredVelocity,false,false);
-                                    break;
-                                case TrafficSignal.TrafficSignalStatus.Stop:
-                                    // STOOOOOP... unless you're still on the crosswalk
-                                    if (downwardPointer.raycastTarget != null) {
-                                        // GET OFF THE CROSSWALK
-                                        m_riskyButCrossing = true;
-                                        agent.isStopped = false;
-                                        character.Move(agent.desiredVelocity * 2f,false,false);
-                                    } else {
-                                        m_riskyButCrossing = false;
-                                        character.Move(Vector3.zero,false,false);
-                                        agent.isStopped = true;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    */
-                } 
-                else {
-                    // No worries, we're not at a crosswalk, so we can move at our desired velocity
-                    agent.isStopped = false;
-                    character.Move(agent.desiredVelocity,false,false);
-                }
-            }
-            if (m_agentType == AgentType.Model) {
-                // The agent is currently on the crosswalk, so we need to inform the system that the agent is crossing
-                if (downwardPointer.raycastTarget != null) StreetSim.S.StartAttempt(id, StreetSim.S.trialFrameTimestamp, direction);
-                else StreetSim.S.EndAttempt(id,StreetSim.S.trialFrameTimestamp,true);
             }
         }
-    }
-
-    private IEnumerator DelayCrossing() {
-        yield return new WaitForSeconds(m_canCrossDelayTime);
-        m_canCrossDelayDone = true;
+        character.Move(agent.desiredVelocity,false,false);
     }
 
     private void SetNextTarget() {
@@ -488,24 +235,20 @@ public class StreetSimAgent : MonoBehaviour
         return renderer;
     }
 
+    
     public void DeactiveAgentManually() {
-        targetPositions = new Vector3[0];
+        //targetPositions = new Vector3[0];
         agent.enabled = false;
         character.enabled = false;
         animator.enabled = false;
         collider.enabled = false;
         rigidbody.isKinematic = true;
-        m_meshCollider.enabled = false;
         headTurn.currentTargetTransform = null;
-        if (m_agentType == AgentType.Model) StreetSim.S.EndAttempt(id, StreetSim.S.trialFrameTimestamp, true);
-        if (m_meshFollowers.Length > 0) {
-            foreach(FollowPosition fp in m_meshFollowers) {
-                fp.enabled = false;
-            }
-        }
     }
 
+    
     public ExperimentID GetID() {
         return id;
     }
+    
 }
