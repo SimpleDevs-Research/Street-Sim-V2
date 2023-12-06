@@ -26,6 +26,7 @@ public class EEGStreetSim : MonoBehaviour
     [Header("References")]
     public Transform xrCamera;
     public EyeTrackingRay leftEyeTracker, rightEyeTracker;
+    public CombinedEyeTracker combinedEyeTracker;
     public LayerMask positionRaycastLayerMask;
     public InstructionsUI textboxUI;
 
@@ -96,7 +97,7 @@ public class EEGStreetSim : MonoBehaviour
             eventWriter.WriteLine(EventLine(currentTime,"Player",xrCamera.position,"position",belowTargetName));
             // Create a record for the player's current orientation
             eventWriter.WriteLine(EventLine(currentTime,"Player",xrCamera.rotation,"orientation"));
-            // Create a record for each eye
+            // Create a record for each eye, as well as the combined eye
             if (leftEyeTracker != null && leftEyeTracker.rayHit) {
                 eventWriter.WriteLine(EventLine(currentTime,"Global Eye Tracking", leftEyeTracker.rayTargetPosition, "Left", leftEyeTracker.rayTargetName));
                 eventWriter.WriteLine(EventLine(currentTime,"Relative Eye Tracking", leftEyeTracker.rayTargetRelPosition, "Left", leftEyeTracker.rayTargetName));
@@ -104,6 +105,9 @@ public class EEGStreetSim : MonoBehaviour
             if (rightEyeTracker != null && rightEyeTracker.rayHit) {
                 eventWriter.WriteLine(EventLine(currentTime,"Global Eye Tracking", rightEyeTracker.rayTargetPosition, "Right", rightEyeTracker.rayTargetName));
                 eventWriter.WriteLine(EventLine(currentTime,"Relative Eye Tracking", rightEyeTracker.rayTargetRelPosition, "Right", rightEyeTracker.rayTargetName));
+            }
+            if (combinedEyeTracker != null && combinedEyeTracker.rayHit) {
+                eventWriter.WriteLine(EventLine(currentTime,"Combined Eye Tracking", combinedEyeTracker.rayTargetPosition, "Center", combinedEyeTracker.rayTargetName));
             }
             // Yield return for the next event
             yield return new WaitForSeconds(0.1f);

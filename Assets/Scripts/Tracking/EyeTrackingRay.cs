@@ -43,7 +43,7 @@ public class EyeTrackingRay : MonoBehaviour
 
     private void Awake() {
         lr = GetComponent<LineRenderer>();
-        reticleMaterial = targetReticle.GetComponent<MeshRenderer>().materials[0];
+        if (targetReticle.GetComponent<Renderer>() != null) reticleMaterial = targetReticle.GetComponent<Renderer>().materials[0];
         SetupRay();
     }
 
@@ -99,7 +99,7 @@ public class EyeTrackingRay : MonoBehaviour
             targetReticle.position = rayTargetPosition;
             float targetScale = targetReticleSize * distanceToTarget;
             targetReticle.localScale = Vector3.one * targetScale;
-            reticleMaterial.SetColor("_Color", reticleColor);
+            if (reticleMaterial != null) reticleMaterial.SetColor("_Color", reticleColor);
         }
         if (m_debugMode) {
             lr.SetPosition(0, rayOriginPosition);
