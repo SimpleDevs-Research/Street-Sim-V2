@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
+using TMPro;
 
 public class EEGStreetSim : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class EEGStreetSim : MonoBehaviour
     public CombinedEyeTracker combinedEyeTracker;
     public LayerMask positionRaycastLayerMask;
     public InstructionsUI textboxUI;
+    public TextMeshProUGUI debugTextbox;
 
     [Header("Experiment Settings")]
     public string name;
@@ -40,6 +42,7 @@ public class EEGStreetSim : MonoBehaviour
     [SerializeField] private string currentSide = "Unknown";
     [SerializeField] private int numSuccessfulTrials = 0;
     [SerializeField] private int carEscalationIndex = 0;
+    [SerializeField] private bool perform_anchor_test = true;
     public bool deactivateBackground = true;
     public bool deactivateAnchors = true;
 
@@ -106,33 +109,35 @@ public class EEGStreetSim : MonoBehaviour
         MyWriterLine(sTime, right_bottomleft, "Anchor", "Right", "Bottom Left");
         */
 
-        yield return new WaitForSeconds(3);
+        if (perform_anchor_test) {
+            yield return new WaitForSeconds(3);
 
-        // We'll iterate through all anchors
-        centerAnchor.gameObject.SetActive(true);
-        topleftAnchor.gameObject.SetActive(false);
-        toprightAnchor.gameObject.SetActive(false);
-        bottomleftAnchor.gameObject.SetActive(false);
-        yield return new WaitForSeconds(3);
+            // We'll iterate through all anchors
+            centerAnchor.gameObject.SetActive(true);
+            topleftAnchor.gameObject.SetActive(false);
+            toprightAnchor.gameObject.SetActive(false);
+            bottomleftAnchor.gameObject.SetActive(false);
+            yield return new WaitForSeconds(3);
 
-        centerAnchor.gameObject.SetActive(false);
-        topleftAnchor.gameObject.SetActive(true);
-        yield return new WaitForSeconds(3);
+            centerAnchor.gameObject.SetActive(false);
+            topleftAnchor.gameObject.SetActive(true);
+            yield return new WaitForSeconds(3);
 
-        topleftAnchor.gameObject.SetActive(false);
-        toprightAnchor.gameObject.SetActive(true);
-        yield return new WaitForSeconds(3);
+            topleftAnchor.gameObject.SetActive(false);
+            toprightAnchor.gameObject.SetActive(true);
+            yield return new WaitForSeconds(3);
 
-        toprightAnchor.gameObject.SetActive(false);
-        bottomleftAnchor.gameObject.SetActive(true);
-        yield return new WaitForSeconds(3);
+            toprightAnchor.gameObject.SetActive(false);
+            bottomleftAnchor.gameObject.SetActive(true);
+            yield return new WaitForSeconds(3);
 
-        centerAnchor.gameObject.SetActive(true);
-        topleftAnchor.gameObject.SetActive(true);
-        toprightAnchor.gameObject.SetActive(true);
-        bottomleftAnchor.gameObject.SetActive(true);
-        yield return new WaitForSeconds(3);
-
+            centerAnchor.gameObject.SetActive(true);
+            topleftAnchor.gameObject.SetActive(true);
+            toprightAnchor.gameObject.SetActive(true);
+            bottomleftAnchor.gameObject.SetActive(true);
+            yield return new WaitForSeconds(3);
+        }
+        
         // Make sure all cameras have their colors reset.
         if (deactivateBackground) {
             leftCamera.backgroundColor = new Color(0f,0f,0f,0f);
@@ -173,7 +178,7 @@ public class EEGStreetSim : MonoBehaviour
             if (textboxUI != null) textboxUI.SetText(currentTime.ToString());
             // Check what's underneath the player currently
             RaycastHit hit;
-            if (Physics.Raycast(xrCamera.position, -Vector3.up, out hit, 5f, positionRaycastLayerMask)) {
+            if (Physics.Raycast(xrCamera.position, -Vector3.up, out hit, 10f, positionRaycastLayerMask)) {
                 belowTargetName = hit.transform.gameObject.name;
                 if (belowTargetName == "SouthSidewalk" || belowTargetName == "NorthSidewalk") {
                     if (currentSide != "Unknown" && currentSide != belowTargetName) {
@@ -182,7 +187,6 @@ public class EEGStreetSim : MonoBehaviour
                         if (carEscalationIndex < trialCarEscalation.Count && numSuccessfulTrials == trialCarEscalation[carEscalationIndex].numCrossings) {
                             StreetSimCarManager.CM.SetCongestionStatus(trialCarEscalation[carEscalationIndex].setCarsTo);
                             carEscalationIndex += 1;
-                            TrafficSignalController.current.StartAtSessionIndex(0);
                         }
                     }
                     currentSide = belowTargetName;
@@ -190,6 +194,7 @@ public class EEGStreetSim : MonoBehaviour
             } else {
                 belowTargetName = "-";
             }
+            if (debugTextbox != null) debugTextbox.text = currentSide;
             // Create a record for the player's current position
             eventWriter.WriteLine(EventLine(currentTime,"Player",xrCamera.position,"position",belowTargetName));
             // Create a record for the player's current orientation
@@ -263,6 +268,7 @@ public class EEGStreetSim : MonoBehaviour
     public void NextTrial() {
         numSuccessfulTrials += 1;
         WriteLine("Simulation",Vector3.zero,$"Trial {numSuccessfulTrials} Start");
+        //TrafficSignalController.current.StartAtSessionIndex(0);
     }
 
     void OnDisable() {

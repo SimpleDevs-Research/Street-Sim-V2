@@ -15,11 +15,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Head_Eccentricity.unity
     guid: c90cc7122241132469cd98439dae383b
   - enabled: 0
-    path: Assets/Unity-Movement/Samples/HighFidelity/Character/Scenes/MovementHighFidelity.unity
-    guid: 4396863720835534389388e742bd3b06
-  - enabled: 1
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
     path: Assets/Scenes/StreetSimEyeTrackTemplate.unity
     guid: f3bb6cf68bb894544853fa1a25337103
+  - enabled: 1
+    path: Assets/Scenes/StreetSim-V2.unity
+    guid: 67821d44df9404aa78096cf4296b9623
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 4478419d75759e44e800b81324ef7afa, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b90efe3bab373d34fbbca430a1ceac9c, type: 2}

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using TMPro;
 
 [System.Serializable]
 public class SignalFluctationTuple {
@@ -68,6 +69,9 @@ public class TrafficSignalController : MonoBehaviour
     [SerializeField] private Transform m_northCarDetector, m_southCarDetector, m_northCrossMidpoint, m_southCrossMidpoint, m_southCrossEndpoint, m_northCrossEndpoint;
     [SerializeField] private bool m_safeToCross = false; 
     [SerializeField] private LayerMask m_safetyRaycastTargets;
+    private int currentCycleIndex = -1, nextCycleIndex = 0;
+
+    [SerializeField] private TextMeshProUGUI debugTextbox;
 
     public bool safeToCross {
         get { return m_safeToCross; }
@@ -125,15 +129,21 @@ public class TrafficSignalController : MonoBehaviour
     }
 
     private IEnumerator CycleSignalSessions(int startIndex) {
+        currentCycleIndex = startIndex;
+        nextCycleIndex = startIndex + 1;
         while(sessions.Count > 0) {
-            for(int i = startIndex; i < sessions.Count; i++) {
-                if (currentSession != null) currentSession.TurnOff();
-                currentSession = sessions[i];
-                currentSession.TurnOn();
-                if (i == sessions.Count - 1) i = -1;
-                yield return new WaitForSeconds(currentSession.duration);
-            }
+            if (currentSession != null) currentSession.TurnOff();
+            currentSession = sessions[currentCycleIndex];
+            currentSession.TurnOn();
+            currentCycleIndex = nextCycleIndex;
+            nextCycleIndex += 1;
+            if (nextCycleIndex >= sessions.Count) nextCycleIndex = 0;
+            yield return new WaitForSeconds(currentSession.duration);
         }
+    }
+
+    private void Update() {
+        if (debugTextbox != null) debugTextbox.text = $"Current Index: {currentCycleIndex}; Next Index: {nextCycleIndex}";
     }
 
     public TrafficSignal GetFacingWalkingSignal(Vector3 dir, out float finalDiff) {
@@ -151,7 +161,10 @@ public class TrafficSignalController : MonoBehaviour
     }
 
     public void StartAtSessionIndex(int index) {
-        if (index >= sessions.Count) { Debug.Log("[TRAFFIC SIGNAL CONTROLLER] ERROR: Cannot start at an index that is nonexistent in our sessions"); return; }
+        if (index >= sessions.Count) { 
+            Debug.Log("[TRAFFIC SIGNAL CONTROLLER] ERROR: Cannot start at an index that is nonexistent in our sessions"); 
+            return; 
+        }
         if (cycleSession != null) StopCoroutine(cycleSession);
         cycleSession = CycleSignalSessions(index);
         StartCoroutine(cycleSession);
@@ -161,5 +174,9 @@ public class TrafficSignalController : MonoBehaviour
         if (sessionIndex >= 0 && sessionIndex <= sessions.Count-1) {
             sessions[sessionIndex].duration = newDuration;
         }
+    }
+
+    private void OnDestroy() {
+        if (cycleSession != null) StopCoroutine(cycleSession);
     }
 }

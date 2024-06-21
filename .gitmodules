@@ -1,0 +1,6 @@
+[submodule "Assets/Submodules/EasierVRAssets"]
+	path = Assets/Submodules/EasierVRAssets
+	url = git@github.com:kimryan0416/EasierVRAssets.git
+[submodule "Assets/Submodules/UnityUtils"]
+	path = Assets/Submodules/UnityUtils
+	url = git@github.com:SimpleDevs-AR-VR/UnityUtils.git
