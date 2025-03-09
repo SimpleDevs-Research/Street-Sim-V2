@@ -4,3 +4,6 @@
 [submodule "Assets/Submodules/UnityUtils"]
 	path = Assets/Submodules/UnityUtils
 	url = git@github.com:SimpleDevs-AR-VR/UnityUtils.git
+[submodule "Assets/Unity-Movement"]
+	path = Assets/Unity-Movement
+	url = https://github.com/oculus-samples/Unity-Movement.git
