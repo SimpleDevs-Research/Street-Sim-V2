@@ -1177,6 +1177,8 @@ MonoBehaviour:
   startTarget: {fileID: 0}
   middleTarget: {fileID: 0}
   endTarget: {fileID: 0}
+  agentDetector: {fileID: 0}
+  testTurret: {fileID: 0}
   gazeColliders:
   - {fileID: 7474584271424754753}
   Velocity: {fileID: 0}
@@ -1186,26 +1188,39 @@ MonoBehaviour:
   status: 0
   acceleration: 7.5
   deceleration: 5
-  currentSpeed: 0
   wheels:
   - {fileID: 8790970770658864138}
   - {fileID: 8790970770658864136}
   - {fileID: 8790970770658864130}
   - {fileID: 8790970770658864128}
   m_audioSource: {fileID: -8403352568516763610}
-  idmAcceleration: 0
-  idmCurVel: 0
-  idmDistanceToTarget: 0
-  idmPrevPos: {x: 0, y: 0, z: 0}
+  m_honkSource: {fileID: 0}
+  foundInFront: 0
+  agentInFront: 0
+  followingCar: {fileID: 0}
   speed: 0
   positionDiff: {x: 0, y: 0, z: 0}
   velocityDiff: {x: 0, y: 0, z: 0}
   spaceMinimal: 0.5
   spaceOptimal: 0
+  spaceMaximal: 6
   accelerationMax: 10
   accelerationPref: 5
   accelerationExpected: 0
-  velocityTargeted: 20
+  speedTargeted: 10
+  timePref: 1
+  delayUntilHonk: 5
+  timeAgentInFront: -1
+  durationAgentInFront: 0
+  passedTraffic: 0
+  m_maxSpeedWeight:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  minMaxViewAngles: {x: 80, y: 20}
+  m_addToHistory: 0
 --- !u!65 &6806014854259642051
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1361,6 +1376,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sendBelow: 1
+  reportEvent: 1
+  resetTrial: 1
 --- !u!1 &8790970770658504750
 GameObject:
   m_ObjectHideFlags: 0
