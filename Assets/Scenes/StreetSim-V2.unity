@@ -8719,12 +8719,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97d3d48a6f4f4944e8ebaa490ff7738a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  headRef: {fileID: 724007037}
   eyes:
   - {fileID: 1837397535}
   - {fileID: 1503695522}
-  _rayHit: 0
-  targetReticleSize: 0.025
   targetReticle: {fileID: 1877207879}
+  rayDistance: 50
+  layersToInclude:
+    serializedVersion: 2
+    m_Bits: 2147484608
+  targetReticleSize: 0.025
+  _rayHit: 0
+  _rayTargetEndpoint: {x: 0, y: 0, z: 0}
+  _rayDir: {x: 0, y: 0, z: 0}
+  _rayTargetPosition: {x: 0, y: 0, z: 0}
+  _rayTargetName: 
+  _rayTargetDistance: 0
 --- !u!1 &881501487
 GameObject:
   m_ObjectHideFlags: 0
@@ -12646,7 +12656,6 @@ MonoBehaviour:
     filePath: 
   startTime: 0
   incrementTime: 0.016666668
-  headRef: {fileID: 724007037}
   combinedEyeTracker: {fileID: 878949663}
   screenCamera: {fileID: 724007044}
 --- !u!1 &1172228747
@@ -16166,7 +16175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e411ae8b8676bfa4e946d506df9d8ea2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayDistance: 100
+  rayDistance: 50
   rayWidth: 0.1
   layersToInclude:
     serializedVersion: 2
@@ -21239,7 +21248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e411ae8b8676bfa4e946d506df9d8ea2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayDistance: 100
+  rayDistance: 50
   rayWidth: 0.1
   layersToInclude:
     serializedVersion: 2

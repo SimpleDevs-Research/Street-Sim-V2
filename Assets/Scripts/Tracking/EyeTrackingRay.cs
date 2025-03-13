@@ -25,6 +25,8 @@ public class EyeTrackingRay : MonoBehaviour
 
     private bool _rayHit = false;
     public bool rayHit => _rayHit;
+    private Vector3 _rayTargetEndpoint = Vector3.zero;
+    public Vector3 rayTargetEndpoint => _rayTargetEndpoint;
     private Vector3 _rayTargetPosition = Vector3.zero;
     public Vector3 rayTargetPosition => _rayTargetPosition;
     private Vector3 _rayTargetRelPosition = Vector3.zero;
@@ -71,7 +73,8 @@ public class EyeTrackingRay : MonoBehaviour
         // Get positions
         Vector3 rayOriginPosition = transform.position,
                 raycastDirection = transform.TransformDirection(Vector3.forward);
-        _rayTargetPosition = transform.position + raycastDirection*rayDistance;
+        _rayTargetEndpoint = transform.position + raycastDirection*rayDistance;
+        _rayTargetPosition = _rayTargetEndpoint;
         _rayTargetRelPosition = Vector3.zero;
         _rayTargetName = "";
         _rayHit = false;

@@ -18,12 +18,11 @@ public class GazeTrackRecorder : MonoBehaviour
     // =======================
     [Header("=== References ===")]
     public CombinedEyeTracker combinedEyeTracker;
-    [Space]
     public Camera screenCamera;
+
 
     // =======================
     private IEnumerator updateCoroutine;
-
     
 
     private void Start() {
