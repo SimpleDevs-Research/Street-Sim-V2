@@ -3582,6 +3582,11 @@ Transform:
   m_Father: {fileID: 1998199607}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &360225850 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4593680705043960, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
+  m_PrefabInstance: {fileID: 1230021678}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &385979434 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5147027268417994950, guid: c8e6834ca8b864541b263338b9ba24d5, type: 3}
@@ -6198,6 +6203,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_controllerAnchor: {fileID: 1046509535}
+  m_OVRController: 64
+  m_events: []
+  m_trackInputSettings: 1
+  m_velocityFrameRate: 5
+  m_velocity: {x: 0, y: 0, z: 0}
+  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &575003641
 GameObject:
   m_ObjectHideFlags: 0
@@ -7365,6 +7377,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_controllerAnchor: {fileID: 360225850}
+  m_OVRController: 32
+  m_events: []
+  m_trackInputSettings: 1
+  m_velocityFrameRate: 5
+  m_velocity: {x: 0, y: 0, z: 0}
+  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &724007032 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100002, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
@@ -11101,6 +11120,11 @@ MonoBehaviour:
   range: 20
   inRange: []
   testObjects: []
+--- !u!4 &1046509535 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4484591312116288, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
+  m_PrefabInstance: {fileID: 1230021678}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1050326513
 GameObject:
   m_ObjectHideFlags: 0
