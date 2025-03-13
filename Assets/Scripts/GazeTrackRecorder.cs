@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
+using UnityEngine.XR;
 
 public class GazeTrackRecorder : MonoBehaviour
 {
@@ -16,7 +17,6 @@ public class GazeTrackRecorder : MonoBehaviour
 
     // =======================
     [Header("=== References ===")]
-    public Transform headRef;
     public CombinedEyeTracker combinedEyeTracker;
     [Space]
     public Camera screenCamera;
@@ -47,6 +47,7 @@ public class GazeTrackRecorder : MonoBehaviour
         StopCoroutine(updateCoroutine);
         // Add final line
         writer.AddPayload(GetCurrentTime());
+        writer.AddPayload("");
         writer.AddPayload("Deactivate");
         writer.AddPayload("");
         writer.AddPayload("");
@@ -63,6 +64,7 @@ public class GazeTrackRecorder : MonoBehaviour
 
         // Add a single row to represent the start of the recording.
         writer.AddPayload(GetCurrentTime());
+        writer.AddPayload("");
         writer.AddPayload("Activation");
         writer.AddPayload("");
         writer.AddPayload("");
@@ -71,7 +73,7 @@ public class GazeTrackRecorder : MonoBehaviour
         writer.WriteLine(true);
 
         // Initialize some variables
-        Vector3 screenPos;
+        Vector3 screenPos, correctedScreenPos;
         string eventLabel, targetName;
 
         // Initialize wait for seconds
@@ -79,23 +81,31 @@ public class GazeTrackRecorder : MonoBehaviour
 
         // Initialize loop
         while(true) {
-            
+
+            // Get world position of the eye, and convert to screen position
+            Vector3 worldPos = combinedEyeTracker.rayTargetPosition;
+            screenPos = screenCamera.WorldToScreenPoint(worldPos, Camera.MonoOrStereoscopicEye.Left);
+            float w = XRSettings.eyeTextureWidth;
+            float h = XRSettings.eyeTextureHeight;
+            float ar = w / h;
+            correctedScreenPos = new Vector3(
+                (screenPos.x - 0.15f * XRSettings.eyeTextureWidth) / 0.7f,
+                (screenPos.y - 0.15f * XRSettings.eyeTextureHeight) / 0.7f,
+                screenPos.z
+            );
+
+            // Get the target name
+            targetName = combinedEyeTracker.rayTargetName;
+
             // Get event
             eventLabel = "";
-            screenPos = Vector3.zero;
-            targetName = "";
-
-            if (combinedEyeTracker.rayHit) {
-                Vector3 worldPos = combinedEyeTracker.rayTargetPosition;
-                // Check its screen position relative to the current camera
-                screenPos = screenCamera.WorldToScreenPoint(worldPos);
-                targetName = combinedEyeTracker.rayTargetName;
-                eventLabel = "Eye Hit";
-            }
+            if (combinedEyeTracker.rayHit) eventLabel = "Eye Hit";
+            
             // Save to write
             writer.AddPayload(GetCurrentTime());
+            writer.AddPayload(Time.frameCount);
             writer.AddPayload(eventLabel);
-            writer.AddPayload(screenPos);
+            writer.AddPayload(correctedScreenPos);
             writer.AddPayload(targetName);
             writer.WriteLine(true);
 
