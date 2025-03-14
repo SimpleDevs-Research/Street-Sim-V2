@@ -18,7 +18,7 @@ public class GazeTrackRecorder : MonoBehaviour
     // =======================
     [Header("=== References ===")]
     public CombinedEyeTracker combinedEyeTracker;
-    public Camera screenCamera;
+    public Camera leftCamera, rightCamera, centerCamera;
 
 
     // =======================
@@ -69,42 +69,52 @@ public class GazeTrackRecorder : MonoBehaviour
         writer.AddPayload("");
         writer.AddPayload("");
         writer.AddPayload("");
+        writer.AddPayload("");
         writer.WriteLine(true);
-
-        // Initialize some variables
-        Vector3 screenPos, correctedScreenPos;
-        string eventLabel, targetName;
 
         // Initialize wait for seconds
         WaitForSeconds timeDelay = new WaitForSeconds(incrementTime);
 
         // Initialize loop
         while(true) {
-
             // Get world position of the eye, and convert to screen position
-            Vector3 worldPos = combinedEyeTracker.rayTargetPosition;
-            screenPos = screenCamera.WorldToScreenPoint(worldPos, Camera.MonoOrStereoscopicEye.Left);
-            float w = XRSettings.eyeTextureWidth;
-            float h = XRSettings.eyeTextureHeight;
-            float ar = w / h;
-            correctedScreenPos = new Vector3(
-                (screenPos.x - 0.15f * XRSettings.eyeTextureWidth) / 0.7f,
-                (screenPos.y - 0.15f * XRSettings.eyeTextureHeight) / 0.7f,
-                screenPos.z
-            );
-
+            Vector3 worldPos = combinedEyeTracker.rayTargetEndpoint;
+            Vector3 leftScreenPos = leftCamera.WorldToScreenPoint(worldPos);
+            Vector3 rightScreenPos = rightCamera.WorldToScreenPoint(worldPos);
+            Vector3 centerScreenPos = centerCamera.WorldToScreenPoint(worldPos);
+            
             // Get the target name
-            targetName = combinedEyeTracker.rayTargetName;
+            string targetName = combinedEyeTracker.rayTargetName;
 
             // Get event
-            eventLabel = "";
+            string eventLabel = "";
             if (combinedEyeTracker.rayHit) eventLabel = "Eye Hit";
             
-            // Save to write
+            // Left Eye Record
             writer.AddPayload(GetCurrentTime());
             writer.AddPayload(Time.frameCount);
             writer.AddPayload(eventLabel);
-            writer.AddPayload(correctedScreenPos);
+            writer.AddPayload("Left");
+            writer.AddPayload(leftScreenPos);
+            writer.AddPayload(targetName);
+            writer.WriteLine(true);
+
+            // Right Eye Record
+            writer.AddPayload(GetCurrentTime());
+            writer.AddPayload(Time.frameCount);
+            writer.AddPayload(eventLabel);
+            writer.AddPayload("Right");
+            writer.AddPayload(rightScreenPos);
+            writer.AddPayload(targetName);
+            writer.WriteLine(true);
+
+            // Center Eye Record
+            // Left Eye Record
+            writer.AddPayload(GetCurrentTime());
+            writer.AddPayload(Time.frameCount);
+            writer.AddPayload(eventLabel);
+            writer.AddPayload("Center");
+            writer.AddPayload(centerScreenPos);
             writer.AddPayload(targetName);
             writer.WriteLine(true);
 

@@ -12649,15 +12649,18 @@ MonoBehaviour:
     - rel_timestamp
     - frame
     - event
-    - eye_screen_pos_x
-    - eye_screen_pos_y
-    - eye_screen_pos_z
-    - eye_target_name
+    - side
+    - screen_pos_x
+    - screen_pos_y
+    - screen_pos_z
+    - target_name
     filePath: 
   startTime: 0
   incrementTime: 0.016666668
   combinedEyeTracker: {fileID: 878949663}
-  screenCamera: {fileID: 724007044}
+  leftCamera: {fileID: 1367202588}
+  rightCamera: {fileID: 1367202587}
+  centerCamera: {fileID: 724007044}
 --- !u!1 &1172228747
 GameObject:
   m_ObjectHideFlags: 0
