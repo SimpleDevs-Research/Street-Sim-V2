@@ -15266,7 +15266,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1410196739}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1e7cde3bc419924cb9cc3c9350e6a7c, type: 3}
+  m_Script: {fileID: 11500000, guid: 25e3e365fb174b243bf76d9ddd65d167, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   textbox: {fileID: 1410196741}
@@ -25316,7 +25316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   positionTargetRef: {fileID: 509722534}
   lookAtTargetRef: {fileID: 724007037}
-  movementSpeed: 5
+  movementSpeed: 0
   movementMultiplier:
     serializedVersion: 2
     m_Curve:
