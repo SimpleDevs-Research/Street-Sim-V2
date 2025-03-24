@@ -72,7 +72,7 @@ public class AgentAttention : MonoBehaviour
             currentAttention = null;
             lastAttention = currentAttention;
         }
-        Debug.Log(transitiveAttentionPriority);
+        //Debug.Log(transitiveAttentionPriority);
     }
     public void ObjectVisionUpdate()
     {

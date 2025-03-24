@@ -64,7 +64,8 @@ public class TrafficSignalController : MonoBehaviour
     [SerializeField] private NavMeshObstacle crossingObstacle;
     [SerializeField] private List<SignalSession> sessions = new List<SignalSession>();
     private SignalSession currentSession = null;
-    private IEnumerator cycleSession = null;
+    private Coroutine cycleSession = null;
+    private int currentSessionCount = 0;
 
     [SerializeField] private Transform m_northCarDetector, m_southCarDetector, m_northCrossMidpoint, m_southCrossMidpoint, m_southCrossEndpoint, m_northCrossEndpoint;
     [SerializeField] private bool m_safeToCross = false; 
@@ -86,8 +87,7 @@ public class TrafficSignalController : MonoBehaviour
     }
 
     private void Start() {
-        cycleSession = CycleSignalSessions(0);
-        StartCoroutine(cycleSession);
+        cycleSession = StartCoroutine(CycleSignalSessions(0, currentSessionCount));
     }
 
     public bool GetSafety(bool onSouth, float agentSpeed = 0.4f, float timeOffset = 0f) {
@@ -128,10 +128,10 @@ public class TrafficSignalController : MonoBehaviour
         return hitsSouth.Length == 0 && hitsNorth.Length == 0;
     }
 
-    private IEnumerator CycleSignalSessions(int startIndex) {
+    private IEnumerator CycleSignalSessions(int startIndex, int sessionCount) {
         currentCycleIndex = startIndex;
         nextCycleIndex = startIndex + 1;
-        while(sessions.Count > 0) {
+        while(sessions.Count > 0 && sessionCount == currentSessionCount) {
             if (currentSession != null) currentSession.TurnOff();
             currentSession = sessions[currentCycleIndex];
             currentSession.TurnOn();
@@ -140,6 +140,7 @@ public class TrafficSignalController : MonoBehaviour
             if (nextCycleIndex >= sessions.Count) nextCycleIndex = 0;
             yield return new WaitForSeconds(currentSession.duration);
         }
+        Debug.Log($"Session {sessionCount} Ended Early");
     }
 
     private void Update() {
@@ -166,8 +167,10 @@ public class TrafficSignalController : MonoBehaviour
             return; 
         }
         if (cycleSession != null) StopCoroutine(cycleSession);
-        cycleSession = CycleSignalSessions(index);
-        StartCoroutine(cycleSession);
+        currentSessionCount += 1;
+        cycleSession = StartCoroutine(CycleSignalSessions(index, currentSessionCount));
+        //cycleSession = CycleSignalSessions(index);
+        //StartCoroutine(cycleSession);
     }
 
     public void SetDurationOfSession(int sessionIndex, float newDuration = 30f) {

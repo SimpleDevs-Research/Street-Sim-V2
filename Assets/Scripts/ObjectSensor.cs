@@ -37,13 +37,17 @@ public class ObjectSensor : MonoBehaviour
 
         ObjectOfAttention OOA = other.GetComponent<ObjectOfAttention>();
         //If object is within sight and has any attention priority at all, add it to registered objects
-        if (dotProd >= minimumDotProd && !agentAttention.objectsInSight.Contains(OOA) && OOA.GetAttentionPriority(agentAttention.transform) > 0)
+        if (
+            dotProd >= minimumDotProd 
+            && OOA != null
+            && !agentAttention.objectsInSight.Contains(OOA) 
+            && OOA.GetAttentionPriority(agentAttention.transform) > 0)
         {
             agentAttention.objectsInSight.Add(other.GetComponent<ObjectOfAttention>());
             Debug.Log("I am looking");
         }
         //If object is out of sight or has no attention priority, ignore it.
-        if ((dotProd < minimumDotProd && agentAttention.objectsInSight.Contains(OOA)) || OOA.GetAttentionPriority(agentAttention.transform) <= 0)
+        if (OOA != null && ((dotProd < minimumDotProd && agentAttention.objectsInSight.Contains(OOA)) || OOA.GetAttentionPriority(agentAttention.transform) <= 0))
         {
             agentAttention.objectsInSight.Remove(other.GetComponent<ObjectOfAttention>());
             Debug.Log("I am ignoring.");
@@ -53,7 +57,7 @@ public class ObjectSensor : MonoBehaviour
     public void OnTriggerExit(Collider other)
     {
         ObjectOfAttention OOA = other.GetComponent<ObjectOfAttention>();
-        if(agentAttention.objectsInSight.Contains(OOA))
+        if(OOA != null && agentAttention.objectsInSight.Contains(OOA))
         {
             agentAttention.objectsInSight.Remove(other.GetComponent<ObjectOfAttention>());
         }

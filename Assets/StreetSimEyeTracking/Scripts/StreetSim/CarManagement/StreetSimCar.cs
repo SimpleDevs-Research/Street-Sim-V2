@@ -22,6 +22,7 @@ public class StreetSimCar : MonoBehaviour
     public TestTurret testTurret = null;
     [SerializeField] private Collider[] gazeColliders;
     [SerializeField] private Velocity Velocity;
+    [SerializeField] private TrialPositionNotifier Notifier;
 
     [SerializeField] private float m_lengthOfCar = 0f;
     [SerializeField] private float maxSpeed = 0.5f;
@@ -74,6 +75,7 @@ public class StreetSimCar : MonoBehaviour
         Velocity = GetComponent<Velocity>();
         if (testTurret == null) testTurret = GetComponent<TestTurret>();
         m_originalDeceleration = deceleration;
+        if (Notifier == null) Notifier = GetComponent<TrialPositionNotifier>();
     }
 
     public void Initialize(Transform xrCamera, bool addToHistory) {
@@ -96,6 +98,7 @@ public class StreetSimCar : MonoBehaviour
         //maxSpeed = UnityEngine.Random.Range(5f,15f);
         maxSpeed = 5f + (CalculateMaxSpeed()/10f);
         m_originalMaxSpeed = maxSpeed;
+        if (Notifier != null) Notifier.enabled = true;
 
         Velocity.manualSpeed = 0f;
         speedTargeted = maxSpeed;
@@ -142,6 +145,7 @@ public class StreetSimCar : MonoBehaviour
         testTurret.enabled = false;
         foreach(Collider col in gazeColliders) col.enabled = false;
         Velocity.manualSpeed = 0f;
+        if (Notifier != null) Notifier.enabled = false;
     }
 
     /*
