@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TrialController : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class TrialController : MonoBehaviour
         [HideInInspector] public int endFrame;
         [HideInInspector] public float endTimestamp;
         [HideInInspector] public long endUnix;
+        public UnityEvent onEnd;
     }
 
     public static TrialController current;
@@ -25,6 +27,7 @@ public class TrialController : MonoBehaviour
     public StreetSimCarManager carManager;
     public TrafficSignalController trafficController;
     public Collider northCollider, southCollider;
+    public AudioSource audioSource;
 
     [Header("=== Settings ===")]
     public Trial initialTrial;
@@ -86,6 +89,8 @@ public class TrialController : MonoBehaviour
             trialWriter.AddPayload(currentTrial.endTimestamp);
             trialWriter.AddPayload(currentTrial.endFrame);
             trialWriter.WriteLine(false);
+            // Play any events
+            currentTrial.onEnd?.Invoke();
         }
 
         // If there are no more trials, end all writers
@@ -135,6 +140,10 @@ public class TrialController : MonoBehaviour
             positionWriter.AddPayload(f);
             positionWriter.WriteLine(true);
         }
+    }
+
+    public void PlayEndAudio() {
+        if (audioSource != null) audioSource.Play();
     }
 }
 

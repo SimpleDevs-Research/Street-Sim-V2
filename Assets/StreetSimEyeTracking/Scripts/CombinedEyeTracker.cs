@@ -93,4 +93,8 @@ public class CombinedEyeTracker : MonoBehaviour
             }
         }
     }
+
+    public void ToggleReticle(bool setTo) {
+        if (targetReticle != null) targetReticle.gameObject.SetActive(setTo);
+    }
 }
