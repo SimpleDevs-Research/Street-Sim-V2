@@ -53,9 +53,9 @@ public class AgentAttention : MonoBehaviour
             }
             if(fullAttention && attentionDecisionCounter > Mathf.Max(4 - currentAttention.GetAttentionPriority(transform), 0.25f))
             {
-                Debug.Log("taking a suggestion");
+                //Debug.Log("taking a suggestion");
                 (BehaviorSuggestion, ObjectOfAttention) suggestion = currentAttention.GetBehaviorSuggestion(transform);
-                Debug.Log(suggestion.Item1);
+                //Debug.Log(suggestion.Item1);
                 switch(suggestion.Item1)
                 {
                     case BehaviorSuggestion.LOOKAT:

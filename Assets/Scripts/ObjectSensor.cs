@@ -44,7 +44,7 @@ public class ObjectSensor : MonoBehaviour
             && OOA.GetAttentionPriority(agentAttention.transform) > 0)
         {
             agentAttention.objectsInSight.Add(other.GetComponent<ObjectOfAttention>());
-            Debug.Log("I am looking");
+            //Debug.Log("I am looking");
         }
         //If object is out of sight or has no attention priority, ignore it.
         if (OOA != null && ((dotProd < minimumDotProd && agentAttention.objectsInSight.Contains(OOA)) || OOA.GetAttentionPriority(agentAttention.transform) <= 0))

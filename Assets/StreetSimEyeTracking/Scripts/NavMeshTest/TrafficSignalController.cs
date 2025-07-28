@@ -73,6 +73,7 @@ public class TrafficSignalController : MonoBehaviour
     private int currentCycleIndex = -1, nextCycleIndex = 0;
 
     [SerializeField] private TextMeshProUGUI debugTextbox;
+    [SerializeField] private bool init_cycle_at_start = false;
 
     public bool safeToCross {
         get { return m_safeToCross; }
@@ -87,7 +88,7 @@ public class TrafficSignalController : MonoBehaviour
     }
 
     private void Start() {
-        cycleSession = StartCoroutine(CycleSignalSessions(0, currentSessionCount));
+        if (init_cycle_at_start) cycleSession = StartCoroutine(CycleSignalSessions(0, currentSessionCount));
     }
 
     public bool GetSafety(bool onSouth, float agentSpeed = 0.4f, float timeOffset = 0f) {
@@ -138,6 +139,7 @@ public class TrafficSignalController : MonoBehaviour
             currentCycleIndex = nextCycleIndex;
             nextCycleIndex += 1;
             if (nextCycleIndex >= sessions.Count) nextCycleIndex = 0;
+            Debug.Log(currentSession.name);
             yield return new WaitForSeconds(currentSession.duration);
         }
         Debug.Log($"Session {sessionCount} Ended Early");
