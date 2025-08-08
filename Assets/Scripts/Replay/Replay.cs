@@ -114,11 +114,22 @@ namespace ReplaySet
             this.target_name = values[8];
         }
 
-        public void UpdateCalculations(Camera cam_ref)
+        public void UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets)
         {
             // We assume that the position of the camera is updating
-            this.local_position = cam_ref.transform.InverseTransformDirection(cam_ref.ScreenToWorldPoint(this.screen_position));
+            Vector3 world_position = (cam_ref.ScreenToWorldPoint(this.screen_position));
+            this.local_position = cam_ref.transform.InverseTransformDirection(world_position);
             this.angular_diff = Vector3.Angle(this.local_position, Vector3.forward * this.screen_position.z);
+            Vector3 ray_direction = world_position - cam_ref.transform.position;
+
+            Debug.DrawRay(cam_ref.transform.position, ray_direction, Color.cyan);
+
+            RaycastHit hit;
+            if (Physics.Raycast(cam_ref.transform.position, ray_direction, out hit, Mathf.Infinity, eye_raycast_targets))
+            {
+                gaze_ref.position = hit.point;
+            }
+
         }
     }
 
@@ -134,6 +145,7 @@ namespace ReplaySet
         public LayerMask eye_raycast_targets;
         public List<NameToTransformRef> manual_transform_refs;
         public Dictionary<string, NameToTransformRef> transforms_dict = new Dictionary<string, NameToTransformRef>();
+        public Transform gaze_ref;
 
         [Header("=== Loaded Data ===")]
         public string[] trial_col_names;
@@ -245,6 +257,7 @@ namespace ReplaySet
         {
             // For each trial, we must iterate through the trial, looking at each frame of the eye data, 
             // and attempt to identify what the object of attention really is.
+
             if (trial.eyes.Count == 0)
             {
                 Debug.LogError($"Cannot play trial {trial.trial_index}: No eye data loaded");
@@ -256,7 +269,35 @@ namespace ReplaySet
                 return;
             }
 
-            foreach(Eye e in trial.eyes)
+            if (Application.isPlaying)
+            {
+                StartCoroutine(PlayTrialLive(trial));
+            }
+            else if (Application.isEditor)
+            {
+                foreach (Eye e in trial.eyes)
+                {
+                    int frame = e.replay_frame;
+                    foreach (NameToTransformRef tr in manual_transform_refs)
+                    {
+                        tr.transform_ref.position = tr.orig_position;
+                        tr.transform_ref.rotation = tr.orig_rotation;
+                    }
+                    foreach (Position p in trial.positions_by_frame[frame])
+                    {
+                        // Try to find the reference to this object in transform_dict
+                        p.transform_ref.position = p.position;
+                        p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
+                    }
+                    e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets);
+                }
+            }
+        }
+
+        public IEnumerator PlayTrialLive(Trial trial)
+        {
+
+            foreach (Eye e in trial.eyes)
             {
                 int frame = e.replay_frame;
                 foreach (NameToTransformRef tr in manual_transform_refs)
@@ -270,7 +311,8 @@ namespace ReplaySet
                     p.transform_ref.position = p.position;
                     p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
                 }
-                e.UpdateCalculations(center_eye_ref);   
+                e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets);
+                yield return null;
             }
         }
 
