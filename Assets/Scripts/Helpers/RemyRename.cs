@@ -7,6 +7,6 @@ public class RemyRename : MonoBehaviour
     public void Awake()
     {
         gameObject.name = "Remy-" + transform.parent.name;
-        GetComponent<TrialPositionNotifier>()._name = gameObject.name;
+        GetComponent<ReplayPositionNotifier>()._name = gameObject.name;
     }
 }

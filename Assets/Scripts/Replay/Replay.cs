@@ -132,7 +132,6 @@ namespace ReplaySet
             if (Physics.Raycast(cam_ref.transform.position, ray_direction, out hit, Mathf.Infinity, eye_raycast_targets))
             {
                 gaze_ref.position = hit.point;
-                Debug.Log(hit.transform.gameObject.name);
                 return hit.transform.gameObject.name;
             }
             return "";
@@ -141,6 +140,8 @@ namespace ReplaySet
 
     public class Replay : MonoBehaviour
     {
+        [HideInInspector] public static Replay Instance;
+
         [Header("=== Files ===")]
         public TextAsset trial_file;
         public TextAsset positions_file;
@@ -154,6 +155,7 @@ namespace ReplaySet
         public List<NameToTransformRef> manual_transform_refs;
         public Dictionary<string, NameToTransformRef> transforms_dict = new Dictionary<string, NameToTransformRef>();
         public Transform gaze_ref;
+        public List<ReplayPositionNotifier> position_extraction_targets;
 
         [Header("=== Loaded Data ===")]
         public string[] trial_col_names;
@@ -169,11 +171,18 @@ namespace ReplaySet
 
         [Space]
         public CSVWriter writer;
+        public CSVWriter moddedPositionWriter;
 
+        public void Awake()
+        {
+            Instance = this;
+            position_extraction_targets = new List<ReplayPositionNotifier>();
+        }
         public void Start()
         {
             if (load_trials_on_start) LoadFiles();
             if (play_trials_on_start) PlayAllTrials();
+
         }
 
         public void LoadFiles()
@@ -246,7 +255,6 @@ namespace ReplaySet
             for (int i = 1; i < num_eye_samples; i++)
             {
                 if (eyes_raw[i].Length == 0) continue;
-                Debug.Log(i);
                 Eye e = new Eye(eyes_raw[i]);
                 // Only keep the eye referencing the center eye
                 if (e.side != "Center") continue;
@@ -277,6 +285,10 @@ namespace ReplaySet
             // We're outputting all eye data to a new output file
             // This time, we initialize the writer.
             writer.Initialize();
+            moddedPositionWriter.Initialize();
+
+            string[] positions_raw = ReadCSVFile(positions_file, out positions_col_names, out int num_positions_samples, out int num_positions_cols);
+            int pos_raw_ind = 0;
 
             // We need to loop through each trial, producing a continuous stream
             for (int i = 0; i < trials.Length; i++)
@@ -286,12 +298,40 @@ namespace ReplaySet
                 {
                     int frame = e.replay_frame;
                     ResetPositions();
-                    foreach (Position p in trial.positions_by_frame[frame])
+
+                    string lastLineCache = ""; //Bandaid fix for entities being written out of order -- don't know what's up with that. 
+
+                    string[] ref_line = positions_raw[pos_raw_ind].Split(",", StringSplitOptions.None);
+                    for(int ii = 0; ii < trial.positions_by_frame[frame].Count; ii++)
                     {
                         // Try to find the reference to this object in transform_dict
+
+                        Position p = trial.positions_by_frame[frame][ii];
                         p.transform_ref.position = p.position;
                         p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
+
+                        if (ii != trial.positions_by_frame[frame].Count - 1)
+                        {
+                            // Copy the line over from the original data
+                            moddedPositionWriter.WriteLine(positions_raw[pos_raw_ind]);
+                        }
+                        else
+                        {
+                            lastLineCache = positions_raw[pos_raw_ind];
+                        }
+                        pos_raw_ind++;
+
                     }
+
+                    //foreach (Position p in trial.positions_by_frame[frame])
+
+                    // Add new data from replayed objects
+                    foreach (ReplayPositionNotifier rpn in position_extraction_targets)
+                    {
+                        UpdatePosition(ref_line[0], ref_line[1], ref_line[2], rpn._name, rpn._guid, rpn.transform.position, rpn.transform.forward);
+                    }
+                    moddedPositionWriter.WriteLine(lastLineCache);
+
                     // Update our writer
                     foreach (string v in e.values) writer.AddPayload(v);
                     writer.AddPayload(e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets));
@@ -357,7 +397,7 @@ namespace ReplaySet
 
         public IEnumerator PlayTrialLive(Trial trial)
         {
-
+            string[] positions_raw = ReadCSVFile(positions_file, out positions_col_names, out int num_positions_samples, out int num_positions_cols);
             foreach (Eye e in trial.eyes)
             {
                 int frame = e.replay_frame;
@@ -368,6 +408,11 @@ namespace ReplaySet
                     p.transform_ref.position = p.position;
                     p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
                 }
+
+                Debug.Log(positions_raw[frame]);
+                moddedPositionWriter.AddPayload(positions_raw[frame]);
+                moddedPositionWriter.WriteLine();
+
                 e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets);
                 yield return null;
             }
@@ -442,6 +487,21 @@ namespace ReplaySet
         public static int GetSampleCount(string[] data, int numCols)
         {
             return data.Length / numCols - 1;
+        }
+
+        public void UpdatePosition(string unix_ms, string t, string frame, string _name, int _guid, Vector3 p, Vector3 f)
+        {
+            if (moddedPositionWriter.is_active && p.y > -30) //Brute force check to see if object is actually in the scene
+            {
+                moddedPositionWriter.AddPayload(unix_ms);
+                moddedPositionWriter.AddPayload(t);
+                moddedPositionWriter.AddPayload(frame);
+                moddedPositionWriter.AddPayload(_name);
+                moddedPositionWriter.AddPayload(_guid);
+                moddedPositionWriter.AddPayload(p);
+                moddedPositionWriter.AddPayload(f);
+                moddedPositionWriter.WriteLine();
+            }
         }
     }
 }
