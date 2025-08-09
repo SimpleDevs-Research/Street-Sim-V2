@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.776
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 446495300}
-  m_IndirectSpecularColor: {r: 0.26608574, g: 0.33683553, b: 0.44634125, a: 0.776}
+  m_IndirectSpecularColor: {r: 0.26569656, g: 0.33582664, b: 0.44480664, a: 0.776}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -8898,6 +8898,23 @@ MonoBehaviour:
     - angular_diff
     - raycast_hit_name
     filePath: 
+  moddedPositionWriter:
+    fileName: positions_mod
+    dirName: Gaze_Tracker_Replay/P1
+    writeUnixTime: 1
+    append_zero_to_filename: 0
+    columns:
+    - rel_timestamp
+    - frame
+    - obj_name
+    - guid
+    - pos_x
+    - pos_y
+    - pos_z
+    - forward_x
+    - forward_y
+    - forward_z
+    filePath: 
 --- !u!4 &780565155
 Transform:
   m_ObjectHideFlags: 0
@@ -8921,7 +8938,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 780565153}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f38a53cf9d63f848815f63301844d12, type: 3}
   m_Name: 
