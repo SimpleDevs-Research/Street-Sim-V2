@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.776
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 446495300}
-  m_IndirectSpecularColor: {r: 0.26608574, g: 0.33683553, b: 0.44634125, a: 0.776}
+  m_IndirectSpecularColor: {r: 0.26569656, g: 0.33582664, b: 0.44480664, a: 0.776}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -8601,6 +8601,7 @@ GameObject:
   m_Component:
   - component: {fileID: 780565155}
   - component: {fileID: 780565154}
+  - component: {fileID: 780565156}
   m_Layer: 0
   m_Name: Replay
   m_TagString: Untagged
@@ -91675,6 +91676,42 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &780565156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 780565153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f38a53cf9d63f848815f63301844d12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xrCamera: {fileID: 0}
+  xrCollider: {fileID: 0}
+  carManager: {fileID: 0}
+  trafficController: {fileID: 0}
+  northCollider: {fileID: 0}
+  southCollider: {fileID: 0}
+  audioSource: {fileID: 0}
+  positionWriter:
+    fileName: positions
+    dirName: Gaze_Tracker_Replay
+    writeUnixTime: 1
+    append_zero_to_filename: 0
+    columns:
+    - rel_timestamp
+    - frame
+    - obj_name
+    - guid
+    - pos_x
+    - pos_y
+    - pos_z
+    - forward_x
+    - forward_y
+    - forward_z
+    filePath: 
 --- !u!1 &788869865
 GameObject:
   m_ObjectHideFlags: 0
@@ -98188,7 +98225,6 @@ GameObject:
   - component: {fileID: 1276899907}
   - component: {fileID: 1276899906}
   - component: {fileID: 1276899905}
-  - component: {fileID: 1276899904}
   - component: {fileID: 1276899903}
   - component: {fileID: 1276899902}
   m_Layer: 3
@@ -98249,79 +98285,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
---- !u!114 &1276899904
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1276899900}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2fadf230d1919748a9aa21d40f74619, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TrackingType: 0
-  m_UpdateType: 0
-  m_PositionInput:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Position
-      m_Type: 0
-      m_ExpectedControlType: Vector3
-      m_Id: d10fd518-1951-443e-a372-a4e8770d2734
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: 2018a2ff-cb61-4dab-95f9-20ee6a3c6b42
-        m_Path: <XRHMD>/centerEyePosition
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Position
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  m_RotationInput:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Rotation
-      m_Type: 0
-      m_ExpectedControlType: Quaternion
-      m_Id: 3905ffb3-a115-4ce0-ae38-923d0ea123ae
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: 275d979a-3d06-4308-8e5c-f185481df36e
-        m_Path: <XRHMD>/centerEyeRotation
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Rotation
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  m_PositionAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  m_RotationAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  m_HasMigratedActions: 1
 --- !u!208 &1276899905
 NavMeshObstacle:
   m_ObjectHideFlags: 0

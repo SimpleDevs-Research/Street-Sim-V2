@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class TrialController : MonoBehaviour
+public class TrialController : Writer
 {
     [System.Serializable]
     public class Trial {
@@ -19,7 +19,6 @@ public class TrialController : MonoBehaviour
         public UnityEvent onEnd;
     }
 
-    public static TrialController current;
 
     [Header("=== References ===")]
     public Transform xrCamera;
@@ -130,7 +129,7 @@ public class TrialController : MonoBehaviour
         }
     }
 
-    public void UpdatePosition(float t, int frame, string _name, int _guid, Vector3 p, Vector3 f) {
+    public override void UpdatePosition(float t, int frame, string _name, int _guid, Vector3 p, Vector3 f) {
         if (positionWriter.is_active) {
             positionWriter.AddPayload(t);
             positionWriter.AddPayload(frame);

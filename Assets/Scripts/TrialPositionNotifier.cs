@@ -13,6 +13,6 @@ public class TrialPositionNotifier : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (TrialController.current != null) TrialController.current.UpdatePosition(Time.time, Time.frameCount, _name, _guid, transform.position, transform.forward);
+        if (Writer.current != null) Writer.current.UpdatePosition(Time.time, Time.frameCount, _name, _guid, transform.position, transform.forward);
     }
 }
