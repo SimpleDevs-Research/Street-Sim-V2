@@ -22,9 +22,24 @@ namespace ReplaySet
             {
                 replay.LoadFiles();
             }
+            if (GUILayout.Button("Reset Positions"))
+            {
+                replay.ResetPositions();
+            }
+            if (GUILayout.Button("Reset Trials"))
+            {
+                replay.ResetTrials();
+            }
 
             if (replay.trials.Length > 0)
             {
+                if (Application.isPlaying)
+                {
+                    if (GUILayout.Button("Play All"))
+                    {
+                        replay.PlayAllTrials();
+                    }
+                }
                 foreach (Trial t in replay.trials)
                 {
                     if (GUILayout.Button($"Play Trial {t.trial_index + 1}"))

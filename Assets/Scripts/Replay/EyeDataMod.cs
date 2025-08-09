@@ -12,6 +12,7 @@ namespace ReplaySet
         {
             public string id;
             public TextAsset original_eye_data;
+            public bool active;
             public CSVWriter writer;
         }
 
@@ -29,7 +30,7 @@ namespace ReplaySet
             // Iterate through our eye collection
             foreach (EyeCollection ec in data)
             {
-                yield return StartCoroutine(ReadWriteEye(ec));
+                if (ec.active) yield return StartCoroutine(ReadWriteEye(ec));
             }
             // Quit application
             Application.Quit();

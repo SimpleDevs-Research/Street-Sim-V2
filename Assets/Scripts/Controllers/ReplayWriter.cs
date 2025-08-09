@@ -19,7 +19,7 @@ public class ReplayWriter : Writer
 
     void Start()
     {
-        
+
         positionWriter.Initialize();
 
     }
@@ -36,6 +36,11 @@ public class ReplayWriter : Writer
             positionWriter.AddPayload(f);
             positionWriter.WriteLine(true);
         }
+    }
+
+    void OnDestroy()
+    {
+        positionWriter.Disable();
     }
 
 

@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace ReplaySet
 {
@@ -100,11 +103,12 @@ namespace ReplaySet
         public int replay_frame;
         public Vector3 local_direction;
         public float angular_diff;
+        [HideInInspector] public string[] values;
 
         public Eye(string serialized, string col_divider = ",")
         {
             // Base only
-            string[] values = serialized.Split(col_divider, StringSplitOptions.None);
+            values = serialized.Split(col_divider, StringSplitOptions.None);
             this.unix_ms = long.Parse(values[0]);
             this.rel_timestamp = float.Parse(values[1]);
             this.frame = int.Parse(values[2]);
@@ -116,7 +120,7 @@ namespace ReplaySet
             this.angular_diff = float.Parse(values[12]);
         }
 
-        public void UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets)
+        public string UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets)
         {
             // We assume that the position of the camera is updating
             //Vector3 ray_direction = world_position - cam_ref.transform.position;
@@ -129,8 +133,9 @@ namespace ReplaySet
             {
                 gaze_ref.position = hit.point;
                 Debug.Log(hit.transform.gameObject.name);
+                return hit.transform.gameObject.name;
             }
-
+            return "";
         }
     }
 
@@ -142,6 +147,8 @@ namespace ReplaySet
         public TextAsset eye_file;
 
         [Header("=== Replay Settings ===")]
+        public bool load_trials_on_start = true;
+        public bool play_trials_on_start = true;
         public Camera center_eye_ref;
         public LayerMask eye_raycast_targets;
         public List<NameToTransformRef> manual_transform_refs;
@@ -159,6 +166,15 @@ namespace ReplaySet
         [Space]
         public string[] eyes_col_names;
         [ReadOnlyInsp] public int unknown_eyes = 0;
+
+        [Space]
+        public CSVWriter writer;
+
+        public void Start()
+        {
+            if (load_trials_on_start) LoadFiles();
+            if (play_trials_on_start) PlayAllTrials();
+        }
 
         public void LoadFiles()
         {
@@ -220,11 +236,7 @@ namespace ReplaySet
                         break;
                     }
                 }
-                if (!trial_found)
-                {
-                    unknown_positions += 1;
-                    continue;
-                }
+                if (!trial_found) unknown_positions += 1;
             }
 
             // Read the eye data file to get the screen positions of each eye
@@ -234,6 +246,7 @@ namespace ReplaySet
             for (int i = 1; i < num_eye_samples; i++)
             {
                 if (eyes_raw[i].Length == 0) continue;
+                Debug.Log(i);
                 Eye e = new Eye(eyes_raw[i]);
                 // Only keep the eye referencing the center eye
                 if (e.side != "Center") continue;
@@ -253,6 +266,57 @@ namespace ReplaySet
                 if (!trial_found) unknown_eyes += 1;
             }
         }
+
+        public void PlayAllTrials()
+        {
+            StartCoroutine(PlayAllTrialsCoroutine());
+        }
+
+        public IEnumerator PlayAllTrialsCoroutine()
+        {
+            // We're outputting all eye data to a new output file
+            // This time, we initialize the writer.
+            writer.Initialize();
+
+            // We need to loop through each trial, producing a continuous stream
+            for (int i = 0; i < trials.Length; i++)
+            {
+                Trial trial = trials[i];
+                foreach (Eye e in trial.eyes)
+                {
+                    int frame = e.replay_frame;
+                    ResetPositions();
+                    foreach (Position p in trial.positions_by_frame[frame])
+                    {
+                        // Try to find the reference to this object in transform_dict
+                        p.transform_ref.position = p.position;
+                        p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
+                    }
+                    // Update our writer
+                    foreach (string v in e.values) writer.AddPayload(v);
+                    writer.AddPayload(e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets));
+                    writer.WriteLine(false);
+                    // Let the next frame run
+                    yield return null;
+                }
+            }
+
+            // Upon termination, disable the writer and reset all positions
+            writer.Disable();
+            ResetPositions();
+            // End the scene!
+#if UNITY_EDITOR
+            EditorApplication.ExitPlaymode();
+#else
+            Application.Quit();
+#endif
+        }
+
+        void OnDestroy()
+        {
+            writer.Disable();
+        }
+        
 
         public void PlayTrial(Trial trial)
         {
@@ -279,11 +343,7 @@ namespace ReplaySet
                 foreach (Eye e in trial.eyes)
                 {
                     int frame = e.replay_frame;
-                    foreach (NameToTransformRef tr in manual_transform_refs)
-                    {
-                        tr.transform_ref.position = tr.orig_position;
-                        tr.transform_ref.rotation = tr.orig_rotation;
-                    }
+                    ResetPositions();
                     foreach (Position p in trial.positions_by_frame[frame])
                     {
                         // Try to find the reference to this object in transform_dict
@@ -301,11 +361,7 @@ namespace ReplaySet
             foreach (Eye e in trial.eyes)
             {
                 int frame = e.replay_frame;
-                foreach (NameToTransformRef tr in manual_transform_refs)
-                {
-                    tr.transform_ref.position = tr.orig_position;
-                    tr.transform_ref.rotation = tr.orig_rotation;
-                }
+                ResetPositions();
                 foreach (Position p in trial.positions_by_frame[frame])
                 {
                     // Try to find the reference to this object in transform_dict
@@ -317,6 +373,19 @@ namespace ReplaySet
             }
         }
 
+        public void ResetPositions()
+        {
+            foreach (NameToTransformRef tr in manual_transform_refs) {
+                tr.transform_ref.position = tr.orig_position;
+                tr.transform_ref.rotation = tr.orig_rotation;
+            }
+        }
+
+        public void ResetTrials()
+        {
+            trials = null;
+        }
+
         public Transform GetOrAddTransformByName(string obj_name)
         {
             // Check if our transform dictionary has this or not.
@@ -326,7 +395,8 @@ namespace ReplaySet
             if (go != null)
             {
                 // Add to dictionary
-                transforms_dict.Add(obj_name, new NameToTransformRef() {
+                transforms_dict.Add(obj_name, new NameToTransformRef()
+                {
                     obj_name = obj_name,
                     transform_ref = go.transform,
                     orig_position = go.transform.position,
