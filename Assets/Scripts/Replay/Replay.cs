@@ -32,7 +32,7 @@ namespace ReplaySet
         public float duration_time;
         public int duration_frame;
         public List<Position>[] positions_by_frame;
-        public List<Eye> eyes;
+        [HideInInspector] public List<Eye> eyes;
 
         public Trial(string serialized, string col_divider = ",")
         {
@@ -98,7 +98,7 @@ namespace ReplaySet
         [Space]
         public int trial_index;
         public int replay_frame;
-        public Vector3 local_position;
+        public Vector3 local_direction;
         public float angular_diff;
 
         public Eye(string serialized, string col_divider = ",")
@@ -112,22 +112,23 @@ namespace ReplaySet
             this.side = values[4].Trim();
             this.screen_position = new Vector3(float.Parse(values[5]), float.Parse(values[6]), float.Parse(values[7]));
             this.target_name = values[8];
+            this.local_direction = new Vector3(float.Parse(values[9]), float.Parse(values[10]), float.Parse(values[11])).normalized;
+            this.angular_diff = float.Parse(values[12]);
         }
 
         public void UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets)
         {
             // We assume that the position of the camera is updating
-            Vector3 world_position = (cam_ref.ScreenToWorldPoint(this.screen_position));
-            this.local_position = cam_ref.transform.InverseTransformDirection(world_position);
-            this.angular_diff = Vector3.Angle(this.local_position, Vector3.forward * this.screen_position.z);
-            Vector3 ray_direction = world_position - cam_ref.transform.position;
+            //Vector3 ray_direction = world_position - cam_ref.transform.position;
 
+            Vector3 ray_direction = cam_ref.transform.TransformDirection(this.local_direction);
             Debug.DrawRay(cam_ref.transform.position, ray_direction, Color.cyan);
 
             RaycastHit hit;
             if (Physics.Raycast(cam_ref.transform.position, ray_direction, out hit, Mathf.Infinity, eye_raycast_targets))
             {
                 gaze_ref.position = hit.point;
+                Debug.Log(hit.transform.gameObject.name);
             }
 
         }
