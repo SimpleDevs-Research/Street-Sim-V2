@@ -140,6 +140,12 @@ namespace ReplaySet
 
     public class Replay : MonoBehaviour
     {
+        [Serializable]
+        public enum TrialDataType
+        {
+            EyeData,
+            PositionData
+        }
         [HideInInspector] public static Replay Instance;
 
         [Header("=== Files ===")]
@@ -150,6 +156,7 @@ namespace ReplaySet
         [Header("=== Replay Settings ===")]
         public bool load_trials_on_start = true;
         public bool play_trials_on_start = true;
+        public TrialDataType trial_type = TrialDataType.PositionData;
         public Camera center_eye_ref;
         public LayerMask eye_raycast_targets;
         public List<NameToTransformRef> manual_transform_refs;
@@ -277,7 +284,15 @@ namespace ReplaySet
 
         public void PlayAllTrials()
         {
-            StartCoroutine(PlayAllTrialsCoroutine());
+            if (trial_type == TrialDataType.EyeData)
+            {
+                StartCoroutine(PlayAllTrialsCoroutine());
+            }
+            else if (trial_type == TrialDataType.PositionData)
+            {
+                StartCoroutine(PlayAllTrialsByPositionCoroutine());
+            }
+            
         }
 
         public IEnumerator PlayAllTrialsCoroutine()
@@ -285,10 +300,6 @@ namespace ReplaySet
             // We're outputting all eye data to a new output file
             // This time, we initialize the writer.
             writer.Initialize();
-            moddedPositionWriter.Initialize();
-
-            string[] positions_raw = ReadCSVFile(positions_file, out positions_col_names, out int num_positions_samples, out int num_positions_cols);
-            int pos_raw_ind = 0;
 
             // We need to loop through each trial, producing a continuous stream
             for (int i = 0; i < trials.Length; i++)
@@ -299,9 +310,6 @@ namespace ReplaySet
                     int frame = e.replay_frame;
                     ResetPositions();
 
-                    string lastLineCache = ""; //Bandaid fix for entities being written out of order -- don't know what's up with that. 
-
-                    string[] ref_line = positions_raw[pos_raw_ind].Split(",", StringSplitOptions.None);
                     for(int ii = 0; ii < trial.positions_by_frame[frame].Count; ii++)
                     {
                         // Try to find the reference to this object in transform_dict
@@ -310,27 +318,9 @@ namespace ReplaySet
                         p.transform_ref.position = p.position;
                         p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
 
-                        if (ii != trial.positions_by_frame[frame].Count - 1)
-                        {
-                            // Copy the line over from the original data
-                            moddedPositionWriter.WriteLine(positions_raw[pos_raw_ind]);
-                        }
-                        else
-                        {
-                            lastLineCache = positions_raw[pos_raw_ind];
-                        }
-                        pos_raw_ind++;
-
                     }
 
                     //foreach (Position p in trial.positions_by_frame[frame])
-
-                    // Add new data from replayed objects
-                    foreach (ReplayPositionNotifier rpn in position_extraction_targets)
-                    {
-                        UpdatePosition(ref_line[0], ref_line[1], ref_line[2], rpn._name, rpn._guid, rpn.transform.position, rpn.transform.forward);
-                    }
-                    moddedPositionWriter.WriteLine(lastLineCache);
 
                     // Update our writer
                     foreach (string v in e.values) writer.AddPayload(v);
@@ -343,6 +333,71 @@ namespace ReplaySet
 
             // Upon termination, disable the writer and reset all positions
             writer.Disable();
+            moddedPositionWriter.Disable();
+            ResetPositions();
+            // End the scene!
+#if UNITY_EDITOR
+            EditorApplication.ExitPlaymode();
+#else
+            Application.Quit();
+#endif
+        }
+
+        public IEnumerator PlayAllTrialsByPositionCoroutine()
+        {
+            // We're outputting all eye data to a new output file
+            // This time, we initialize the writer.
+            moddedPositionWriter.Initialize();
+
+            string[] positions_raw = ReadCSVFile(positions_file, out positions_col_names, out int num_positions_samples, out int num_positions_cols);
+            int pos_raw_ind = 0;
+
+            // We need to loop through each trial, producing a continuous stream
+            for (int i = 0; i < trials.Length; i++)
+            {
+                Trial trial = trials[i];
+                for(int ii = 0; ii < trial.duration_frame; ii++)
+                {
+                    int frame = ii;
+                    ResetPositions();
+
+                    string lastLineCache = ""; //Bandaid fix for entities being written out of order -- don't know what's up with that. 
+
+                    string[] ref_line = positions_raw[pos_raw_ind].Split(",", StringSplitOptions.None);
+                    for (int iii = 0; iii < trial.positions_by_frame[frame].Count; iii++)
+                    {
+                        // Try to find the reference to this object in transform_dict
+                        Position p = trial.positions_by_frame[frame][iii];
+                        p.transform_ref.position = p.position;
+                        p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
+
+                        if (iii != trial.positions_by_frame[frame].Count - 1)
+                        {
+                            // Copy the line over from the original data
+                            moddedPositionWriter.WriteLine(positions_raw[pos_raw_ind]);
+                        }
+                        else
+                        {
+                            lastLineCache = positions_raw[pos_raw_ind];
+                        }
+                        pos_raw_ind++;
+                    }
+
+                    //foreach (Position p in trial.positions_by_frame[frame])
+
+                    // Add new data from replayed objects
+                    foreach (ReplayPositionNotifier rpn in position_extraction_targets)
+                    {
+                        UpdatePosition(ref_line[0], ref_line[1], ref_line[2], rpn._name, rpn._guid, rpn.transform.position, rpn.transform.forward);
+                    }
+                    moddedPositionWriter.WriteLine(lastLineCache);
+                    // Let the next frame run
+                    yield return null;
+                }
+            }
+
+            // Upon termination, disable the writer and reset all positions
+            moddedPositionWriter.Disable();
             ResetPositions();
             // End the scene!
 #if UNITY_EDITOR
@@ -409,7 +464,6 @@ namespace ReplaySet
                     p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
                 }
 
-                Debug.Log(positions_raw[frame]);
                 moddedPositionWriter.AddPayload(positions_raw[frame]);
                 moddedPositionWriter.WriteLine();
 
