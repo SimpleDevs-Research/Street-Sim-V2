@@ -120,7 +120,7 @@ namespace ReplaySet
             this.angular_diff = float.Parse(values[12]);
         }
 
-        public string UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets)
+        public string UpdateCalculations(Camera cam_ref, Transform gaze_ref, LayerMask eye_raycast_targets, out float dist)
         {
             // We assume that the position of the camera is updating
             //Vector3 ray_direction = world_position - cam_ref.transform.position;
@@ -129,9 +129,11 @@ namespace ReplaySet
             Debug.DrawRay(cam_ref.transform.position, ray_direction, Color.cyan);
 
             RaycastHit hit;
-            if (Physics.Raycast(cam_ref.transform.position, ray_direction, out hit, Mathf.Infinity, eye_raycast_targets))
+            dist = 100f;
+            if (Physics.Raycast(cam_ref.transform.position, ray_direction, out hit, 100f, eye_raycast_targets))
             {
                 gaze_ref.position = hit.point;
+                dist = hit.distance;
                 return hit.transform.gameObject.name;
             }
             return "";
@@ -324,7 +326,8 @@ namespace ReplaySet
 
                     // Update our writer
                     foreach (string v in e.values) writer.AddPayload(v);
-                    writer.AddPayload(e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets));
+                    writer.AddPayload(e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets, out float target_distance));
+                    writer.AddPayload(target_distance);
                     writer.WriteLine(false);
                     // Let the next frame run
                     yield return null;
@@ -445,7 +448,7 @@ namespace ReplaySet
                         p.transform_ref.position = p.position;
                         p.transform_ref.rotation = Quaternion.LookRotation(p.forward);
                     }
-                    e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets);
+                    e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets, out float target_distance);
                 }
             }
         }
@@ -467,7 +470,7 @@ namespace ReplaySet
                 moddedPositionWriter.AddPayload(positions_raw[frame]);
                 moddedPositionWriter.WriteLine();
 
-                e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets);
+                e.UpdateCalculations(center_eye_ref, gaze_ref, eye_raycast_targets, out float target_distance);
                 yield return null;
             }
         }

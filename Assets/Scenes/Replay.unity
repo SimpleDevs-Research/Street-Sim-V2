@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.776
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 446495300}
-  m_IndirectSpecularColor: {r: 0.26569656, g: 0.33582664, b: 0.44480664, a: 0.776}
+  m_IndirectSpecularColor: {r: 0.26608574, g: 0.33683553, b: 0.44634125, a: 0.776}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -8708,11 +8708,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e637d9dc1fca043ba8df2dda555b98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trial_file: {fileID: 4900000, guid: 404a152a113588e4aa430528c4c57ac8, type: 3}
-  positions_file: {fileID: 4900000, guid: a3d4ed3b126c42f4c8bbd312169266c4, type: 3}
-  eye_file: {fileID: 4900000, guid: 3583922d7422e944db8acb8aefba066b, type: 3}
+  trial_file: {fileID: 4900000, guid: db5f2baa2f578264fbdb2c9d6b36bc7f, type: 3}
+  positions_file: {fileID: 4900000, guid: 6f9ba8955d584c3459ef11a477aaabdd, type: 3}
+  eye_file: {fileID: 4900000, guid: ef36f10bfd08db34cba87035e1b9a4a3, type: 3}
   load_trials_on_start: 1
   play_trials_on_start: 1
+  trial_type: 0
   center_eye_ref: {fileID: 1276899906}
   eye_raycast_targets:
     serializedVersion: 2
@@ -8880,7 +8881,7 @@ MonoBehaviour:
   unknown_eyes: 1010
   writer:
     fileName: eye_targets
-    dirName: EyeRaycasts/P1
+    dirName: Eye_Raycasts_Replay/P6
     writeUnixTime: 0
     append_zero_to_filename: 0
     columns:
@@ -8898,6 +8899,7 @@ MonoBehaviour:
     - local_direction_z
     - angular_diff
     - raycast_hit_name
+    - target_distance
     filePath: 
   moddedPositionWriter:
     fileName: positions_mod
@@ -8947,7 +8949,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   positionWriter:
     fileName: positions
-    dirName: Gaze_Tracker_Replay/P1
+    dirName: Gaze_Tracker_Replay/P6
     writeUnixTime: 1
     append_zero_to_filename: 0
     columns:
