@@ -8713,7 +8713,7 @@ MonoBehaviour:
   eye_file: {fileID: 4900000, guid: ef36f10bfd08db34cba87035e1b9a4a3, type: 3}
   load_trials_on_start: 1
   play_trials_on_start: 1
-  trial_type: 0
+  trial_type: 1
   center_eye_ref: {fileID: 1276899906}
   eye_raycast_targets:
     serializedVersion: 2
@@ -8881,7 +8881,7 @@ MonoBehaviour:
   unknown_eyes: 1010
   writer:
     fileName: eye_targets
-    dirName: Eye_Raycasts_Replay/P6
+    dirName: EyeRaycasts/P6
     writeUnixTime: 0
     append_zero_to_filename: 0
     columns:
@@ -8903,7 +8903,7 @@ MonoBehaviour:
     filePath: 
   moddedPositionWriter:
     fileName: positions_mod
-    dirName: Gaze_Tracker_Replay/P1
+    dirName: Gaze_Tracker_Replay/P6
     writeUnixTime: 0
     append_zero_to_filename: 0
     columns:
