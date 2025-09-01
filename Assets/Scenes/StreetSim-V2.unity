@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.776
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 446495300}
-  m_IndirectSpecularColor: {r: 0.26608574, g: 0.33683553, b: 0.44634125, a: 0.776}
+  m_IndirectSpecularColor: {r: 0.26569656, g: 0.33582664, b: 0.44480664, a: 0.776}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -18886,6 +18886,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   debugTextbox: {fileID: 0}
+  init_cycle_at_start: 0
   m_carAtCrosswalkDetector: {fileID: 2019688560}
 --- !u!1001 &1661105899
 PrefabInstance:
