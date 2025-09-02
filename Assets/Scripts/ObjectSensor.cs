@@ -13,7 +13,7 @@ public class ObjectSensor : MonoBehaviour
     bool active = false;
     void Start()
     {
-        agentAttention = GetComponentInParent<AgentAttention>();
+
         foreach(Collider collider in ignoreColliders)
         {
             Physics.IgnoreCollision(GetComponent<Collider>(), collider);
@@ -33,7 +33,7 @@ public class ObjectSensor : MonoBehaviour
         Vector3 distance = other.transform.position - agentHeadTurn.lookSource;
         float dotProd = Vector3.Dot(agentHeadTurn.lookDir.normalized, distance.normalized);
 
-        Debug.DrawRay(agentHeadTurn.lookSource, distance);
+        //Debug.DrawRay(agentHeadTurn.lookSource, distance);
 
         ObjectOfAttention OOA = other.GetComponent<ObjectOfAttention>();
         //If object is within sight and has any attention priority at all, add it to registered objects

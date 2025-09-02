@@ -8,7 +8,7 @@ public class AgentAttention : MonoBehaviour
     public List<ObjectOfAttention> objectsInSight = new List<ObjectOfAttention>();
     public List<float> targetObservationTime = new List<float>();
 
-    public AgentHeadTurn agentHeadTurn;
+    private AgentHeadTurn agentHeadTurn;
 
     public ObjectOfAttention currentAttention = null;
     public float currentAttentionPriority = 0;
@@ -21,7 +21,11 @@ public class AgentAttention : MonoBehaviour
     float attentionDecisionCounter = 0;
     void Start()
     {
-
+        if(!GetComponent<AgentHeadTurn>())
+        {
+            gameObject.AddComponent(typeof(AgentHeadTurn));
+        }
+        agentHeadTurn = GetComponent<AgentHeadTurn>();
     }
 
     void Update()
@@ -53,15 +57,13 @@ public class AgentAttention : MonoBehaviour
             }
             if(fullAttention && attentionDecisionCounter > Mathf.Max(4 - currentAttention.GetAttentionPriority(transform), 0.25f))
             {
-                //Debug.Log("taking a suggestion");
                 (BehaviorSuggestion, ObjectOfAttention) suggestion = currentAttention.GetBehaviorSuggestion(transform);
-                //Debug.Log(suggestion.Item1);
                 switch(suggestion.Item1)
                 {
                     case BehaviorSuggestion.LOOKAT:
                         transitiveAttentionPriority = currentAttention.GetAttentionPriority(transform)+0.1f;
                         currentAttention = suggestion.Item2;
-                        Debug.Log("Looking at ", currentAttention);
+                        //Debug.Log("Looking at ", currentAttention);
                         break;
                 }
             }
@@ -72,7 +74,6 @@ public class AgentAttention : MonoBehaviour
             currentAttention = null;
             lastAttention = currentAttention;
         }
-        //Debug.Log(transitiveAttentionPriority);
     }
     public void ObjectVisionUpdate()
     {
