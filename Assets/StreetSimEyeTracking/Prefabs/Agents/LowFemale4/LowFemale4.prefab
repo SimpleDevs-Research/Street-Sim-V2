@@ -1226,11 +1226,14 @@ MonoBehaviour:
   animator: {fileID: 9122208338416381197}
   collider: {fileID: 1943636289127673006}
   rigidbody: {fileID: 6816492278113178386}
-  forwardPointer: {fileID: 8507633430238489106}
-  downwardPointer: {fileID: 711875763009982282}
   audioSource: {fileID: 0}
+  footstepAudio: []
   targetPositions: []
-  m_meshCollider: {fileID: 0}
+  shouldLoop: 0
+  shouldWarpOnLoop: 0
+  m_meshCopy: {fileID: 0}
+  m_meshFollowers: []
+  m_originalSpeed: 0.4
   m_crossDelayTime: 5
   m_canCrossDelayTime: 0
   m_canCross: 0
@@ -1252,7 +1255,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 477dc9f890f70eb49a1ce5e25e3e9811, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trackingType: 1
   m_estimatedVelocity: {x: 0, y: 0, z: 0}
+  manualVelocity: {x: 0, y: 0, z: 0}
+  manualSpeed: 0
 --- !u!1 &2187594732321075911
 GameObject:
   m_ObjectHideFlags: 0

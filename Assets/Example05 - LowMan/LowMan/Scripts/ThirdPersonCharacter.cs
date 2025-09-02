@@ -4,7 +4,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 {
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
-	[RequireComponent(typeof(Animator))]
 	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] float m_MovingTurnSpeed = 360;
@@ -15,6 +14,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
 		[SerializeField] float m_GroundCheckDistance = 0.2f;
+		[SerializeField] bool m_animatorInChild = false;
 
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
@@ -32,7 +32,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		void Awake()
 		{
-			m_Animator = GetComponent<Animator>();
+			if(!m_animatorInChild)
+				m_Animator = GetComponent<Animator>();
+			else
+				m_Animator = GetComponentInChildren<Animator>();
+
 			m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleHeight = m_Capsule.height;
@@ -118,7 +122,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		void UpdateAnimator(Vector3 move)
 		{
 			// update the animator parameters
-			m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
+			m_Animator.SetFloat("Forward", m_ForwardAmount * 0.4f, 0.1f, Time.deltaTime);
 			m_Animator.SetFloat("Turn", m_TurnAmount, 0.1f, Time.deltaTime);
 			m_Animator.SetBool("Crouch", m_Crouching);
 			m_Animator.SetBool("OnGround", m_IsGrounded);
@@ -194,7 +198,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
-				m_Rigidbody.velocity = v;
+				//m_Rigidbody.velocity = v;
 			}
 		}
 

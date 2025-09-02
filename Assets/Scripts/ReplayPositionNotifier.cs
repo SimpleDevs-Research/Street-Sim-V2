@@ -7,18 +7,22 @@ public class ReplayPositionNotifier : MonoBehaviour
 {
     public int _guid;
     public string _name;
+    Replay replay;
 
     private void Awake()
     {
         _name = this.gameObject.name;
         _guid = this.gameObject.GetInstanceID();
+        replay = Replay.Instance;
     }
     private void Start()
     {
-        Replay.Instance.position_extraction_targets.Add(this);
+        if(replay != null)
+            Replay.Instance.position_extraction_targets.Add(this);
     }
     private void OnDestroy()
     {
-        Replay.Instance.position_extraction_targets.Remove(this);
+        if(replay != null)
+            Replay.Instance.position_extraction_targets.Remove(this);
     }
 }

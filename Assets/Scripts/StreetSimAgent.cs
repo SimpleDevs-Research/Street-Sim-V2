@@ -31,7 +31,7 @@ public class StreetSimAgent : MonoBehaviour
     [SerializeField] private Component[] m_meshFollowers;
 
     private bool startingOnSouth = false;
-    [SerializeField] private float m_originalSpeed = 0.4f;
+    [SerializeField] private float m_originalSpeed = 1.0f;
     [SerializeField] private float m_crossDelayTime = 5f;
     [SerializeField] private float m_canCrossDelayTime = 0f;
     private bool m_canCrossDelayInitialized = false, m_canCrossDelayDone = false;

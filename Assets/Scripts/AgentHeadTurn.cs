@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AgentHeadTurn : MonoBehaviour
 {
-    [SerializeField] private Transform headTransform;
+    private Transform headTransform;
     private Animator animator;
 
     public Transform currentTargetTransform = null;
@@ -28,6 +28,10 @@ public class AgentHeadTurn : MonoBehaviour
 
     public AgentAttention agentAttention;
 
+    public GameObject objectSensorPrefab;
+
+    bool hasEyeBones = false;
+
     private void Awake() {
         animator = GetComponent<Animator>();
         GameObject headToTargetPivotGameObject = new GameObject("Head To Target Pivot");
@@ -41,8 +45,29 @@ public class AgentHeadTurn : MonoBehaviour
         eyeToTargetPivot.localPosition = Vector3.zero;
 
         lEyeTransform = animator.GetBoneTransform(HumanBodyBones.LeftEye);
-        lookDir = lEyeTransform.forward;
-        lookSource = lEyeTransform.position;
+        headTransform = animator.GetBoneTransform(HumanBodyBones.Head);
+        Transform attentionTransform = lEyeTransform;
+
+        if (lEyeTransform != null)
+        {
+            hasEyeBones = true;
+        }
+        else
+        {
+            hasEyeBones = false;
+            attentionTransform = headTransform;
+        }
+
+        lookDir = attentionTransform.forward;
+        lookSource = attentionTransform.position;
+
+        objectSensorPrefab = Resources.Load<GameObject>("Prefabs/ObjectSensor");
+        ObjectSensor sensor = Instantiate(objectSensorPrefab, attentionTransform).GetComponent<ObjectSensor>();
+        
+        agentAttention = GetComponent<AgentAttention>();
+        sensor.agentAttention = agentAttention;
+        sensor.agentHeadTurn = this;
+
     }
 
     // Update is called once per frame
@@ -57,53 +82,71 @@ public class AgentHeadTurn : MonoBehaviour
             eyeToTargetPivot.position = Vector3.SmoothDamp(eyeToTargetPivot.position, headTransform.position + transform.forward, ref eyeToTargetVelocity, headToTargetSmoothTime);
             ReduceEyeLookWeight();
         } else {
-            headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, currentTargetTransform.position, ref headToTargetVelocity, headToTargetSmoothTime);
-            if (agentAttention.fullAttention)
-            {
-                IncreaseHeadLookWeight();
-            } else
-            {
-                IncreaseHeadLookWeightLight();
+            if(hasEyeBones) {
+                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, currentTargetTransform.position, ref headToTargetVelocity, headToTargetSmoothTime);
+                if (agentAttention.fullAttention)
+                {
+                    IncreaseHeadLookWeight();
+                }
+                else
+                {
+                    IncreaseHeadLookWeightLight();
+                }
+                eyeToTargetPivot.position = Vector3.SmoothDamp(eyeToTargetPivot.position, currentTargetTransform.position, ref eyeToTargetVelocity, eyeToTargetSmoothTime);
+                IncreaseEyeLookWeight();
             }
-            eyeToTargetPivot.position = Vector3.SmoothDamp(eyeToTargetPivot.position, currentTargetTransform.position, ref eyeToTargetVelocity, eyeToTargetSmoothTime);
-            IncreaseEyeLookWeight();
+            else
+            {
+                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, currentTargetTransform.position, ref headToTargetVelocity, headToTargetSmoothTime);
+                IncreaseHeadLookWeight();
+            }
+           
         }
         
     }
     private void LateUpdate()
     {
-        lEyeTransform = animator.GetBoneTransform(HumanBodyBones.LeftEye);
-        lEyeTransform.LookAt(lEyeTransform.position + headTransform.forward);
-        float rotation = Vector3.SignedAngle(transform.forward, lEyeTransform.forward, -transform.right);
-        lEyeTransform.LookAt(eyeToTargetPivot.position);
-        lEyeTransform.Rotate(new Vector3(-rotation, 0, 0));
-        Vector3 rot = lEyeTransform.localRotation.eulerAngles;
+        if (hasEyeBones)
+        {
+            lEyeTransform = animator.GetBoneTransform(HumanBodyBones.LeftEye);
+            lEyeTransform.LookAt(lEyeTransform.position + headTransform.forward);
+            float rotation = Vector3.SignedAngle(transform.forward, lEyeTransform.forward, -transform.right);
+            lEyeTransform.LookAt(eyeToTargetPivot.position);
+            lEyeTransform.Rotate(new Vector3(-rotation, 0, 0));
+            Vector3 rot = lEyeTransform.localRotation.eulerAngles;
 
-        rot.x = rot.x - 360 * (rot.x > 180 ? 1 : 0);
-        rot.y = rot.y - 360 * (rot.y > 180 ? 1 : 0);
-        rot.x = Mathf.Clamp(rot.x, -15, 15);
-        rot.y = Mathf.Clamp(rot.y, -25, 25);
+            rot.x = rot.x - 360 * (rot.x > 180 ? 1 : 0);
+            rot.y = rot.y - 360 * (rot.y > 180 ? 1 : 0);
+            rot.x = Mathf.Clamp(rot.x, -15, 15);
+            rot.y = Mathf.Clamp(rot.y, -25, 25);
 
-        lEyeTransform.localRotation = Quaternion.Euler(rot);
+            lEyeTransform.localRotation = Quaternion.Euler(rot);
 
-        rEyeTransform = animator.GetBoneTransform(HumanBodyBones.RightEye);
-        rEyeTransform.LookAt(rEyeTransform.position + headTransform.forward);
-        rotation = Vector3.SignedAngle(transform.forward, rEyeTransform.forward, -transform.right);
-        rEyeTransform.LookAt(eyeToTargetPivot.position);
-        rEyeTransform.Rotate(new Vector3(-rotation, 0, 0));
-        rot = rEyeTransform.localRotation.eulerAngles;
+            rEyeTransform = animator.GetBoneTransform(HumanBodyBones.RightEye);
+            rEyeTransform.LookAt(rEyeTransform.position + headTransform.forward);
+            rotation = Vector3.SignedAngle(transform.forward, rEyeTransform.forward, -transform.right);
+            rEyeTransform.LookAt(eyeToTargetPivot.position);
+            rEyeTransform.Rotate(new Vector3(-rotation, 0, 0));
+            rot = rEyeTransform.localRotation.eulerAngles;
 
-        rot.x = rot.x - 360 * (rot.x > 180 ? 1 : 0);
-        rot.y = rot.y - 360 * (rot.y > 180 ? 1 : 0);
-        rot.x = Mathf.Clamp(rot.x, -15, 15);
-        rot.y = Mathf.Clamp(rot.y, -25, 25);
+            rot.x = rot.x - 360 * (rot.x > 180 ? 1 : 0);
+            rot.y = rot.y - 360 * (rot.y > 180 ? 1 : 0);
+            rot.x = Mathf.Clamp(rot.x, -15, 15);
+            rot.y = Mathf.Clamp(rot.y, -25, 25);
 
-        rEyeTransform.localRotation = Quaternion.Euler(rot);
+            rEyeTransform.localRotation = Quaternion.Euler(rot);
 
-        lookDir = lEyeTransform.forward;
-        lookSource = lEyeTransform.position;
+            lookDir = lEyeTransform.forward;
+            lookSource = lEyeTransform.position;
+        }
 
-        Debug.DrawLine(lookSource, eyeToTargetPivot.position, Color.red);
+        else
+        {
+            lookDir = headTransform.forward;
+            lookSource = headTransform.position;
+        }
+
+        //Debug.DrawLine(lookSource, eyeToTargetPivot.position, Color.red);
 
     }
 
@@ -131,23 +174,5 @@ public class AgentHeadTurn : MonoBehaviour
         if (animator == null) return;
         animator.SetLookAtWeight(headLookWeight);
         animator.SetLookAtPosition(headToTargetPivot.position);
-
-        
-
-        /*
-        Transform lEye = animator.GetBoneTransform(HumanBodyBones.LeftEye);
-        Vector3 lookDir = (currentTargetTransform.position - lEye.position).normalized;
-        Vector3 up = Vector3.Cross(lookDir, animator.GetBoneTransform(HumanBodyBones.Head).right);
-
-        Debug.Log(animator.GetBoneTransform(HumanBodyBones.Head).forward);
-
-        Quaternion rotation = Quaternion.Inverse(animator.GetBoneTransform(HumanBodyBones.Head).rotation) * Quaternion.LookRotation(lookDir, up);
-        animator.SetBoneLocalRotation(HumanBodyBones.LeftEye, rotation);
-
-        /*Transform rEye = animator.GetBoneTransform(HumanBodyBones.RightEye);
-        forward = (currentTargetTransform.position - rEye.position).normalized;
-        up = Vector3.Cross(forward, animator.GetBoneTransform(HumanBodyBones.Head).right);
-        rotation = Quaternion.Inverse(animator.GetBoneTransform(HumanBodyBones.Head).rotation) * Quaternion.LookRotation(forward, up);
-        animator.SetBoneLocalRotation(HumanBodyBones.RightEye, rotation);*/
     }
 }
