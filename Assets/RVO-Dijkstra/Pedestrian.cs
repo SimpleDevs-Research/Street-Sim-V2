@@ -184,6 +184,7 @@ public class Pedestrian : Entity
 
     protected override void Awake() {
         base.Awake();
+        m_animator = GetComponent<Animator>();
         // Initialize the animator and view detector
         if (m_animator != null) m_animator.Rebind();
        // m_animatedMeshes = GetComponentsInChildren<AnimatedMesh>(true);
@@ -208,9 +209,6 @@ public class Pedestrian : Entity
 
         // Initialize our pedestrian data
         InitializePedData();
-
-        // Initialize the path determinator
-        StartCoroutine(CalculatePath());
         // Depending on our update frequency setting, if we wanted a coroutine, run the coroutine
         if (m_updateFrequency == UpdateFrequency.Coroutine) StartCoroutine(UpdateCoroutine());
 
@@ -226,10 +224,15 @@ public class Pedestrian : Entity
 
     }
 
+    public void BeginCalculatingBestPath()
+    {
+        // Initialize the path determinator
+        StartCoroutine(CalculatePath());
+    }
     private IEnumerator CalculatePath() {
         m_navPath = new NavMeshPath();
         while(true) {
-            //print("repathing");
+            //print("repathing towards " + m_destination.ToString());
             m_pathPositions = new List<Vector3>();
             bool pathFound = NavMesh.CalculatePath(
                 transform.position, 
@@ -239,7 +242,7 @@ public class Pedestrian : Entity
             );
             if (pathFound)
             {
-                print("pathfound");
+               // print("pathfound");
                 NavMeshHit hit;
                 foreach (Vector3 p in m_navPath.corners)
                 {
@@ -250,7 +253,7 @@ public class Pedestrian : Entity
                     }
                 }
             }
-            else print("failure");
+            //else print("failure");
             yield return new WaitForSeconds(m_repathTimeGap);
         }
     }
@@ -277,6 +280,15 @@ public class Pedestrian : Entity
         // Update our pedestrian data
         UpdatePedData();
         //Debug.Log($"{gameObject.name} - {m_navPath.status.ToString()}");
+
+        if (m_route.Count == 1)
+        {
+            m_optimalVelocity = Vector3.zero;
+            m_jobScheduled = false;
+            PedestrianManager.Instance.PedestrianAtEnd(this);
+            return;
+
+        }
 
         float acceptableRadius = m_route[1].acceptableRadius;
         // End early if we're close enough to our final destination
@@ -636,6 +648,10 @@ public class Pedestrian : Entity
     }
 
     private void AnimatePedestrian() {
+        float forward = m_currentVelocity.magnitude;
+        if (m_animator == null) return;
+        m_animator.SetFloat("Forward", forward * 0.3f, 0.1f, Time.deltaTime);
+
         //if (m_animator != null) m_animator.SetBool("walk", m_currentVelocity.magnitude >= 0.05f);
         //if (m_animatedMeshes.Length > 0) {
         //    foreach(AnimatedMesh am in m_animatedMeshes) am.Play(m_currentVelocity.magnitude >= 0.05f ? "MaleWalk" : "MaleIdle");

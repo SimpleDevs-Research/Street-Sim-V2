@@ -214,6 +214,14 @@ public class RouteManager : MonoBehaviour
         resultsSet = minimumDistance;
         drawResults = true;
 
+        /*Debug.Log("printing best path");
+        String pathString = bestPath[0].gameObject.name;
+        for (int i = 1; i < bestPath.Count; i++)
+        {
+            pathString += " -> " + bestPath[i].gameObject.name;
+        }
+        Debug.Log(pathString);*/
+
         return bestPath;
     }
     int infCount(float[] array)

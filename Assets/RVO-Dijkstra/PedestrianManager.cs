@@ -111,7 +111,7 @@ public class PedestrianManager : MonoBehaviour
                 newPed.SetRoute(route);
                 newPed.SetDestination(route[1].transform.position);
                 newPed.transform.position += new Vector3(UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius), 0, UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius));
-                
+                newPed.BeginCalculatingBestPath();
                 m_activePedestrians.Add(newPed);
                 totalCreatedPedestrians++;
             }
@@ -123,6 +123,7 @@ public class PedestrianManager : MonoBehaviour
     }
 
     public void PedestrianAtEnd(Entity e) {
+        Debug.Log("At End");
         if (e.type != Entity.Type.Pedestrian) return;
         Pedestrian p = (Pedestrian)e;
         m_activePedestrians.Remove(p);
