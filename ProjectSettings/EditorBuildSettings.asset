@@ -6,10 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/StreetSim-V2.unity
+    path: Assets/Scenes/StreetSim-V2-Audio.unity
     guid: 67821d44df9404aa78096cf4296b9623
   - enabled: 1
-    path: Assets/Scenes/EyeDataMod.unity
+    path: Assets/CLEANUP/Scenes/EyeDataMod.unity
     guid: ea3eb8280e0481f47bbc9715e9210fc2
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 4478419d75759e44e800b81324ef7afa, type: 2}
