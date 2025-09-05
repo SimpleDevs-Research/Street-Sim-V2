@@ -64,3 +64,9 @@ crashlytics-build.properties
 Assets/Submodules/EasierVRAssets
 
 Assets/Submodules/
+
+Assets/EasierVRAssets/
+
+Assets/EasierVRAssets.meta
+
+Assets/UnityUtils.meta

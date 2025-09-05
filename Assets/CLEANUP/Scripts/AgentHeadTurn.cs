@@ -8,7 +8,6 @@ public class AgentHeadTurn : MonoBehaviour
     private Transform headTransform;
     private Animator animator;
 
-    public Transform currentTargetTransform = null;
     [SerializeField] private float headLookWeight = 0f;
     [SerializeField] private float eyeLookWeight = 0f;
 
@@ -61,9 +60,14 @@ public class AgentHeadTurn : MonoBehaviour
         lookDir = attentionTransform.forward;
         lookSource = attentionTransform.position;
 
-        objectSensorPrefab = Resources.Load<GameObject>("Prefabs/ObjectSensor");
+        objectSensorPrefab = Resources.Load<GameObject>("Prefabs/VisualObjectSensor");
         ObjectSensor sensor = Instantiate(objectSensorPrefab, attentionTransform).GetComponent<ObjectSensor>();
-        
+        agentAttention = GetComponent<AgentAttention>();
+        sensor.agentAttention = agentAttention;
+        sensor.agentHeadTurn = this;
+
+        objectSensorPrefab = Resources.Load<GameObject>("Prefabs/AudioObjectSensor");
+        sensor = Instantiate(objectSensorPrefab, attentionTransform).GetComponent<ObjectSensor>();
         agentAttention = GetComponent<AgentAttention>();
         sensor.agentAttention = agentAttention;
         sensor.agentHeadTurn = this;
@@ -72,10 +76,8 @@ public class AgentHeadTurn : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        if(agentAttention.currentAttention != null) currentTargetTransform = agentAttention.currentAttention.transform;
-        else currentTargetTransform = null;
 
-        if (currentTargetTransform == null) {
+        if (agentAttention.currentAttentionLocation == AgentAttention.nullLocation) {
             headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, headTransform.position + transform.forward, ref headToTargetVelocity, headToTargetSmoothTime);
             ReduceHeadLookWeight();
 
@@ -83,7 +85,7 @@ public class AgentHeadTurn : MonoBehaviour
             ReduceEyeLookWeight();
         } else {
             if(hasEyeBones) {
-                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, currentTargetTransform.position, ref headToTargetVelocity, headToTargetSmoothTime);
+                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, agentAttention.currentAttentionLocation, ref headToTargetVelocity, headToTargetSmoothTime);
                 if (agentAttention.fullAttention)
                 {
                     IncreaseHeadLookWeight();
@@ -92,12 +94,12 @@ public class AgentHeadTurn : MonoBehaviour
                 {
                     IncreaseHeadLookWeightLight();
                 }
-                eyeToTargetPivot.position = Vector3.SmoothDamp(eyeToTargetPivot.position, currentTargetTransform.position, ref eyeToTargetVelocity, eyeToTargetSmoothTime);
+                eyeToTargetPivot.position = Vector3.SmoothDamp(eyeToTargetPivot.position, agentAttention.currentAttentionLocation, ref eyeToTargetVelocity, eyeToTargetSmoothTime);
                 IncreaseEyeLookWeight();
             }
             else
             {
-                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, currentTargetTransform.position, ref headToTargetVelocity, headToTargetSmoothTime);
+                headToTargetPivot.position = Vector3.SmoothDamp(headToTargetPivot.position, agentAttention.currentAttentionLocation, ref headToTargetVelocity, headToTargetSmoothTime);
                 IncreaseHeadLookWeight();
             }
            

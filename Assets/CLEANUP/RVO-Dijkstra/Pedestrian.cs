@@ -24,6 +24,7 @@ public class Pedestrian : Entity
 {
     public enum UpdateFrequency { Update, Coroutine }
     public enum UpdateType { Normal, Burst, AsyncLateBurst }
+    public enum BehaviorMode { Walk, Wait, Look }
     [System.Serializable]
     public struct PedPersonality
     {
@@ -87,6 +88,7 @@ public class Pedestrian : Entity
     [SerializeField] private PedestrianManager m_manager;
     [SerializeField] private Animator m_animator;
     [SerializeField] private LODGroup m_lodGroup;
+    [SerializeField] private AgentAttention m_agentAttention;
     //[SerializeField] private AnimatedMesh[] m_animatedMeshes;
 
     [Header("=== Update Settings ===")]
@@ -110,12 +112,16 @@ public class Pedestrian : Entity
     [SerializeField] private int m_numDirectionsSample = 10;
     [SerializeField] private Entity.RandomFloat m_maxTranslateSpeed = new RandomFloat(15f, true, new Vector2(15f, 15f)); //new RandomFloat(1.25f, true, new Vector2(1.25f, 1.75f));
     [SerializeField] private Entity.RandomFloat m_maxAngularSpeed = new RandomFloat(90f);
+    [SerializeField] private Entity.RandomFloat m_maxAngularSpeedStanding = new RandomFloat(90f);
     [SerializeField] private Entity.RandomFloat m_translateAcceleration = new RandomFloat(2f);
     [SerializeField] private Entity.RandomFloat m_radiusOfAvoidance = new RandomFloat(0.25f, true, new Vector2(0.2f, 0.4f));
     [SerializeField] private Entity.RandomFloat m_aggression = new RandomFloat(0.5f, true, new Vector2(0.25f, 0.75f));
     [SerializeField] private float m_viewRadius;
     [SerializeField] private int m_kAgents = 8;
     [SerializeField] private float m_viewAngle;
+
+    [Header("=== Behavior Settings ===")]
+    [SerializeField] private BehaviorMode behaviorMode;
 
     [Header("=== Debug Settings ===")]
     [SerializeField] private bool m_drawPath = false;
@@ -137,6 +143,7 @@ public class Pedestrian : Entity
     private JobHandle m_dirJobHandle;
     private List<DirData> m_suitableDirections = new List<DirData>();
     private NavMeshPath m_navPath;
+    private float m_animTurn = 0;
 
     [SerializeField] private Vector3 m_lastPosOnNavMesh;
     [SerializeField] private Vector3 m_currentDestination;
@@ -185,6 +192,7 @@ public class Pedestrian : Entity
     protected override void Awake() {
         base.Awake();
         m_animator = GetComponent<Animator>();
+        m_agentAttention = GetComponent<AgentAttention>();
         // Initialize the animator and view detector
         if (m_animator != null) m_animator.Rebind();
        // m_animatedMeshes = GetComponentsInChildren<AnimatedMesh>(true);
@@ -219,6 +227,7 @@ public class Pedestrian : Entity
         m_personality.distanceAversion = UnityEngine.Random.Range(0f, 1f);
         m_personality.litterInclination = UnityEngine.Random.Range(0f, 0f);
         litterDelay = UnityEngine.Random.Range(5f, 20f);
+        behaviorMode = BehaviorMode.Walk;
 
         query = new KDQuery();
 
@@ -330,16 +339,32 @@ public class Pedestrian : Entity
         m_jobScheduled = false;
 
         // Now, depending on the update type, we can either update via `UpdateDirection()` (the default) or `UpdateDirectionBurst()` (using burst compiler).
-        switch(m_updateType) {
-            case UpdateType.Burst:
-                UpdateDirectionBurst();
-                break;
-            case UpdateType.AsyncLateBurst:
-                UpdateDirectionLateBurst();
-                break;
-            default:
-                UpdateDirection();
-                break;
+        if (behaviorMode == BehaviorMode.Walk)
+        {
+            switch (m_updateType)
+            {
+                case UpdateType.Burst:
+                    UpdateDirectionBurst();
+                    break;
+                case UpdateType.AsyncLateBurst:
+                    UpdateDirectionLateBurst();
+                    break;
+                default:
+                    UpdateDirection();
+                    break;
+            }
+        }
+        if(behaviorMode == BehaviorMode.Wait)
+        {
+            m_currentVelocity = Vector3.zero;
+            m_optimalVelocity = Vector3.zero;
+        }
+        if(behaviorMode == BehaviorMode.Look)
+        {
+            m_currentVelocity = Vector3.zero;
+            m_optimalVelocity = Vector3.zero;
+
+            RotateLookAt();
         }
     }
 
@@ -601,16 +626,20 @@ public class Pedestrian : Entity
         // Before ANYTHING, if our update type is late burst, we have to check!
         if (m_updateType == UpdateType.AsyncLateBurst) PerformDirectionJob();
 
-        // Rotate the agent to face the direction of the optimal velocity,. but only if the optimal velocity isn't Vector3.zero
-        Quaternion targetRotation = (m_optimalVelocity != Vector3.zero) 
-            ? Quaternion.LookRotation(m_optimalVelocity)
-            : Quaternion.LookRotation(m_currentDestination - transform.position);
-        float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
-        float angularStep = m_maxAngularSpeed * Time.deltaTime;
-        // Rotate towards the target rotation but do not overshoot
-        if (angularStep > angleDifference) transform.rotation = targetRotation;
-        else transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularStep);
+        if (behaviorMode == BehaviorMode.Walk)
+        {
+            // Rotate the agent to face the direction of the optimal velocity,. but only if the optimal velocity isn't Vector3.zero
+            Quaternion targetRotation = (m_optimalVelocity != Vector3.zero)
+                ? Quaternion.LookRotation(m_optimalVelocity)
+                : Quaternion.LookRotation(m_currentDestination - transform.position);
+            float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
+            float angularStep = m_maxAngularSpeed * Time.deltaTime;
+            //m_animTurn = angleDifference;
+            // Rotate towards the target rotation but do not overshoot
+            if (angularStep > angleDifference) transform.rotation = targetRotation;
+            else transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularStep);
 
+        }
         // Calcualte the difference between our current velocity and the optimal velocity
         Vector3 diff = m_optimalVelocity - m_currentVelocity;
 
@@ -651,6 +680,7 @@ public class Pedestrian : Entity
         float forward = m_currentVelocity.magnitude;
         if (m_animator == null) return;
         m_animator.SetFloat("Forward", forward * 0.3f, 0.1f, Time.deltaTime);
+        m_animator.SetFloat("Turn", m_animTurn * 0.2f, 0.1f, Time.deltaTime);
 
         //if (m_animator != null) m_animator.SetBool("walk", m_currentVelocity.magnitude >= 0.05f);
         //if (m_animatedMeshes.Length > 0) {
@@ -725,6 +755,23 @@ public class Pedestrian : Entity
 
     }
 
+    private void RotateLookAt()
+    {
+        if(m_agentAttention.currentAttentionLocation == AgentAttention.nullLocation)
+        {
+            m_animTurn = 0;
+            return;
+        }
+        Vector3 targetPos = new Vector3(m_agentAttention.currentAttentionLocation.x, transform.position.y, m_agentAttention.currentAttentionLocation.z);
+        Quaternion targetRotation = Quaternion.LookRotation(targetPos - transform.position);
+        float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
+        float angularStep = m_maxAngularSpeedStanding * Time.deltaTime;
+        m_animTurn = angleDifference;
+        // Rotate towards the target rotation but do not overshoot
+        if (angularStep > angleDifference) transform.rotation = targetRotation;
+        else transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularStep);
+    }
+
     public void OnTriggerEnter(Collider other)
     {
 
@@ -774,6 +821,10 @@ public class Pedestrian : Entity
             pathString += " -> " + route[i].gameObject.name;
         }
         //print(pathString);
+    }
+    public void SetBehaviorMode(BehaviorMode behaviorMode)
+    {
+        this.behaviorMode = behaviorMode;
     }
 
     protected override void OnDestroy() {

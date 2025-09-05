@@ -2103,6 +2103,7 @@ MonoBehaviour:
   m_manager: {fileID: 0}
   m_animator: {fileID: 0}
   m_lodGroup: {fileID: 0}
+  m_agentAttention: {fileID: 0}
   m_updateFrequency: 0
   m_updateType: 1
   m_coroutineDelay: 0.025
@@ -2134,7 +2135,11 @@ MonoBehaviour:
     randomize: 1
     limits: {x: 1.25, y: 1.75}
   m_maxAngularSpeed:
-    value: 90
+    value: 35
+    randomize: 0
+    limits: {x: 0, y: 0}
+  m_maxAngularSpeedStanding:
+    value: 80
     randomize: 0
     limits: {x: 0, y: 0}
   m_translateAcceleration:
@@ -2152,6 +2157,7 @@ MonoBehaviour:
   m_viewRadius: 5
   m_kAgents: 8
   m_viewAngle: 45
+  behaviorMode: 0
   m_drawPath: 0
   m_drawSuitableDirections: 0
   m_scaleViewedPedestrians: 0

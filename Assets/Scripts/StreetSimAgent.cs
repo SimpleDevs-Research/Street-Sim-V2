@@ -243,7 +243,6 @@ public class StreetSimAgent : MonoBehaviour
         animator.enabled = false;
         collider.enabled = false;
         rigidbody.isKinematic = true;
-        headTurn.currentTargetTransform = null;
     }
 
     

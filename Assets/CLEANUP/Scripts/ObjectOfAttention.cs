@@ -11,6 +11,11 @@ public enum BehaviorSuggestion
     AVOIDEYECONTACT,
     FLEE
 }
+public enum SenseType
+{
+    VISUAL,
+    AUDIO
+}
 public class ObjectOfAttention : MonoBehaviour
 {
     public float attentionPriority;
@@ -18,7 +23,7 @@ public class ObjectOfAttention : MonoBehaviour
     public ObjectOfAttention behaviorSuggestionObject;
     public AnimationCurve priorityFalloff;
     public float maxDistance = -1;
-    
+    public SenseType senseType;
 
     public virtual float GetAttentionPriority(Transform theTransform)
     {

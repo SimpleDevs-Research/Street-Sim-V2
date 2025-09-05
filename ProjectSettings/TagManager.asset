@@ -21,12 +21,12 @@ TagManager:
   - Character
   - MirroredCharacter
   - HiddenMesh
-  - Sensor
-  - ObjectOfAttention
+  - VisualSensor
+  - VisualObjectOfAttention
   - Trial
   - Wheel
-  - 
-  - 
+  - AudioSensor
+  - AudioObjectOfAttention
   - 
   - 
   - 
