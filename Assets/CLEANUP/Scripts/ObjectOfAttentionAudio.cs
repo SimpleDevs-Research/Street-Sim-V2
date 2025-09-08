@@ -6,13 +6,13 @@ public class ObjectOfAttentionAudio : ObjectOfAttention
 {
     // Start is called before the first frame update
     float currentVolume;
-    public float effectRadius;
     public bool useMicrophone;
     MicrophoneSoundListener microphone;
     public float minimumSound;
+    public float attentionPriorityMultiplier;
     void Start()
     {
-        effectRadius = GetComponent<SphereCollider>().radius;
+        maxDistance = GetComponent<SphereCollider>().radius;
         if (useMicrophone) microphone = GetComponent<MicrophoneSoundListener>();
     }
 
@@ -25,7 +25,7 @@ public class ObjectOfAttentionAudio : ObjectOfAttention
         float L = Mathf.Max(0f, currentVolume);
         Vector3 src = theTransform.position;
         float r = Vector3.Distance(transform.position, src);
-        float r0 = effectRadius;
+        float r0 = maxDistance;
 
         float thePriority = attentionPriority;
         thePriority = L * (r0 * r0) / Mathf.Max(r * r, 1e-4f);
@@ -37,7 +37,7 @@ public class ObjectOfAttentionAudio : ObjectOfAttention
         {
             return 0;
         }
-        return thePriority;
+        return thePriority * attentionPriorityMultiplier;
     }
 
     [Header("Per-agent HUD (optional)")]

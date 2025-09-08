@@ -75,7 +75,7 @@ public class ObjectSensor : MonoBehaviour
     }
     public void OnDrawGizmos()
     {
-        //Handles.Label(transform.position, "Effective Audio: " + debug_audiolevel.ToString());
+        Handles.Label(transform.position, "Effective Audio: " + debug_audiolevel.ToString());
     }
     public void OnTriggerExit(Collider other)
     {
