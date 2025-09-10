@@ -1845,6 +1845,8 @@ GameObject:
   - component: {fileID: 9222182699131166012}
   - component: {fileID: 9222182699131166005}
   - component: {fileID: 6666998036690477389}
+  - component: {fileID: 422236672}
+  - component: {fileID: 1127738785851612511}
   m_Layer: 8
   m_Name: Test-RVODijkstra-Agent
   m_TagString: Untagged
@@ -1859,7 +1861,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7449097854808050042}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.92, y: 0, z: -8.175}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2079,10 +2081,12 @@ MonoBehaviour:
   objectsInSight: []
   targetObservationTime: []
   currentAttention: {fileID: 0}
+  currentAttentionLocation: {x: -999, y: -999, z: -999}
   currentAttentionPriority: 0
   lastAttention: {fileID: 0}
   fullAttention: 0
-  transitiveAttentionPriority: 0
+  attentionLingerMax: 2
+  attentionLingerTime: 0
 --- !u!114 &6666998036690477389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2105,16 +2109,14 @@ MonoBehaviour:
   m_lodGroup: {fileID: 0}
   m_agentAttention: {fileID: 0}
   m_updateFrequency: 0
-  m_updateType: 1
   m_coroutineDelay: 0.025
   litterDelay: 10
   litterCounter: 0
-  m_personality:
-    riskAversion: 0
-    dirtinessAversion: 0
-    crowdednessAversion: 0
-    distanceAversion: 0
-    litterInclination: 0
+  m_maxTranslateSpeed:
+    value: 1.25
+    randomize: 1
+    limits: {x: 1.25, y: 1.75}
+  m_currentDestination: {x: 0, y: 0, z: 0}
   m_destination: {x: 0, y: 0, z: 0}
   m_routeDestination: {fileID: 0}
   m_routeStart: {fileID: 0}
@@ -2130,22 +2132,6 @@ MonoBehaviour:
     limits: {x: 0, y: 0}
   m_numDirections: 25
   m_numDirectionsSample: 10
-  m_maxTranslateSpeed:
-    value: 1.25
-    randomize: 1
-    limits: {x: 1.25, y: 1.75}
-  m_maxAngularSpeed:
-    value: 35
-    randomize: 0
-    limits: {x: 0, y: 0}
-  m_maxAngularSpeedStanding:
-    value: 80
-    randomize: 0
-    limits: {x: 0, y: 0}
-  m_translateAcceleration:
-    value: 2
-    randomize: 0
-    limits: {x: 0, y: 0}
   m_radiusOfAvoidance:
     value: 0.25
     randomize: 1
@@ -2164,12 +2150,53 @@ MonoBehaviour:
   m_pathPositions: []
   m_dirPenalties: []
   m_dirPenaltiesSanple: []
-  m_lastPosOnNavMesh: {x: 0, y: 0, z: 0}
-  m_currentDestination: {x: 0, y: 0, z: 0}
-  m_optimalVelocity: {x: 0, y: 0, z: 0}
-  m_currentVelocity: {x: 0, y: 0, z: 0}
   m_showNeighbors: 0
   m_gizmos_result_transforms: []
+--- !u!114 &422236672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7449097854808050042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2c2f351da18a564ebe29b3a77d490ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_personality:
+    riskAversion: 0
+    dirtinessAversion: 0
+    crowdednessAversion: 0
+    distanceAversion: 0
+    litterInclination: 0
+--- !u!114 &1127738785851612511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7449097854808050042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c6d8876f366a3546859c7422e7c5300, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_lastPosOnNavMesh: {x: 0, y: 0, z: 0}
+  m_optimalVelocity: {x: 0, y: 0, z: 0}
+  m_currentVelocity: {x: 0, y: 0, z: 0}
+  m_maxAngularSpeed:
+    value: 45
+    randomize: 0
+    limits: {x: 0, y: 0}
+  m_maxAngularSpeedStanding:
+    value: 90
+    randomize: 0
+    limits: {x: 0, y: 0}
+  m_translateAcceleration:
+    value: 2
+    randomize: 0
+    limits: {x: 0, y: 0}
 --- !u!1 &7623634747289117243
 GameObject:
   m_ObjectHideFlags: 0

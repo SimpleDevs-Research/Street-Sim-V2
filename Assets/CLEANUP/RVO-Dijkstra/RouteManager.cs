@@ -98,7 +98,7 @@ public class RouteManager : MonoBehaviour
         }*/
     } //
 
-    public void recomputeRoutes(Pedestrian.PedPersonality personalityData)
+    public void recomputeRoutes(PedestrianController.PedPersonality personalityData)
     {
         foreach(Route route in routes)
         {
@@ -113,7 +113,7 @@ public class RouteManager : MonoBehaviour
                                 + conditionWeight * route.dirtiness * personalityData.dirtinessAversion * (considerDirtiness ? 1 : 0);
         }
     }
-    public void recomputeEdges(Pedestrian.PedPersonality personalityData)
+    public void recomputeEdges(PedestrianController.PedPersonality personalityData)
     {
         recomputeRoutes(personalityData);
         edges = new float[nodesParent.childCount, nodesParent.childCount];
@@ -147,7 +147,7 @@ public class RouteManager : MonoBehaviour
         }
     }
 
-    public List<RouteNode> getRoute(RouteNode start, RouteNode end, Pedestrian.PedPersonality personalityData)
+    public List<RouteNode> getRoute(RouteNode start, RouteNode end, PedestrianController.PedPersonality personalityData)
     {
         List<RouteNode> bestPath = new List<RouteNode>();
         recomputeEdges(personalityData);

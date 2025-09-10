@@ -25,7 +25,7 @@ public class PedestrianQuery : MonoBehaviour
         if (other.GetComponent<Pedestrian>())
         {
             peoplewithin.Add(other.GetComponent<Pedestrian>());
-            Pedestrian.PedPersonality personalityData = other.GetComponent<Pedestrian>().m_personality;
+            PedestrianController.PedPersonality personalityData = other.GetComponent<PedestrianController>().m_personality;
             sumRiskAversion += personalityData.riskAversion;
             sumDirtinessAversion += personalityData.dirtinessAversion;
             sumCrowdednessAversion += personalityData.crowdednessAversion;
@@ -39,7 +39,7 @@ public class PedestrianQuery : MonoBehaviour
         if (other.GetComponent<Pedestrian>() && peoplewithin.Contains(other.GetComponent<Pedestrian>()))
         {
             peoplewithin.Remove(other.GetComponent<Pedestrian>());
-            Pedestrian.PedPersonality personalityData = other.GetComponent<Pedestrian>().m_personality;
+            PedestrianController.PedPersonality personalityData = other.GetComponent<PedestrianController>().m_personality;
             sumRiskAversion -= personalityData.riskAversion;
             sumDirtinessAversion -= personalityData.dirtinessAversion;
             sumCrowdednessAversion -= personalityData.crowdednessAversion;

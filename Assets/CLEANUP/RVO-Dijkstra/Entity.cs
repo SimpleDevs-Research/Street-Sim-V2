@@ -7,43 +7,6 @@ public class Entity : MonoBehaviour
     [System.Flags]
     public enum Type { Pedestrian=1, Vehicle=2, TrafficLight=4, PedestrianLight=8, Crosswalk=16, Obstacle=32, Hand=64 }
 
-    [System.Serializable]
-    public class RandomFloat {
-        public float value;
-        public bool randomize = false;
-        public Vector2 limits = Vector2.zero;
-        public RandomFloat(float value) {
-            this.value = value;
-            this.randomize = false;
-            this.limits = Vector2.zero;
-        }
-        public RandomFloat(float value, bool randomize) {
-            this.value = value;
-            this.randomize = randomize;
-            this.limits = Vector2.zero;
-        }
-        public RandomFloat(float value, bool randomize, Vector2 limits) {
-            this.value = value;
-            this.randomize = randomize;
-            this.limits = limits;
-        }
-        public void Randomize() {
-            if (!randomize) return;
-            this.value = UnityEngine.Random.Range(limits.x, limits.y);
-        }
-        public static implicit operator float(RandomFloat myFloat) {
-            return myFloat.value;
-        }
-        public static implicit operator RandomFloat(float value) {
-            return new RandomFloat(value);
-        }
-
-        // Override ToString for easy debugging
-        public override string ToString() {
-            return this.value.ToString();
-        }
-    }
-
     [Header("=== Entity Stats ===")]
     public Type type;
     private Type m_type;

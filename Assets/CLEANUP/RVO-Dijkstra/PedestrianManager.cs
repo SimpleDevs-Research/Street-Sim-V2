@@ -107,7 +107,7 @@ public class PedestrianManager : MonoBehaviour
                 
                 newPed.SetRouteStart(startNode);
                 newPed.SetRouteDestination(endNode);
-                List<RouteNode> route = RouteManager.instance.getRoute(startNode, endNode, newPed.m_personality);
+                List<RouteNode> route = RouteManager.instance.getRoute(startNode, endNode, newPed.GetComponent<PedestrianController>().m_personality);
                 newPed.SetRoute(route);
                 newPed.SetDestination(route[1].transform.position);
                 newPed.transform.position += new Vector3(UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius), 0, UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius));

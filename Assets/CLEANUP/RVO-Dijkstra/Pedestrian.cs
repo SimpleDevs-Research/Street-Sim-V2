@@ -15,25 +15,13 @@ using DataStructures.ViliWonka.KDTree;
 
 using RVO;
 using System.IO;
-
+using EntityMath;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 public class Pedestrian : Entity
 {
-    public enum UpdateFrequency { Update, Coroutine }
-    public enum UpdateType { Normal, Burst, AsyncLateBurst }
-    public enum BehaviorMode { Walk, Wait, Look }
-    [System.Serializable]
-    public struct PedPersonality
-    {
-        public float riskAversion;
-        public float dirtinessAversion;
-        public float crowdednessAversion;
-        public float distanceAversion;
-        public float litterInclination;
-    }
 
     [System.Serializable]
     public struct PedData {
@@ -83,6 +71,7 @@ public class Pedestrian : Entity
             this.penalty = penalty;
         }
     }
+    public enum BehaviorMode { Walk, Wait, Look }
 
     [Header("=== References ===")]
     [SerializeField] private PedestrianManager m_manager;
@@ -91,31 +80,22 @@ public class Pedestrian : Entity
     [SerializeField] private AgentAttention m_agentAttention;
     //[SerializeField] private AnimatedMesh[] m_animatedMeshes;
 
-    [Header("=== Update Settings ===")]
-    [SerializeField] private UpdateFrequency m_updateFrequency = UpdateFrequency.Update;
-    [SerializeField] private UpdateType m_updateType = UpdateType.Normal;
-    [SerializeField] private float m_coroutineDelay = 0.025f;
-    [SerializeField] private float litterDelay = 10;
-    [SerializeField] private float litterCounter = 0;
 
     [Header("=== Movement Settings ===")]
-
-    [SerializeField] public PedPersonality m_personality;
+    [SerializeField] private RandomFloat m_maxTranslateSpeed = new RandomFloat(15f, true, new Vector2(15f, 15f)); //new RandomFloat(1.25f, true, new Vector2(1.25f, 1.75f));
+    [SerializeField] public Vector3 m_currentDestination;
     [SerializeField] private Vector3 m_destination;
     [SerializeField] private RouteNode m_routeDestination;
     [SerializeField] private RouteNode m_routeStart;
     [SerializeField] private List<RouteNode> m_route;
     [SerializeField] private int m_routeNodeIndex = 1;
-    [SerializeField] private Entity.RandomFloat m_destinationRange = new RandomFloat(0.5f);
-    [SerializeField] private Entity.RandomFloat m_repathTimeGap = new RandomFloat(1f);
+    [SerializeField] private RandomFloat m_destinationRange = new RandomFloat(0.5f);
+    [SerializeField] private RandomFloat m_repathTimeGap = new RandomFloat(1f);
     [SerializeField] private int m_numDirections = 25;
     [SerializeField] private int m_numDirectionsSample = 10;
-    [SerializeField] private Entity.RandomFloat m_maxTranslateSpeed = new RandomFloat(15f, true, new Vector2(15f, 15f)); //new RandomFloat(1.25f, true, new Vector2(1.25f, 1.75f));
-    [SerializeField] private Entity.RandomFloat m_maxAngularSpeed = new RandomFloat(90f);
-    [SerializeField] private Entity.RandomFloat m_maxAngularSpeedStanding = new RandomFloat(90f);
-    [SerializeField] private Entity.RandomFloat m_translateAcceleration = new RandomFloat(2f);
-    [SerializeField] private Entity.RandomFloat m_radiusOfAvoidance = new RandomFloat(0.25f, true, new Vector2(0.2f, 0.4f));
-    [SerializeField] private Entity.RandomFloat m_aggression = new RandomFloat(0.5f, true, new Vector2(0.25f, 0.75f));
+    
+    [SerializeField] private RandomFloat m_radiusOfAvoidance = new RandomFloat(0.25f, true, new Vector2(0.2f, 0.4f));
+    [SerializeField] private RandomFloat m_aggression = new RandomFloat(0.5f, true, new Vector2(0.25f, 0.75f));
     [SerializeField] private float m_viewRadius;
     [SerializeField] private int m_kAgents = 8;
     [SerializeField] private float m_viewAngle;
@@ -144,11 +124,6 @@ public class Pedestrian : Entity
     private List<DirData> m_suitableDirections = new List<DirData>();
     private NavMeshPath m_navPath;
     private float m_animTurn = 0;
-
-    [SerializeField] private Vector3 m_lastPosOnNavMesh;
-    [SerializeField] private Vector3 m_currentDestination;
-    [SerializeField] private Vector3 m_optimalVelocity;
-    [SerializeField] private Vector3 m_currentVelocity;
 
     private KDQuery query;
     [SerializeField] private bool m_showNeighbors = false;
@@ -193,21 +168,17 @@ public class Pedestrian : Entity
         base.Awake();
         m_animator = GetComponent<Animator>();
         m_agentAttention = GetComponent<AgentAttention>();
-        // Initialize the animator and view detector
+        // Initialize the animator
         if (m_animator != null) m_animator.Rebind();
-       // m_animatedMeshes = GetComponentsInChildren<AnimatedMesh>(true);
-        m_lastPosOnNavMesh = transform.position;
 
         // Initialize any paraameters that need to be randomized
         m_destination = transform.position;
 
         m_destinationRange.Randomize();     // Determine how close we want to be to other entities
-        m_maxTranslateSpeed.Randomize();             // How fast can we go at max?
-        m_maxAngularSpeed.Randomize();      // How fast do we turn?
-        m_translateAcceleration.Randomize();    // How fast do we increase the agent's velocity?
         m_radiusOfAvoidance.Randomize();    // How close are we willing to be with other entities?
         m_avoidanceRadius = m_radiusOfAvoidance;
         m_aggression.Randomize();           // How aggressive are we with penalized directions?
+        m_maxTranslateSpeed.Randomize();             // How fast can we go at max?
 
         // Initialize the directions
         m_directionsTemplate = RVO.Utils.CreateDirections2D(m_numDirections, m_maxTranslateSpeed);
@@ -217,16 +188,7 @@ public class Pedestrian : Entity
 
         // Initialize our pedestrian data
         InitializePedData();
-        // Depending on our update frequency setting, if we wanted a coroutine, run the coroutine
-        if (m_updateFrequency == UpdateFrequency.Coroutine) StartCoroutine(UpdateCoroutine());
 
-        m_personality = new PedPersonality();
-        m_personality.riskAversion = UnityEngine.Random.Range(0f, 1f);
-        m_personality.dirtinessAversion = UnityEngine.Random.Range(0f, 1f);
-        m_personality.crowdednessAversion = UnityEngine.Random.Range(0f, 1f);
-        m_personality.distanceAversion = UnityEngine.Random.Range(0f, 1f);
-        m_personality.litterInclination = UnityEngine.Random.Range(0f, 0f);
-        litterDelay = UnityEngine.Random.Range(5f, 20f);
         behaviorMode = BehaviorMode.Walk;
 
         query = new KDQuery();
@@ -267,32 +229,22 @@ public class Pedestrian : Entity
         }
     }
 
-    private IEnumerator UpdateCoroutine() {
-        while(true) {
-            UpdateOptimalVelocity();
-            yield return new WaitForSeconds(m_coroutineDelay);
-        }
-    }
+
     private void Update() {
         if(transform.localScale.x > 0)
         {
             transform.localScale = Vector3.Lerp(transform.localScale, Vector3.one, 0.1f);
         }
-        // Cancel the update loop if we're not going to use the Update() operation as our updater.
-        if (m_updateFrequency == UpdateFrequency.Coroutine) {
-            m_jobScheduled = false;
-            return;
-        }
+
         UpdateOptimalVelocity();
     }
     private void UpdateOptimalVelocity() {
         // Update our pedestrian data
         UpdatePedData();
-        //Debug.Log($"{gameObject.name} - {m_navPath.status.ToString()}");
 
         if (m_route.Count == 1)
         {
-            m_optimalVelocity = Vector3.zero;
+            GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
             m_jobScheduled = false;
             PedestrianManager.Instance.PedestrianAtEnd(this);
             return;
@@ -303,13 +255,13 @@ public class Pedestrian : Entity
         // End early if we're close enough to our final destination
         if (Vector3.Distance(m_destination, transform.position) <= acceptableRadius) {
 
-            List<RouteNode> route = RouteManager.instance.getRoute(m_route[1], m_routeDestination, m_personality);
+            List<RouteNode> route = RouteManager.instance.getRoute(m_route[1], m_routeDestination, GetComponent<PedestrianController>().m_personality);
             SetRoute(route);
 
             //If we've reached the final part of the route, end
             if (m_route.Count == 1)
             {
-                m_optimalVelocity = Vector3.zero;
+                GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
                 m_jobScheduled = false;
                 PedestrianManager.Instance.PedestrianAtEnd(this);
             }
@@ -341,30 +293,20 @@ public class Pedestrian : Entity
         // Now, depending on the update type, we can either update via `UpdateDirection()` (the default) or `UpdateDirectionBurst()` (using burst compiler).
         if (behaviorMode == BehaviorMode.Walk)
         {
-            switch (m_updateType)
-            {
-                case UpdateType.Burst:
-                    UpdateDirectionBurst();
-                    break;
-                case UpdateType.AsyncLateBurst:
-                    UpdateDirectionLateBurst();
-                    break;
-                default:
-                    UpdateDirection();
-                    break;
-            }
+            UpdateDirectionBurst();
         }
+
         if(behaviorMode == BehaviorMode.Wait)
         {
-            m_currentVelocity = Vector3.zero;
-            m_optimalVelocity = Vector3.zero;
+            GetComponent<PedestrianMover>().m_currentVelocity = Vector3.zero;
+            GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
         }
         if(behaviorMode == BehaviorMode.Look)
         {
-            m_currentVelocity = Vector3.zero;
-            m_optimalVelocity = Vector3.zero;
+            GetComponent<PedestrianMover>().m_currentVelocity = Vector3.zero;
+            GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
 
-            RotateLookAt();
+            //RotateLookAt();
         }
     }
 
@@ -376,7 +318,7 @@ public class Pedestrian : Entity
         // 3. its desired velocity (max speed in the direction of its current target)
         int guid = this.GetInstanceID();
         Vector2 pA = transform.position.ToVector2();
-        Vector2 vA = m_currentVelocity.ToVector2();
+        Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_currentDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
         m_pedData = new PedData(guid, pA, vA, vD, m_avoidanceRadius);
     }
@@ -386,7 +328,7 @@ public class Pedestrian : Entity
         // 2. its current velocity, and
         // 3. its desired velocity (max speed in the direction of its current target)
         Vector2 pA = transform.position.ToVector2();
-        Vector2 vA = m_currentVelocity.ToVector2();
+        Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_currentDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
         m_pedData.UpdateData(pA, vA, vD);
     }
@@ -408,7 +350,7 @@ public class Pedestrian : Entity
         //  1. Convert the list of visible entities into a list of structs. End early if we don't have any pedestrians to consider.
         List<PedData> pedData = GetPedData();
         if (pedData.Count == 0) {
-            m_optimalVelocity = new Vector3(m_pedData.desiredVelocity[0], 0f, m_pedData.desiredVelocity[1]);
+            GetComponent<PedestrianMover>().m_optimalVelocity = new Vector3(m_pedData.desiredVelocity[0], 0f, m_pedData.desiredVelocity[1]);
             m_jobScheduled = false;
             return;
         }
@@ -433,35 +375,6 @@ public class Pedestrian : Entity
         PerformDirectionJob();
     }
 
-    private void UpdateDirectionLateBurst() {
-        //  1. Convert the list of visible entities into a list of structs. End early if we don't have any pedestrians to consider.
-        List<PedData> pedData = GetPedData();
-        if (pedData.Count == 0) {
-            m_optimalVelocity = new Vector3(m_pedData.desiredVelocity[0], 0f, m_pedData.desiredVelocity[1]);
-            m_jobScheduled = false;
-            return;
-        }
-
-        //  2. Create the necessary Pedestrian Data NativeArray
-        m_pedDataArray = new NativeArray<PedData>(pedData.ToArray(), Allocator.Persistent);
-
-        //  3. Create the job and initialize it, but don't complete it.
-        m_dirJob = new DirectionJob() {
-            directions = m_directionsArray,
-            pedData = m_pedDataArray,
-            guid = m_pedData.guid,
-            pA = m_pedData.position,
-            vA = m_pedData.velocity,
-            radius = m_pedData.radius,
-            maxSpeed = m_maxTranslateSpeed,
-            aggressiveness = m_aggression,
-            dirPenalties = m_dirPenaltiesArray
-        };
-        m_dirJobHandle = m_dirJob.Schedule(m_directionsArray.Length, 16);
-        JobHandle.ScheduleBatchedJobs();
-        m_jobScheduled = true;
-    }
-
     private void PerformDirectionJob() {
         if (!m_jobScheduled) return;
 
@@ -471,125 +384,13 @@ public class Pedestrian : Entity
         //  2. Extract the data from `dirPenaltiesArray`, find the optimal velocity
         m_dirPenalties = m_dirJob.dirPenalties.ToArray();
         Array.Sort(m_dirPenalties, (v1,v2)=>v1.penalty.CompareTo(v2.penalty));
-        m_optimalVelocity = m_directionsArray[m_dirPenalties[0].index].direction.ToVector3();
+        GetComponent<PedestrianMover>().m_optimalVelocity = m_directionsArray[m_dirPenalties[0].index].direction.ToVector3();
     }
-
-    private void UpdateDirection() {
-        // Initialize a new list of pedestrians visible to the pedestrian
-        //m_pedData = new List<PedData>();
-        Vector2 pA = new Vector2(m_pedData.position[0], m_pedData.position[1]);
-        Vector2 vA = new Vector2(m_pedData.velocity[0], m_pedData.velocity[1]);
-        Vector2 vD = new Vector2(m_pedData.desiredVelocity[0], m_pedData.desiredVelocity[1]);
-        float r = m_pedData.radius;
-
-        // Initialize the list of suitable directions we MAY be able to take.
-        // As we loop through possible agents, we slowly eliminate the list of suitable directions.
-        // In the end, we pick the direction that has the smallest penalty
-
-        List<DirData> suitableDirectionsTotal = new List<DirData>(m_directionsArray.ToArray());
-        List<DirPenalty> dirPenaltiesTotal = new List<DirPenalty>(m_dirPenaltiesArray.ToArray());
-
-        List<DirData> suitableDirections = new List<DirData>();
-        m_dirPenalties = new DirPenalty[m_numDirectionsSample];
-        //m_dirPenalties = m_dirPenaltiesArray.ToArray();
-
-        for (int i = 0; i < m_numDirectionsSample; i++)
-        {
-            int rand = UnityEngine.Random.Range(0, (m_numDirections - i));
-            DirData thisDir = suitableDirectionsTotal[rand];
-
-            suitableDirections.Add(thisDir);
-            m_dirPenalties[i] = dirPenaltiesTotal[rand];
-
-            suitableDirectionsTotal.RemoveAt(rand);
-            dirPenaltiesTotal.RemoveAt(rand);
-        }
-
-        List<Pedestrian> peds = GetVisiblePedestrians();
-        // Loop through all entities currently cached by the view detector
-        foreach (Entity e in peds) {
-            // We ignore this entity if: 
-            //  1. the list of cached entities doesn't match
-            //  2. if the entity was destroyed sometime between then and now
-            //  3. The entity isn't a pedestrian
-            if (e == null) continue;
-            if (e.type != Entity.Type.Pedestrian) continue;
-            
-            // The entity is active and is a pedestrian...
-            //  ... so let's extract some info about it.
-            Vector3 pos = e.position;
-            Vector3 vel = e.velocity;
-            float rad = e.avoidanceRadius;
-            
-            // Given these, we can test for validity of possible velocity trajectories to go towards.
-            // This is the "RVO" segment, in other words.
-
-            Vector2 translate_pA = pA + vel.ToVector2();                    // Calc. the transl. from this pedestrian to the other pedestrian's VO
-            float minkowski_radius = r + rad;   // Calc. Minkowski Sum based on each others' avoidance radii
-            // Calculate the left and right bounds of the Minkowski Sum           
-            // Step 1: Get the distance between the two positions and the angle between the two of them, relative to ---> positive x axis
-            Vector2 diff_BA = pos.ToVector2() - pA;
-            float dist_BA = Mathf.Max(diff_BA.magnitude, minkowski_radius);
-            Vector2 diff_BA_norm = diff_BA.normalized;
-            float theta_BA = Mathf.Atan2(diff_BA.y, diff_BA.x);
-            // Step 2: Calculate the time cost for this pedestrian, based on the distance and max speed
-            float timeCost = dist_BA / m_maxTranslateSpeed;
-            // Step 3: Get the angle between the direct vector towards B and the outer left and right vectors that are tangential
-            float theta_BAort = Mathf.Asin(minkowski_radius / dist_BA);
-            // Step 4: Get the left and right tangential vectors to B that represent the pyramid from A to B's sides
-            float theta_ort_left = theta_BA + theta_BAort;
-            Vector2 bound_left = new Vector2(
-                Mathf.Cos(theta_ort_left), 
-                Mathf.Sin(theta_ort_left)
-            );
-            float theta_ort_right = theta_BA - theta_BAort;
-            Vector2 bound_right = new Vector2(
-                Mathf.Cos(theta_ort_right), 
-                Mathf.Sin(theta_ort_right)
-            );
-            // Step 5: Get the angles (relative to the ---> positive x_axis)
-            float theta_right = Mathf.Atan2(bound_right.y, bound_right.x);
-            float theta_left = Mathf.Atan2(bound_left.y, bound_left.x);
-
-            // Right now, we have the left and right bounds, as well as the M.Sum relative to pB.
-            List<DirData> tempSuitable = new List<DirData>(suitableDirections);
-            // For all vertices in `suitableDirections`, will they be in RVO?
-            foreach(DirData dir in suitableDirections) {
-                Vector2 potential = dir.direction;
-                if (RVO.Utils.VelInVO(translate_pA, pA, theta_left, theta_right, 2f*potential-vA)) {
-                    // In this case, this is not a suitable velocity. Kill it off while we can
-                    tempSuitable.Remove(dir);
-                    // Assign the direction a penalty
-                    m_dirPenalties[dir.index].penalty = dir.base_penalty + ((1f+m_aggression)/timeCost);
-                }
-            }
-            // Update suitableDirections
-            suitableDirections = tempSuitable;
-
-            // Finally, add the pedestrian data...
-            //m_pedData.Add(new PedData(pos, vel, rad));
-        }
-
-        // After ALL that, we need to calculate the optimal velocity
-        // This comes down to: is there any remaining directions in `suitableDirections`???
-        // if there are, then we choose the first item since it's the closest to our desired velocity.
-        //if (suitableDirections.Count > 0) return suitableDirections[0].direction.ToVector3();
-        // Otherwise, we have to sort `m_dirPenalties` and find the one with the smallest penalty.
-        if (suitableDirections.Count == 0) {
-            m_optimalVelocity = Vector3.zero;
-            return;
-        }
-        m_suitableDirections = suitableDirections;
-        Array.Sort(m_dirPenalties, (v1,v2)=>v1.penalty.CompareTo(v2.penalty));
-        m_optimalVelocity = m_directionsArray[m_dirPenalties[0].index].direction.ToVector3();
-    }
-
     private List<Pedestrian> GetVisiblePedestrians()
     {
         List<int> resultIndices = new List<int>();
 
         PedestrianKDTree.Instance.DoRadiusQuery(transform.position, m_viewRadius, resultIndices);
-        //query.KNearest(PedestrianKDTree.Instance.tree, transform.position, 5, resultIndices);
 
         List<Pedestrian> pedestrians = new List<Pedestrian>();
         for (int i = 0; i < resultIndices.Count; i++)
@@ -600,14 +401,14 @@ public class Pedestrian : Entity
             Vector2Int a = new Vector2Int(Mathf.RoundToInt(transform.forward.x*10), Mathf.RoundToInt(transform.forward.z*10));
             Vector2Int b = new Vector2Int( Mathf.RoundToInt((ped.transform.position.x - transform.position.x)*10), Mathf.RoundToInt((ped.transform.position.z - transform.position.z) * 10));
             int dot = a.x * b.x + a.y * b.y;
-            if (dot / (a.magnitude * b.magnitude) > -0.25f)// || (transform.position.ToVector2() - ped.position.ToVector2()).magnitude < m_viewRadius/3)
+            if (dot / (a.magnitude * b.magnitude) > -0.25f)
                 pedestrians.Add(ped);
         }
 
         if (m_scaleViewedPedestrians)
         {
             for (int i = 0; i < pedestrians.Count; i++)
-                pedestrians[i].transform.localScale = Vector3.one * 2f;// (pedestrians.Count-i)/(pedestrians.Count*2);
+                pedestrians[i].transform.localScale = Vector3.one * 2f;
         }
         return pedestrians;
     }
@@ -622,77 +423,7 @@ public class Pedestrian : Entity
         return pd;
     }
 
-    private void LateUpdate() {
-        // Before ANYTHING, if our update type is late burst, we have to check!
-        if (m_updateType == UpdateType.AsyncLateBurst) PerformDirectionJob();
-
-        if (behaviorMode == BehaviorMode.Walk)
-        {
-            // Rotate the agent to face the direction of the optimal velocity,. but only if the optimal velocity isn't Vector3.zero
-            Quaternion targetRotation = (m_optimalVelocity != Vector3.zero)
-                ? Quaternion.LookRotation(m_optimalVelocity)
-                : Quaternion.LookRotation(m_currentDestination - transform.position);
-            float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
-            float angularStep = m_maxAngularSpeed * Time.deltaTime;
-            //m_animTurn = angleDifference;
-            // Rotate towards the target rotation but do not overshoot
-            if (angularStep > angleDifference) transform.rotation = targetRotation;
-            else transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularStep);
-
-        }
-        // Calcualte the difference between our current velocity and the optimal velocity
-        Vector3 diff = m_optimalVelocity - m_currentVelocity;
-
-        // As long as there is a different in the two velocities, we HAVE to translate.
-        if (diff.sqrMagnitude > 0f) {
-            // Calculate the step needed to add to the current velocity
-            Vector3 velStep = diff.normalized * m_translateAcceleration * Time.deltaTime;
-            // Increment current velocity based on velStep, except in the case that the velocity step overshoots the optimal velocity
-            if (velStep.sqrMagnitude > diff.sqrMagnitude) m_currentVelocity = m_optimalVelocity;
-            else m_currentVelocity += velStep;
-        }
-
-        // Update the position
-        transform.position += transform.forward * m_currentVelocity.magnitude * Time.deltaTime;
-        //transform.position += m_optimalVelocity * Time.deltaTime;
-
-        //Litter if applicable
-        if(m_personality.litterInclination >= 0.9f)
-        {
-            if(litterCounter > litterDelay)
-            {
-                GameObject instance = Instantiate(Resources.Load<GameObject>("Dynamic/Peel"));
-                instance.transform.position = transform.position;
-                litterCounter = 0;
-            }
-            litterCounter += Time.deltaTime;
-        }
-
-        // Update the animator based on the magnitude of the current velocity
-        KeepInMesh();
-        AnimatePedestrian();
-
-        // Update our writer
-        //if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, "Pedestrian", this.transform);
-    }
-
-    private void AnimatePedestrian() {
-        float forward = m_currentVelocity.magnitude;
-        if (m_animator == null) return;
-        m_animator.SetFloat("Forward", forward * 0.3f, 0.1f, Time.deltaTime);
-        m_animator.SetFloat("Turn", m_animTurn * 0.2f, 0.1f, Time.deltaTime);
-
-        //if (m_animator != null) m_animator.SetBool("walk", m_currentVelocity.magnitude >= 0.05f);
-        //if (m_animatedMeshes.Length > 0) {
-        //    foreach(AnimatedMesh am in m_animatedMeshes) am.Play(m_currentVelocity.magnitude >= 0.05f ? "MaleWalk" : "MaleIdle");
-        //W}
-    }
-
-    private void KeepInMesh() {
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(transform.position, out hit, 1f, NavMesh.AllAreas)) m_lastPosOnNavMesh= hit.position;
-        transform.position = m_lastPosOnNavMesh;
-    }
+    
 
     [BurstCompile(CompileSynchronously = true)]
     public struct DirectionJob: IJobParallelFor {
@@ -755,29 +486,12 @@ public class Pedestrian : Entity
 
     }
 
-    private void RotateLookAt()
-    {
-        if(m_agentAttention.currentAttentionLocation == AgentAttention.nullLocation)
-        {
-            m_animTurn = 0;
-            return;
-        }
-        Vector3 targetPos = new Vector3(m_agentAttention.currentAttentionLocation.x, transform.position.y, m_agentAttention.currentAttentionLocation.z);
-        Quaternion targetRotation = Quaternion.LookRotation(targetPos - transform.position);
-        float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
-        float angularStep = m_maxAngularSpeedStanding * Time.deltaTime;
-        m_animTurn = angleDifference;
-        // Rotate towards the target rotation but do not overshoot
-        if (angularStep > angleDifference) transform.rotation = targetRotation;
-        else transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularStep);
-    }
-
     public void OnTriggerEnter(Collider other)
     {
 
         if (other.CompareTag("RerouteTrigger"))
         {
-            List<RouteNode> route = RouteManager.instance.getRoute(m_route[0], m_routeDestination, m_personality);
+            List<RouteNode> route = RouteManager.instance.getRoute(m_route[0], m_routeDestination, GetComponent<PedestrianController>().m_personality);
             float acceptableRadius = m_route[0].acceptableRadius;
 
             SetRoute(route);
@@ -797,9 +511,6 @@ public class Pedestrian : Entity
     public void SetLODGroup(LODGroup newLODGroup) {
         m_lodGroup = newLODGroup;
     }
-    public void SetUpdateType(UpdateType newUpdateType) {
-        m_updateType = newUpdateType;
-    }
     public void SetDestination(Vector3 d) {
         m_destination = d;
     }
@@ -815,12 +526,12 @@ public class Pedestrian : Entity
     {
         m_route = route;
 
-        String pathString = route[0].gameObject.name;
+        /*String pathString = route[0].gameObject.name;
         for (int i = 1; i < route.Count; i++)
         {
             pathString += " -> " + route[i].gameObject.name;
         }
-        //print(pathString);
+        print(pathString);*/
     }
     public void SetBehaviorMode(BehaviorMode behaviorMode)
     {
