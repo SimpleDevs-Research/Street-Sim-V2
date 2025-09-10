@@ -8,7 +8,7 @@ public class PathRegion : MonoBehaviour
     public float dirtiness;
     public float risk;
 
-    public List<Pedestrian> peoplewithin = new List<Pedestrian>();
+    public List<PedestrianController> peoplewithin = new List<PedestrianController>();
     public List<PathQualityEffector> effectors = new List<PathQualityEffector>();
     public float size;
     void Start()
@@ -18,9 +18,9 @@ public class PathRegion : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if(other.GetComponent<Pedestrian>())
+        if(other.GetComponent<PedestrianController>())
         {
-            peoplewithin.Add(other.GetComponent<Pedestrian>());
+            peoplewithin.Add(other.GetComponent<PedestrianController>());
         }
         if(other.GetComponent<PathQualityEffector>())
         {
@@ -39,9 +39,9 @@ public class PathRegion : MonoBehaviour
     }
     public void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<Pedestrian>() && peoplewithin.Contains(other.GetComponent<Pedestrian>()))
+        if (other.GetComponent<PedestrianController>() && peoplewithin.Contains(other.GetComponent<PedestrianController>()))
         {
-            peoplewithin.Remove(other.GetComponent<Pedestrian>());
+            peoplewithin.Remove(other.GetComponent<PedestrianController>());
         }
         if (other.GetComponent<PathQualityEffector>() && effectors.Contains(other.GetComponent<PathQualityEffector>()))
         {

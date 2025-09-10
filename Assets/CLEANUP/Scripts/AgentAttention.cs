@@ -10,7 +10,7 @@ public class AgentAttention : MonoBehaviour
     public List<float> targetObservationTime = new List<float>();
 
     private AgentHeadTurn agentHeadTurn;
-    private Pedestrian pedestrian;
+    private PedestrianController pedestrian;
 
     public ObjectOfAttention currentAttention = null;
     public Vector3 currentAttentionLocation = nullLocation;
@@ -32,7 +32,7 @@ public class AgentAttention : MonoBehaviour
             gameObject.AddComponent(typeof(AgentHeadTurn));
         }
         agentHeadTurn = GetComponent<AgentHeadTurn>();
-        pedestrian = GetComponent<Pedestrian>();
+        pedestrian = GetComponent<PedestrianController>();
     }
 
     void Update()
@@ -60,12 +60,12 @@ public class AgentAttention : MonoBehaviour
 
             if (pedestrian != null)
             {
-                switch (currentAttention.behaviorSuggestion)
+                /*switch (currentAttention.behaviorSuggestion)
                 {
                     case BehaviorSuggestion.LOOKAT:
                         pedestrian.SetBehaviorMode(Pedestrian.BehaviorMode.Look);
                         break;
-                }
+                }*/
             }
         }
 

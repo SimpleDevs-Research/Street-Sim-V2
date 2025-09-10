@@ -4,7 +4,6 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
 
 public class PedestrianQuery : MonoBehaviour
 {
@@ -13,7 +12,7 @@ public class PedestrianQuery : MonoBehaviour
     public float sumCrowdednessAversion;
     public float sumDistanceAversion;
 
-    public List<Pedestrian> peoplewithin = new List<Pedestrian>();
+    public List<PedestrianController> peoplewithin = new List<PedestrianController>();
     public float size;
     void Start()
     {
@@ -22,9 +21,9 @@ public class PedestrianQuery : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Pedestrian>())
+        if (other.GetComponent<PedestrianController>())
         {
-            peoplewithin.Add(other.GetComponent<Pedestrian>());
+            peoplewithin.Add(other.GetComponent<PedestrianController>());
             PedestrianController.PedPersonality personalityData = other.GetComponent<PedestrianController>().m_personality;
             sumRiskAversion += personalityData.riskAversion;
             sumDirtinessAversion += personalityData.dirtinessAversion;
@@ -36,9 +35,9 @@ public class PedestrianQuery : MonoBehaviour
     }
     public void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<Pedestrian>() && peoplewithin.Contains(other.GetComponent<Pedestrian>()))
+        if (other.GetComponent<PedestrianController>() && peoplewithin.Contains(other.GetComponent<PedestrianController>()))
         {
-            peoplewithin.Remove(other.GetComponent<Pedestrian>());
+            peoplewithin.Remove(other.GetComponent<PedestrianController>());
             PedestrianController.PedPersonality personalityData = other.GetComponent<PedestrianController>().m_personality;
             sumRiskAversion -= personalityData.riskAversion;
             sumDirtinessAversion -= personalityData.dirtinessAversion;

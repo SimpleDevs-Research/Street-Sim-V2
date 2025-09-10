@@ -9,7 +9,7 @@ public class PedestrianMover : MonoBehaviour
     public Vector3 m_lastPosOnNavMesh;
     public Vector3 m_optimalVelocity;
     public Vector3 m_currentVelocity;
-    public Vector3 currentDestination => GetComponent<Pedestrian>().m_currentDestination;
+    public Vector3 localDestination => GetComponent<PedestrianRVO>().m_localDestination;
 
     
     [SerializeField] private RandomFloat m_maxAngularSpeed = new RandomFloat(90f);
@@ -29,7 +29,7 @@ public class PedestrianMover : MonoBehaviour
         // Rotate the agent to face the direction of the optimal velocity,. but only if the optimal velocity isn't Vector3.zero
         Quaternion targetRotation = (m_optimalVelocity != Vector3.zero)
             ? Quaternion.LookRotation(m_optimalVelocity)
-            : Quaternion.LookRotation(currentDestination - transform.position);
+            : Quaternion.LookRotation(localDestination - transform.position);
         float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
         float angularStep = m_maxAngularSpeed * Time.deltaTime;
         //m_animTurn = angleDifference;
