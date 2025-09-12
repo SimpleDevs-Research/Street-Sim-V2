@@ -25,8 +25,9 @@ public class PedestrianKDTree : MonoBehaviour
     public bool DrawQueryNodes = true;
 
     public Vector3 IntervalSize = new Vector3(0.2f, 0.2f, 0.2f);
-    public Vector3 point_size = new Vector3(1f,1f,1f); 
+    public Vector3 point_size = new Vector3(1f,1f,1f);
 
+    public List<ObstacleRVO> obstacles;
     Vector3[] pointCloud;
     Transform[] pointTransforms;
     List<int> result_indices = new List<int>();
@@ -57,7 +58,7 @@ public class PedestrianKDTree : MonoBehaviour
         }
     }
 
-    public void Init()
+    public void Awake()
     {
         Instance = this;
 
@@ -67,15 +68,20 @@ public class PedestrianKDTree : MonoBehaviour
         query = new KDQuery();
         tree = new KDTree(pointCloud, 32);
     }
+    public void AddObstacle(ObstacleRVO obstacle)
+    {
+        obstacles.Add(obstacle);
+        pointCloud = getPoints();
+    }
 
     public Vector3[] getPoints()
     {
-        pointCloud = new Vector3[pedManager.m_numPedestrians];
-        pointTransforms = new Transform[pedManager.m_numPedestrians];
-        for(int i = 0; i < pedManager.m_numPedestrians; i++)
+        pointCloud = new Vector3[obstacles.Count];
+        pointTransforms = new Transform[obstacles.Count];
+        for(int i = 0; i < obstacles.Count; i++)
         {
-            pointCloud[i] = pedManager.m_TotalPedestrians[i].transform.position;
-            pointTransforms[i] = pedManager.m_TotalPedestrians[i].transform;
+            pointCloud[i] = obstacles[i].transform.position;
+            pointTransforms[i] = obstacles[i].transform;
             pointTransforms[i].localScale = point_size;
         }
         return pointCloud;
@@ -83,9 +89,9 @@ public class PedestrianKDTree : MonoBehaviour
 
     public void FillAndBuild()
     {
-        for (int i = 0; i < pedManager.m_numPedestrians; i++)
+        for (int i = 0; i < obstacles.Count; i++)
         {
-            tree.Points[i] = pedManager.m_TotalPedestrians[i].transform.position;
+            tree.Points[i] = obstacles[i].transform.position;
             pointTransforms[i].localScale = point_size;
         }
         tree.Rebuild();

@@ -1847,6 +1847,7 @@ GameObject:
   - component: {fileID: 422236672}
   - component: {fileID: 6666998036690477389}
   - component: {fileID: 1127738785851612511}
+  - component: {fileID: 7641143098779933702}
   m_Layer: 8
   m_Name: Test-RVODijkstra-Agent
   m_TagString: Untagged
@@ -2115,6 +2116,7 @@ MonoBehaviour:
     crowdednessAversion: 0
     distanceAversion: 0
     litterInclination: 0
+  m_goal: 0
 --- !u!114 &6666998036690477389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2136,6 +2138,7 @@ MonoBehaviour:
   m_animator: {fileID: 0}
   m_lodGroup: {fileID: 0}
   m_agentAttention: {fileID: 0}
+  RVOActive: 0
   m_maxTranslateSpeed:
     value: 1.25
     randomize: 1
@@ -2185,10 +2188,46 @@ MonoBehaviour:
   m_lastPosOnNavMesh: {x: 0, y: 0, z: 0}
   m_optimalVelocity: {x: 0, y: 0, z: 0}
   m_currentVelocity: {x: 0, y: 0, z: 0}
+  m_targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  m_rotateDegrees: 0
   m_maxAngularSpeed:
-    value: 45
+    value: 145
     randomize: 0
     limits: {x: 0, y: 0}
+  m_AngularSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -1.9993268
+      outSlope: -1.9993268
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.05426356
+    - serializedVersion: 3
+      time: 0.5060013
+      value: 0.2629913
+      inSlope: 0.02621752
+      outSlope: 0.02621752
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.19683027
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2.588848
+      outSlope: 2.588848
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.10658926
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_maxPossibleSpeed: 5
   m_maxAngularSpeedStanding:
     value: 90
     randomize: 0
@@ -2197,6 +2236,30 @@ MonoBehaviour:
     value: 2
     randomize: 0
     limits: {x: 0, y: 0}
+--- !u!114 &7641143098779933702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7449097854808050042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32791babe885e5a499bdf02e50947203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_rvoData:
+    guid: 0
+    position:
+      x: 0
+      y: 0
+    velocity:
+      x: 0
+      y: 0
+    desiredVelocity:
+      x: 0
+      y: 0
+    radius: 0
 --- !u!1 &7623634747289117243
 GameObject:
   m_ObjectHideFlags: 0

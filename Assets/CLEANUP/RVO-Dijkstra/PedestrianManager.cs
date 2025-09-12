@@ -56,15 +56,10 @@ public class PedestrianManager : MonoBehaviour
             m_TotalPedestrians.Add(newPed);
             newPed.gameObject.SetActive(false);
             newPed.gameObject.name = i.ToString();
+            GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
         }
 
         m_inactivePedestrians = new List<PedestrianController>(m_TotalPedestrians);
-
-        //onAwakeFinished.Invoke();
-        if (GetComponent<PedestrianKDTree>())
-        {
-            GetComponent<PedestrianKDTree>().Init();
-        }
 
         StartCoroutine(GeneratePedestrians());
     }
@@ -112,7 +107,7 @@ public class PedestrianManager : MonoBehaviour
                 pedController.SetRoute(route);
                 pedController.SetSegmentDestination(route[1].transform.position);
                 newPed.transform.position += new Vector3(UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius), 0, UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius));
-                newPed.GetComponent<PedestrianRVO>().BeginCalculatingSegmentPath();
+                newPed.GetComponent<PedestrianRVO>().RVOActive = true;
                 m_activePedestrians.Add(newPed);
                 totalCreatedPedestrians++;
             }

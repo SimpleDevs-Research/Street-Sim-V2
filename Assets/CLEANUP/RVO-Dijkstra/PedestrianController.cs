@@ -27,6 +27,8 @@ public class PedestrianController : Entity
     [SerializeField] private List<RouteNode> m_route;
     [SerializeField] private int m_routeNodeIndex = 1;
 
+    public enum Goal { TRAVEL, APPROACH, WATCH }
+
     [System.Serializable]
     public struct PedPersonality
     {
@@ -38,6 +40,7 @@ public class PedestrianController : Entity
     }
 
     public PedPersonality m_personality;
+    public Goal m_goal;
 
     private void Awake()
     {
@@ -53,14 +56,29 @@ public class PedestrianController : Entity
 
         m_segmentDestination = transform.position;
     }
+
+    private void Update()
+    {
+    }
     private void LateUpdate()
     {
+        switch (m_goal)
+        {
+            case Goal.TRAVEL:
+                QueryGlobalRoute();
+                break;
+            case Goal.APPROACH:
+                ApproachBehavior();
+                break;
+        }
+        
         AnimatePedestrian();
     }
 
     //Check a pedestrians position on their global route, find the current segment destination
     public bool QueryGlobalRoute()
     {
+        GetComponent<PedestrianRVO>().RVOActive = true;
         if (m_route.Count <= 1)
         {
             GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
@@ -80,7 +98,7 @@ public class PedestrianController : Entity
             //If we've reached the final part of the route, end
             if (m_route.Count <= 1)
             {
-                GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
+                m_pedestrianMover.m_optimalVelocity = Vector3.zero;
                 PedestrianManager.Instance.PedestrianAtEnd(this);
                 return false;
             }
@@ -96,6 +114,33 @@ public class PedestrianController : Entity
 
         //SetSegmentDestination(PlayerTracker.Instance.transform.position);
         //return true;
+    }
+
+    public void ApproachBehavior()
+    {
+        Vector3 p = PlayerTracker.Instance.transform.position;
+        Vector3 toPosition = new Vector3(p.x, transform.position.y, p.z);
+        Vector3 diff = transform.position - toPosition;
+        float stopRadius = 2f;
+        
+        if (diff.magnitude < stopRadius)
+        {
+            GetComponent<PedestrianRVO>().RVOActive = false;
+            m_pedestrianMover.m_optimalVelocity = new Vector3(0, 0, 0);
+
+            //Keep looking towards the user
+            Quaternion targetPosition = Quaternion.LookRotation(toPosition - transform.position);
+            if(Quaternion.Angle(transform.rotation, targetPosition) > 45f)
+            {
+                m_pedestrianMover.m_targetRotation = targetPosition;
+            }
+
+        }
+        else
+        {
+            GetComponent<PedestrianRVO>().RVOActive = true;
+            SetSegmentDestination(PlayerTracker.Instance.transform.position - stopRadius * diff.normalized);
+        }
     }
 
     public void OnTriggerEnter(Collider other)
@@ -118,8 +163,10 @@ public class PedestrianController : Entity
     private void AnimatePedestrian()
     {
         float forward = m_pedestrianMover.m_currentVelocity.magnitude;
+        float turn = Mathf.Clamp(m_pedestrianMover.m_rotateDegrees, -1.0f, 1.0f);
         if (m_animator == null) return;
         m_animator.SetFloat("Forward", forward * 0.3f, 0.1f, Time.deltaTime);
+        m_animator.SetFloat("Turn", turn, 0.5f, Time.deltaTime);
     }
     public void SetSegmentDestination(Vector3 d)
     {

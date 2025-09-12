@@ -20,27 +20,7 @@ using UnityEditor;
 public class PedestrianRVO : Entity
 {
 
-    [System.Serializable]
-    public struct PedData {
-        public int guid;
-        public float2 position;
-        public float2 velocity;
-        public float2 desiredVelocity;
-        public float radius;
-        public PedData(int guid, Vector2 position, Vector2 velocity, Vector2 desiredVelocity, float radius) {
-            this.guid = guid;
-            this.position = (float2)position;
-            this.velocity = (float2)velocity;
-            this.desiredVelocity = (float2)desiredVelocity;
-            this.radius = radius;
-        }
-        public void UpdateData(Vector2 position, Vector2 velocity, Vector2 desiredVelocity) {
-            this.position = (float2)position;
-            this.velocity = (float2)velocity;  
-            this.desiredVelocity = (float2)desiredVelocity;
-        }
-    }
-
+    
     [System.Serializable]
     public struct DirData {
         public int index;
@@ -78,6 +58,7 @@ public class PedestrianRVO : Entity
 
 
     [Header("=== Movement Settings ===")]
+    [SerializeField] public bool RVOActive = false;
     [SerializeField] private RandomFloat m_maxTranslateSpeed = new RandomFloat(15f, true, new Vector2(15f, 15f)); //new RandomFloat(1.25f, true, new Vector2(1.25f, 1.75f));
     [SerializeField] public Vector3 m_localDestination;
 
@@ -98,13 +79,12 @@ public class PedestrianRVO : Entity
     [SerializeField] private bool m_scaleViewedPedestrians = false;
 
     [Header("=== Outcomes - Read Only ===")]
-    private PedData m_pedData;
-    public PedData pedData => m_pedData;
+    private ObstacleRVO.RVOData m_rvoData;
     [SerializeField] private List<Vector3> m_pathPositions;
     private Vector2[] m_directionsTemplate;
     private NativeArray<DirData> m_directionsArray;
     private NativeArray<DirPenalty> m_dirPenaltiesArray;
-    private NativeArray<PedData> m_pedDataArray;
+    private NativeArray<ObstacleRVO.RVOData> m_pedDataArray;
     [SerializeField] private DirPenalty[] m_dirPenalties;
     [SerializeField] private DirPenalty[] m_dirPenaltiesSanple;
     private bool m_jobScheduled = false;
@@ -173,6 +153,7 @@ public class PedestrianRVO : Entity
         m_directionsArray = new NativeArray<DirData>(m_numDirections+1, Allocator.Persistent);
         m_dirPenaltiesArray = new NativeArray<DirPenalty>(m_numDirections+1, Allocator.Persistent);
         m_jobScheduled = false;
+        BeginCalculatingSegmentPath();
 
         // Initialize our pedestrian data
         InitializePedData();
@@ -189,29 +170,33 @@ public class PedestrianRVO : Entity
     private IEnumerator CalculateSegmentPath() {
         m_navPath = new NavMeshPath();
         while(true) {
-            //print("repathing towards " + m_destination.ToString());
-            m_pathPositions = new List<Vector3>();
-            bool pathFound = NavMesh.CalculatePath(
-                transform.position, 
-                GetComponent<PedestrianController>().m_segmentDestination, 
-                NavMesh.AllAreas, 
-                m_navPath
-            );
-            if (pathFound)
+            if (RVOActive)
             {
-               // print("pathfound");
-                NavMeshHit hit;
-                foreach (Vector3 p in m_navPath.corners)
+                //print("repathing towards " + m_destination.ToString());
+                m_pathPositions = new List<Vector3>();
+                bool pathFound = NavMesh.CalculatePath(
+                    transform.position,
+                    new Vector3(GetComponent<PedestrianController>().m_segmentDestination.x, transform.position.y, GetComponent<PedestrianController>().m_segmentDestination.z),
+                    NavMesh.AllAreas,
+                    m_navPath
+                );
+                if (pathFound)
                 {
-                    if (NavMesh.FindClosestEdge(p, out hit, NavMesh.AllAreas))
+                    print("pathfound");
+                    NavMeshHit hit;
+                    foreach (Vector3 p in m_navPath.corners)
                     {
-                        if (hit.distance < m_avoidanceRadius) m_pathPositions.Add(hit.position + hit.normal * m_avoidanceRadius);
-                        else m_pathPositions.Add(p);
+                        if (NavMesh.FindClosestEdge(p, out hit, NavMesh.AllAreas))
+                        {
+                            if (hit.distance < m_avoidanceRadius) m_pathPositions.Add(hit.position + hit.normal * m_avoidanceRadius);
+                            else m_pathPositions.Add(p);
+                        }
                     }
                 }
+                else print("failure");
+                yield return new WaitForSeconds(m_repathTimeGap);
             }
-            //else print("failure");
-            yield return new WaitForSeconds(m_repathTimeGap);
+            yield return null;
         }
     }
 
@@ -222,37 +207,46 @@ public class PedestrianRVO : Entity
             transform.localScale = Vector3.Lerp(transform.localScale, Vector3.one, 0.1f);
         }
 
+
         UpdateOptimalVelocity();
     }
     private void UpdateOptimalVelocity() {
         // Update our pedestrian data
         UpdatePedData();
 
-        bool foundNewRoute = GetComponent<PedestrianController>().QueryGlobalRoute();
+        //bool foundNewRoute = GetComponent<PedestrianController>().QueryGlobalRoute();
 
-        if(!foundNewRoute)
-        {
-            m_jobScheduled = false;
-            return;
-        }
+        //if(!foundNewRoute)
+        //{
+        //   m_jobScheduled = false;
+        //   return;
+        //}
 
         // Given the path calculated by this pedestrian, what is its current destination?
-        m_localDestination = UpdateLocalDestination();
 
-        // Initialize the direction and direction penalties arrays. We ensure that the desired direction is also added
-        Vector2 vD = new Vector2(m_pedData.desiredVelocity[0], m_pedData.desiredVelocity[1]);
-        for(int i = 0; i < m_directionsTemplate.Length; i++) {
-            Vector2 dir = m_directionsTemplate[i];
-            float diff = (vD-dir).magnitude;
-            m_directionsArray[i] = new DirData(i, dir, diff);
-            m_dirPenaltiesArray[i] = new DirPenalty(i, diff);
+        if (RVOActive)
+        {
+            m_localDestination = UpdateLocalDestination();
+
+            // Initialize the direction and direction penalties arrays. We ensure that the desired direction is also added
+            Vector2 vD = new Vector2(m_rvoData.desiredVelocity[0], m_rvoData.desiredVelocity[1]);
+            for (int i = 0; i < m_directionsTemplate.Length; i++)
+            {
+                Vector2 dir = m_directionsTemplate[i];
+                float diff = (vD - dir).magnitude;
+                m_directionsArray[i] = new DirData(i, dir, diff);
+                m_dirPenaltiesArray[i] = new DirPenalty(i, diff);
+            }
+            m_directionsArray[m_numDirections] = new DirData(m_numDirections, vD);
+            m_dirPenaltiesArray[m_numDirections] = new DirPenalty(m_numDirections);
+            m_jobScheduled = false;
+
+            // Now, depending on the update type, we can either update via `UpdateDirection()` (the default) or `UpdateDirectionBurst()` (using burst compiler).
+            UpdateDirectionBurst();
+        } else
+        {
+            m_jobScheduled = false;
         }
-        m_directionsArray[m_numDirections] = new DirData(m_numDirections, vD);
-        m_dirPenaltiesArray[m_numDirections] = new DirPenalty(m_numDirections);
-        m_jobScheduled = false;
-
-        // Now, depending on the update type, we can either update via `UpdateDirection()` (the default) or `UpdateDirectionBurst()` (using burst compiler).
-        UpdateDirectionBurst();
     }
 
     private void InitializePedData() {
@@ -265,7 +259,9 @@ public class PedestrianRVO : Entity
         Vector2 pA = transform.position.ToVector2();
         Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
-        m_pedData = new PedData(guid, pA, vA, vD, m_avoidanceRadius);
+
+        GetComponent<ObstacleRVO>().m_rvoData = new ObstacleRVO.RVOData(guid, pA, vA, vD, m_avoidanceRadius);
+        m_rvoData = GetComponent<ObstacleRVO>().m_rvoData;
     }
     private void UpdatePedData() {
         // Calculate the current state of the pedestrian. This includes:
@@ -275,7 +271,7 @@ public class PedestrianRVO : Entity
         Vector2 pA = transform.position.ToVector2();
         Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
-        m_pedData.UpdateData(pA, vA, vD);
+        m_rvoData.UpdateData(pA, vA, vD);
     }
 
     private Vector3 UpdateLocalDestination() {
@@ -293,24 +289,24 @@ public class PedestrianRVO : Entity
     private void UpdateDirectionBurst() {
 
         //  1. Convert the list of visible entities into a list of structs. End early if we don't have any pedestrians to consider.
-        List<PedData> pedData = GetPedData();
+        List<ObstacleRVO.RVOData> pedData = GetPedData();
         if (pedData.Count == 0) {
-            GetComponent<PedestrianMover>().m_optimalVelocity = new Vector3(m_pedData.desiredVelocity[0], 0f, m_pedData.desiredVelocity[1]);
+            GetComponent<PedestrianMover>().m_optimalVelocity = new Vector3(m_rvoData.desiredVelocity[0], 0f, m_rvoData.desiredVelocity[1]);
             m_jobScheduled = false;
             return;
         }
 
         //  2. Create the necessary Pedestrian Data NativeArray
-        m_pedDataArray = new NativeArray<PedData>(pedData.ToArray(), Allocator.TempJob);
+        m_pedDataArray = new NativeArray<ObstacleRVO.RVOData>(pedData.ToArray(), Allocator.TempJob);
 
         //  3. Conduct the job
         m_dirJob = new DirectionJob() {
             directions = m_directionsArray,
             pedData = m_pedDataArray,
-            guid = m_pedData.guid,
-            pA = m_pedData.position,
-            vA = m_pedData.velocity,
-            radius = m_pedData.radius,
+            guid = m_rvoData.guid,
+            pA = m_rvoData.position,
+            vA = m_rvoData.velocity,
+            radius = m_rvoData.radius,
             maxSpeed = m_maxTranslateSpeed,
             aggressiveness = m_aggression,
             dirPenalties = m_dirPenaltiesArray
@@ -330,39 +326,40 @@ public class PedestrianRVO : Entity
         Array.Sort(m_dirPenalties, (v1,v2)=>v1.penalty.CompareTo(v2.penalty));
         GetComponent<PedestrianMover>().m_optimalVelocity = m_directionsArray[m_dirPenalties[0].index].direction.ToVector3();
     }
-    private List<PedestrianController> GetVisiblePedestrians()
+    private List<ObstacleRVO> GetVisiblePedestrians()
     {
         List<int> resultIndices = new List<int>();
 
         PedestrianKDTree.Instance.DoRadiusQuery(transform.position, m_viewRadius, resultIndices);
 
-        List<PedestrianController> pedestrians = new List<PedestrianController>();
+        List<ObstacleRVO> obstacles = new List<ObstacleRVO>();
         for (int i = 0; i < resultIndices.Count; i++)
         {
-            PedestrianController ped = PedestrianManager.Instance.m_TotalPedestrians[resultIndices[i]];
-            if (m_scaleViewedPedestrians)  Debug.DrawLine(transform.position, ped.transform.position);
+            ObstacleRVO obstacle = PedestrianKDTree.Instance.obstacles[resultIndices[i]];
+            if (m_scaleViewedPedestrians)  Debug.DrawLine(transform.position, obstacle.transform.position);
             //Check angle, right now it's 45 for easy calculation
             Vector2Int a = new Vector2Int(Mathf.RoundToInt(transform.forward.x*10), Mathf.RoundToInt(transform.forward.z*10));
-            Vector2Int b = new Vector2Int( Mathf.RoundToInt((ped.transform.position.x - transform.position.x)*10), Mathf.RoundToInt((ped.transform.position.z - transform.position.z) * 10));
+            Vector2Int b = new Vector2Int( Mathf.RoundToInt((obstacle.transform.position.x - transform.position.x)*10), Mathf.RoundToInt((obstacle.transform.position.z - transform.position.z) * 10));
             int dot = a.x * b.x + a.y * b.y;
             if (dot / (a.magnitude * b.magnitude) > -0.25f)
-                pedestrians.Add(ped);
+                obstacles.Add(obstacle);
         }
 
         if (m_scaleViewedPedestrians)
         {
-            for (int i = 0; i < pedestrians.Count; i++)
-                pedestrians[i].transform.localScale = Vector3.one * 2f;
+            for (int i = 0; i < obstacles.Count; i++)
+                obstacles[i].transform.localScale = Vector3.one * 2f;
         }
-        return pedestrians;
+
+        return obstacles;
     }
 
-    private List<PedData> GetPedData() {
-        List<PedData> pd = new List<PedData>();
-        List<PedestrianController> peds = GetVisiblePedestrians();
-        if (peds.Count == 0) return pd;
-        foreach(Entity e in peds) {
-            pd.Add(((PedestrianController)e).GetComponent<PedestrianRVO>().pedData);
+    private List<ObstacleRVO.RVOData> GetPedData() {
+        List<ObstacleRVO.RVOData> pd = new List<ObstacleRVO.RVOData>();
+        List<ObstacleRVO> obstacles = GetVisiblePedestrians();
+        if (obstacles.Count == 0) return pd;
+        foreach(ObstacleRVO obstacle in obstacles) {
+            pd.Add(obstacle.m_rvoData);
         }
         return pd;
     }
@@ -372,7 +369,7 @@ public class PedestrianRVO : Entity
     [BurstCompile(CompileSynchronously = true)]
     public struct DirectionJob: IJobParallelFor {
         [ReadOnly] public NativeArray<DirData> directions;
-        [ReadOnly] public NativeArray<PedData> pedData;
+        [ReadOnly] public NativeArray<ObstacleRVO.RVOData> pedData;
         [ReadOnly] public int guid;
         [ReadOnly] public float2 pA;
         [ReadOnly] public float2 vA;
@@ -391,7 +388,7 @@ public class PedestrianRVO : Entity
             // Iterate through ped data
             float cost = 0f;
             for(int i = 0; i < pedData.Length; i++) {
-                PedData pd = pedData[i];
+                ObstacleRVO.RVOData pd = pedData[i];
                 if (guid == pd.guid) continue;
 
                 float2 pos = pd.position;
