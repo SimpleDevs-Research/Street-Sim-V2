@@ -509,6 +509,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_controllerAnchor: {fileID: 0}
+  m_OVRController: 0
+  m_events: []
+  m_trackInputSettings: 1
+  m_velocityFrameRate: 5
+  m_velocity: {x: 0, y: 0, z: 0}
+  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &372588908
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,6 +812,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_controllerAnchor: {fileID: 0}
+  m_OVRController: 0
+  m_events: []
+  m_trackInputSettings: 1
+  m_velocityFrameRate: 5
+  m_velocity: {x: 0, y: 0, z: 0}
+  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &755716282
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,38 +1117,6 @@ MonoBehaviour:
   _headPoseRelativeOffsetRotation: {x: 0, y: 0, z: 0}
   _headPoseRelativeOffsetTranslation: {x: 0, y: 0, z: 0}
   profilerTcpPort: 32419
-  expandMixedRealityCapturePropertySheet: 0
-  enableMixedReality: 0
-  compositionMethod: 0
-  extraHiddenLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  extraVisibleLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  dynamicCullingMask: 1
-  externalCompositionBackdropColorRift: {r: 0, g: 1, b: 0, a: 1}
-  externalCompositionBackdropColorQuest: {r: 0, g: 0, b: 0, a: 0}
-  capturingCameraDevice: 0
-  flipCameraFrameHorizontally: 0
-  flipCameraFrameVertically: 0
-  handPoseStateLatency: 0
-  sandwichCompositionRenderLatency: 0
-  sandwichCompositionBufferedFrames: 8
-  chromaKeyColor: {r: 0, g: 1, b: 0, a: 1}
-  chromaKeySimilarity: 0.6
-  chromaKeySmoothRange: 0.03
-  chromaKeySpillRange: 0.06
-  useDynamicLighting: 0
-  depthQuality: 1
-  dynamicLightingSmoothFactor: 8
-  dynamicLightingDepthVariationClampingValue: 0.001
-  virtualGreenScreenType: 0
-  virtualGreenScreenTopY: 10
-  virtualGreenScreenBottomY: -10
-  virtualGreenScreenApplyDepthCulling: 0
-  virtualGreenScreenDepthTolerance: 0.2
-  mrcActivationMode: 0
   isInsightPassthroughEnabled: 1
   requestBodyTrackingPermissionOnStartup: 1
   requestFaceTrackingPermissionOnStartup: 1
@@ -1910,7 +1892,18 @@ MonoBehaviour:
   m_movingDotOffColor: {r: 1, g: 0.53333336, b: 0.53333336, a: 1}
   m_movingDotOnColor: {r: 0.3967805, g: 1, b: 0.25943398, a: 1}
   m_totalOverlaps: 4
-  m_nextScene: StreetSim-V2
+  m_nextScene: 
+  writer:
+    fileName: calibration_test
+    dirName: BlinkCalibration
+    writeUnixTime: 1
+    append_zero_to_filename: 0
+    columns:
+    - frame
+    - rel_timestamp
+    - event
+    - overlap_counter
+    filePath: 
   m_state: 0
   m_moveDir: 0
   m_overlaps: 0
