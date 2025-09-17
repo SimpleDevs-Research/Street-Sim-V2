@@ -19,7 +19,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
 
     public void TrialCollision()
     {
-        SceneManager.UnloadSceneAsync(trialScenes[index]);
+        //SceneManager.UnloadSceneAsync(trialScenes[index]);
         index += 1;
         SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
     }
