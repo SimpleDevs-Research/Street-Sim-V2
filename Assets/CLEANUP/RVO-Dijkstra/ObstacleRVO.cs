@@ -23,7 +23,6 @@ public class ObstacleRVO : MonoBehaviour
         }
         public void UpdateData(Vector2 position, Vector2 velocity, Vector2 desiredVelocity)
         {
-            Debug.Log("Updating Data, position = " + position.ToString());
             this.position = (float2)position;
             this.velocity = (float2)velocity;
             this.desiredVelocity = (float2)desiredVelocity;
@@ -31,4 +30,8 @@ public class ObstacleRVO : MonoBehaviour
     }
     public RVOData m_rvoData;
 
+    public void UpdateData(Vector2 position, Vector2 velocity, Vector2 desiredVelocity)
+    {
+        m_rvoData.UpdateData(position, velocity, desiredVelocity);
+    }
 }

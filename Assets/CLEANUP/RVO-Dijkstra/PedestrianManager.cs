@@ -56,7 +56,7 @@ public class PedestrianManager : MonoBehaviour
             m_TotalPedestrians.Add(newPed);
             newPed.gameObject.SetActive(false);
             newPed.gameObject.name = i.ToString();
-            GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
+            //GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
         }
 
         m_inactivePedestrians = new List<PedestrianController>(m_TotalPedestrians);

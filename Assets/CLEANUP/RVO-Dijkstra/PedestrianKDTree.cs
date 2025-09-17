@@ -63,7 +63,7 @@ public class PedestrianKDTree : MonoBehaviour
         Instance = this;
 
         pedManager = GetComponent<PedestrianManager>();
-        pointCloud = getPoints();
+        getPoints();
 
         query = new KDQuery();
         tree = new KDTree(pointCloud, 32);
@@ -71,7 +71,14 @@ public class PedestrianKDTree : MonoBehaviour
     public void AddObstacle(ObstacleRVO obstacle)
     {
         obstacles.Add(obstacle);
-        pointCloud = getPoints();
+        getPoints();
+        tree = new KDTree(pointCloud, 32);
+    }
+    public void RemoveObstacle(ObstacleRVO obstacle)
+    {
+        obstacles.Remove(obstacle);
+        getPoints();
+        tree = new KDTree(pointCloud, 32);
     }
 
     public Vector3[] getPoints()
