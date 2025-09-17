@@ -13,9 +13,11 @@ public class PedestrianMover : MonoBehaviour
     public Vector3 localDestination => GetComponent<PedestrianRVO>().m_localDestination;
     public float m_rotateDegrees; //For the animator
 
-    
+    [SerializeField] private RandomFloat m_maxAngularAcceleration = new RandomFloat(90f);
+    [SerializeField] private AnimationCurve m_angularAccelerationCurve;
     [SerializeField] private RandomFloat m_maxAngularSpeed = new RandomFloat(90f);
     [SerializeField] private AnimationCurve m_AngularSpeedCurve;
+    [SerializeField] private float m_angularSpeed;
     [SerializeField] private float m_maxPossibleSpeed; //Used for evaluating turning speed along the curve
     [SerializeField] private RandomFloat m_maxAngularSpeedStanding = new RandomFloat(90f);
     [SerializeField] private RandomFloat m_translateAcceleration = new RandomFloat(2f);
@@ -29,7 +31,9 @@ public class PedestrianMover : MonoBehaviour
     }
     private void LateUpdate()
     {
-        float angularSpeed = m_AngularSpeedCurve.Evaluate(Mathf.Clamp(m_currentVelocity.magnitude / m_maxPossibleSpeed, 0.0f, 1.0f)) * m_maxAngularSpeed;
+        float targetAngularSpeed = m_AngularSpeedCurve.Evaluate(Mathf.Clamp(m_currentVelocity.magnitude / m_maxPossibleSpeed, 0.0f, 1.0f)) * m_maxAngularSpeed;
+        float targetAngularAcceleration = m_angularAccelerationCurve.Evaluate(Mathf.Clamp(m_currentVelocity.magnitude / m_maxPossibleSpeed, 0.0f, 1.0f)) * m_maxAngularAcceleration;
+
 
         // Rotate the agent to face the direction of the optimal velocity,. but only if the optimal velocity isn't Vector3.zero
         if (GetComponent<PedestrianRVO>().RVOActive)
@@ -42,15 +46,16 @@ public class PedestrianMover : MonoBehaviour
         Quaternion previousRotation = transform.rotation;
 
         float angleDifference = Quaternion.Angle(transform.rotation, m_targetRotation);
-        float angularStep = angularSpeed * Time.deltaTime;
+        float angularStep = targetAngularSpeed * Time.deltaTime;
+
+        if (angularStep > angleDifference) targetAngularSpeed = 0;
+
+        m_angularSpeed = Mathf.MoveTowards(m_angularSpeed, targetAngularSpeed, targetAngularAcceleration * Time.deltaTime);
+
         //m_animTurn = angleDifference;
         // Rotate towards the target rotation but do not overshoot
-        if (angularStep > angleDifference) transform.rotation = m_targetRotation;
-        else
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, m_targetRotation, angularStep);
-            //m_rotateDegrees = 0;
-        }
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, m_targetRotation, m_angularSpeed * Time.deltaTime);
 
         m_rotateDegrees = Vector3.SignedAngle(previousRotation * Vector3.forward, transform.forward, Vector3.up);
 

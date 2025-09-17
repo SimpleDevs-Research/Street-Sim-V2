@@ -6,11 +6,23 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/StreetSim-V2-Audio.unity
+    path: 
     guid: 67821d44df9404aa78096cf4296b9623
   - enabled: 1
     path: Assets/CLEANUP/Scenes/EyeDataMod.unity
     guid: ea3eb8280e0481f47bbc9715e9210fc2
+  - enabled: 1
+    path: Assets/CLEANUP/Scenes/StreetSim-V2.unity
+    guid: f488b4152ca73c94cb2d1d4b34070ceb
+  - enabled: 1
+    path: Assets/CLEANUP/Scenes/Trial-AlleyRunner.unity
+    guid: 89988ad5cebcb7b4b8803575d403e028
+  - enabled: 1
+    path: Assets/CLEANUP/Scenes/Trial-Plain.unity
+    guid: e9096728acd92f444abc12840eb2b60e
+  - enabled: 1
+    path: Assets/CLEANUP/Scenes/Trial-Approach.unity
+    guid: e8618535d48578341b80c7456237b8f9
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 4478419d75759e44e800b81324ef7afa, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: b90efe3bab373d34fbbca430a1ceac9c, type: 2}

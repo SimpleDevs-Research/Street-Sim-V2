@@ -79,7 +79,6 @@ public class PedestrianRVO : Entity
     [SerializeField] private bool m_scaleViewedPedestrians = false;
 
     [Header("=== Outcomes - Read Only ===")]
-    private ObstacleRVO.RVOData m_rvoData;
     [SerializeField] private List<Vector3> m_pathPositions;
     private Vector2[] m_directionsTemplate;
     private NativeArray<DirData> m_directionsArray;
@@ -97,8 +96,10 @@ public class PedestrianRVO : Entity
     private KDQuery query;
     [SerializeField] private bool m_showNeighbors = false;
     [SerializeField] private List<Transform> m_gizmos_result_transforms = new List<Transform>();
+    ObstacleRVO.RVOData m_rvoData => GetComponent<ObstacleRVO>().m_rvoData;
 
-    #if UNITY_EDITOR
+
+#if UNITY_EDITOR
     private void OnDrawGizmos() {
         if (m_drawPath && m_pathPositions.Count == 0) {
             Gizmos.color = Color.blue; 
@@ -261,7 +262,6 @@ public class PedestrianRVO : Entity
         Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
 
         GetComponent<ObstacleRVO>().m_rvoData = new ObstacleRVO.RVOData(guid, pA, vA, vD, m_avoidanceRadius);
-        m_rvoData = GetComponent<ObstacleRVO>().m_rvoData;
     }
     private void UpdatePedData() {
         // Calculate the current state of the pedestrian. This includes:
@@ -271,7 +271,7 @@ public class PedestrianRVO : Entity
         Vector2 pA = transform.position.ToVector2();
         Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
-        m_rvoData.UpdateData(pA, vA, vD);
+        GetComponent<ObstacleRVO>().UpdateData(pA, vA, vD);
     }
 
     private Vector3 UpdateLocalDestination() {

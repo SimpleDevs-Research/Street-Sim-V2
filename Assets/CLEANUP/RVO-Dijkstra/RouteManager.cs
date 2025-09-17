@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
+using DataStructures.ViliWonka.KDTree;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -66,6 +67,15 @@ public class RouteManager : MonoBehaviour
     bool drawResults = false;
     float[] resultsSet = new float[0];
 
+    [Header("=== KD Tree ===")]
+
+    Vector3[] pointCloud;
+    Transform[] pointTransforms;
+    List<int> result_indices = new List<int>();
+    public KDTree tree;
+    KDQuery query;
+    bool builtThisFrame;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -79,7 +89,23 @@ public class RouteManager : MonoBehaviour
             thePathRegion.transform.LookAt(route.node2.transform.position);
             thePathRegion.transform.localScale = new Vector3(route.pathWidth*2, 1, Vector3.Distance(route.node1.transform.position, route.node2.transform.position));
             route.pathRegion = thePathRegion.GetComponent<PathRegion>();
+
+
+            if (!nodes.Contains(route.node1))
+            {
+                nodes.Add(route.node1);
+            }
+            if (!nodes.Contains(route.node2))
+            {
+                nodes.Add(route.node2);
+            }
+
+            
         }
+
+        getPoints();
+        query = new KDQuery();
+        tree = new KDTree(pointCloud, 32);
     }
     
     // Update is called once per frame
@@ -127,26 +153,30 @@ public class RouteManager : MonoBehaviour
 
         foreach (Route route in routes)
         {
-            if (!nodes.Contains(route.node1))
-            {
-                nodes.Add(route.node1);
-            }
-            if (!nodes.Contains(route.node2))
-            {
-                nodes.Add(route.node2);
-            }
-
-            route.node1.acceptableRadius = Mathf.Min(route.node1.acceptableRadius, route.pathWidth);
-            route.node2.acceptableRadius = Mathf.Min(route.node2.acceptableRadius, route.pathWidth);
 
             int ind1 = nodes.IndexOf(route.node1);
             int ind2 = nodes.IndexOf(route.node2);
+
+            route.node1.acceptableRadius = route.pathWidth;
+            route.node2.acceptableRadius = route.pathWidth;
 
             edges[ind1, ind2] = route.computedCost;
             edges[ind2, ind1] = route.computedCost;
         }
     }
 
+    public List<RouteNode> getRoute(Vector3 start, Vector3 end, PedestrianController.PedPersonality personalityData)
+    {
+        List<int> resultIndices = new List<int>();
+        KNearestQuery(start, 1, resultIndices);
+        RouteNode startNode = nodes[resultIndices[0]];
+
+        resultIndices = new List<int>();
+        KNearestQuery(end, 1, resultIndices);
+        RouteNode endNode = nodes[resultIndices[0]];
+
+        return getRoute(startNode, endNode, personalityData);
+    }
     public List<RouteNode> getRoute(RouteNode start, RouteNode end, PedestrianController.PedPersonality personalityData)
     {
         List<RouteNode> bestPath = new List<RouteNode>();
@@ -302,5 +332,51 @@ public class RouteManager : MonoBehaviour
     public Vector2 Vec3To2(Vector3 vec)
     {
         return new Vector2(vec.x, vec.z);
+    }
+
+    public Vector3[] getPoints()
+    {
+        pointCloud = new Vector3[nodes.Count];
+        pointTransforms = new Transform[nodes.Count];
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            pointCloud[i] = nodes[i].transform.position;
+            pointTransforms[i] = nodes[i].transform;
+        }
+        return pointCloud;
+    }
+
+    public void FillAndBuild()
+    {
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            tree.Points[i] = nodes[i].transform.position;
+        }
+        tree.Rebuild();
+        builtThisFrame = true;
+    }
+
+    public void DoRadiusQuery(Vector3 queryPosition, float queryRadius, List<int> resultIndices)
+    {
+        if (!builtThisFrame)
+        {
+            FillAndBuild();
+        }
+        query.Radius(tree, queryPosition, queryRadius, resultIndices);
+    }
+    public void KNearestQuery(Vector3 queryPosition, int k, List<int> resultIndices)
+    {
+        if (!builtThisFrame)
+        {
+            FillAndBuild();
+        }
+        query.KNearest(tree, queryPosition, k, resultIndices);
+    }
+
+    public RouteNode GetNearestNode(Vector3 position)
+    {
+        List<int> resultIndices = new List<int>();
+        KNearestQuery(position, 1, resultIndices);
+        return nodes[resultIndices[0]];
     }
 }

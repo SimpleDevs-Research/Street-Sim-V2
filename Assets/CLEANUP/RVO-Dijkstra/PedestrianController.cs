@@ -57,6 +57,11 @@ public class PedestrianController : Entity
         m_segmentDestination = transform.position;
     }
 
+    protected override void Start()
+    {
+        base.Start();
+        PedestrianKDTree.Instance.AddObstacle(GetComponent<ObstacleRVO>());
+    }
     private void Update()
     {
     }
@@ -78,6 +83,15 @@ public class PedestrianController : Entity
     //Check a pedestrians position on their global route, find the current segment destination
     public bool QueryGlobalRoute()
     {
+        if (m_route.Count == 0)
+        {
+            if (m_routeStart != null && m_routeDestination != null)
+            {
+                List<RouteNode> route = RouteManager.instance.getRoute(m_routeStart, m_routeDestination, GetComponent<PedestrianController>().m_personality);
+                SetRoute(route);
+            }
+            return false;
+        }
         GetComponent<PedestrianRVO>().RVOActive = true;
         if (m_route.Count <= 1)
         {
@@ -190,5 +204,9 @@ public class PedestrianController : Entity
             pathString += " -> " + route[i].gameObject.name;
         }
         print(pathString);*/
+    }
+    public void OnDestroy()
+    {
+        PedestrianKDTree.Instance.RemoveObstacle(GetComponent<ObstacleRVO>());
     }
 }
