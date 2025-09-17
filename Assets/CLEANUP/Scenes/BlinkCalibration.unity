@@ -1910,6 +1910,7 @@ MonoBehaviour:
   m_movingDotOffColor: {r: 1, g: 0.53333336, b: 0.53333336, a: 1}
   m_movingDotOnColor: {r: 0.3967805, g: 1, b: 0.25943398, a: 1}
   m_totalOverlaps: 4
+  m_nextScene: StreetSim-V2
   m_state: 0
   m_moveDir: 0
   m_overlaps: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BlinkCalibration : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class BlinkCalibration : MonoBehaviour
     [SerializeField] private Color m_movingDotOffColor;
     [SerializeField] private Color m_movingDotOnColor;
     [SerializeField] private int m_totalOverlaps;
+    [SerializeField] private string m_nextScene;
 
     [Header("Outcomes -- READ ONLY")]
     [SerializeField] private State m_state;
@@ -56,16 +58,22 @@ public class BlinkCalibration : MonoBehaviour
                 {
                     m_moveDir = 1;
                 }
+                if (m_overlaps >= m_totalOverlaps)
+                {
+                    m_state = State.END;
+                    m_tmp.text = "Calibration complete";
+                    m_movingDot.gameObject.SetActive(false);
+                    StartCoroutine(DelayThenNext());
+                }
                 break;
         }
-        if(m_overlaps >= m_totalOverlaps)
-        {
-            m_state = State.END;
-            m_tmp.text = "Calibration complete";
-            m_movingDot.gameObject.SetActive(false);
-        }
     }
+    public IEnumerator DelayThenNext()
+    {
+        yield return new WaitForSeconds(4.0f);
+        SceneManager.LoadScene(m_nextScene, LoadSceneMode.Single);
 
+    }
     public void StartAnimFinished()
     {
         m_state = State.METRONOME;
