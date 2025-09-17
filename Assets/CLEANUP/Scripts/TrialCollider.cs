@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class TrialCollider : MonoBehaviour
 {
-    public Collider thisCollider;
+    public GameObject otherCollider;
 
     private void OnTriggerEnter(Collider other) {
-       // if (TrialController.current != null) TrialController.current.TrialCollision(thisCollider, other);
+        AudioSensitiveAgentsTrialController.Instance.TrialCollision();
+        otherCollider.SetActive(true);
+        gameObject.SetActive(false);
     }
 }

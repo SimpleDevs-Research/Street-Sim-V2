@@ -5,5 +5,5 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DemographicsGroup", menuName = "ScriptableObjects/Demographics Group", order = 2)]
 public class DemographicGroup : ScriptableObject
 {
-    [SerializeField] public Pedestrian[] pedestrians;
+    [SerializeField] public PedestrianController[] pedestrians;
 }

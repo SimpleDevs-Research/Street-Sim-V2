@@ -10,7 +10,7 @@ public class PedestrianManager : MonoBehaviour
 {
 
     [Header("=== Settings ===")]
-    [SerializeField] private Pedestrian[] m_pedestrianPrefabs;
+    [SerializeField] private PedestrianController[] m_pedestrianPrefabs;
     [SerializeField] public int m_numPedestrians = 10;
     [SerializeField] private RouteNode[] m_startNodes;
     [SerializeField] private RouteNode[] m_endNodes;
@@ -20,11 +20,11 @@ public class PedestrianManager : MonoBehaviour
     [SerializeField] private float m_runTime;
 
     [Header("=== Outcomes - Read Only ===")]
-    [SerializeField] private List<Pedestrian> m_activePedestrians;
-    [SerializeField] private List<Pedestrian> m_inactivePedestrians;
-    [SerializeField] public List<Pedestrian> m_TotalPedestrians;
+    [SerializeField] private List<PedestrianController> m_activePedestrians;
+    [SerializeField] private List<PedestrianController> m_inactivePedestrians;
+    [SerializeField] public List<PedestrianController> m_TotalPedestrians;
     [SerializeField] private int[] currentDemographicCount;
-    public List<Pedestrian> activePedestrians => m_activePedestrians;
+    public List<PedestrianController> activePedestrians => m_activePedestrians;
     [SerializeField] private List<GameObject> m_toDestroy;
     public int totalCreatedPedestrians;
 
@@ -40,7 +40,7 @@ public class PedestrianManager : MonoBehaviour
         Instance = this;
         if (m_pedestrianParent == null) m_pedestrianParent = this.transform;
         m_toDestroy = new List<GameObject>();
-        m_activePedestrians = new List<Pedestrian>();
+        m_activePedestrians = new List<PedestrianController>();
 
         currentDemographicCount = new int[m_currentDemographics.groups.Length];
         for (int i = 0; i < currentDemographicCount.Length; i++) currentDemographicCount[i] = 0;
@@ -49,22 +49,17 @@ public class PedestrianManager : MonoBehaviour
         //Pre-pool all pedestrians
         for(int i = 0; i < m_numPedestrians; i++)
         {
-            Pedestrian newPed = Instantiate(m_currentDemographics.groups[0].pedestrians[i % m_currentDemographics.groups[0].pedestrians.Length],
+            PedestrianController newPed = Instantiate(m_currentDemographics.groups[0].pedestrians[i % m_currentDemographics.groups[0].pedestrians.Length],
                         m_inactivePos,
-                        Quaternion.identity, m_pedestrianParent) as Pedestrian;
+                        Quaternion.identity, m_pedestrianParent) as PedestrianController;
 
             m_TotalPedestrians.Add(newPed);
             newPed.gameObject.SetActive(false);
             newPed.gameObject.name = i.ToString();
+            //GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
         }
 
-        m_inactivePedestrians = new List<Pedestrian>(m_TotalPedestrians);
-
-        //onAwakeFinished.Invoke();
-        if (GetComponent<PedestrianKDTree>())
-        {
-            GetComponent<PedestrianKDTree>().Init();
-        }
+        m_inactivePedestrians = new List<PedestrianController>(m_TotalPedestrians);
 
         StartCoroutine(GeneratePedestrians());
     }
@@ -92,26 +87,27 @@ public class PedestrianManager : MonoBehaviour
             Vector3 startPos = startNode.transform.position;
             Quaternion startRot = startNode.transform.rotation;
 
-            Pedestrian newPed = null;
+            PedestrianController newPed = null;
 
             //Temporary fix for pooling pedestrians w/o regard for variation
             newPed = m_inactivePedestrians[0];
             if (newPed.gameObject.activeInHierarchy) newPed = null;
             else
             {
+                PedestrianController pedController = newPed.GetComponent<PedestrianController>();
                 m_inactivePedestrians.RemoveAt(0);
 
                 newPed.gameObject.SetActive(true);
                 newPed.transform.position = startPos;
                 newPed.transform.rotation = startRot;
-                
-                newPed.SetRouteStart(startNode);
-                newPed.SetRouteDestination(endNode);
-                List<RouteNode> route = RouteManager.instance.getRoute(startNode, endNode, newPed.m_personality);
-                newPed.SetRoute(route);
-                newPed.SetDestination(route[1].transform.position);
+
+                pedController.SetRouteStart(startNode);
+                pedController.SetRouteDestination(endNode);
+                List<RouteNode> route = RouteManager.instance.getRoute(startNode, endNode, newPed.GetComponent<PedestrianController>().m_personality);
+                pedController.SetRoute(route);
+                pedController.SetSegmentDestination(route[1].transform.position);
                 newPed.transform.position += new Vector3(UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius), 0, UnityEngine.Random.Range(-startNode.acceptableRadius, startNode.acceptableRadius));
-                newPed.BeginCalculatingBestPath();
+                newPed.GetComponent<PedestrianRVO>().RVOActive = true;
                 m_activePedestrians.Add(newPed);
                 totalCreatedPedestrians++;
             }
@@ -125,7 +121,7 @@ public class PedestrianManager : MonoBehaviour
     public void PedestrianAtEnd(Entity e) {
         Debug.Log("At End");
         if (e.type != Entity.Type.Pedestrian) return;
-        Pedestrian p = (Pedestrian)e;
+        PedestrianController p = (PedestrianController)e;
         m_activePedestrians.Remove(p);
         m_inactivePedestrians.Add(p);
         m_toDestroy.Add(p.gameObject);
