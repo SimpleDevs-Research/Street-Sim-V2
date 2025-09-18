@@ -87,6 +87,11 @@ public class PedestrianKDTree : MonoBehaviour
         pointTransforms = new Transform[obstacles.Count];
         for(int i = 0; i < obstacles.Count; i++)
         {
+            if(obstacles[i] == null) {
+                RemoveObstacle(obstacles[i]);
+                i -= 1;
+                continue;
+            }
             pointCloud[i] = obstacles[i].transform.position;
             pointTransforms[i] = obstacles[i].transform;
             pointTransforms[i].localScale = point_size;
