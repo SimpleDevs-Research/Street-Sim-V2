@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class BlinkCalibration : MonoBehaviour
 {
-    enum State { START, COUNTDOWN, METRONOME, END }
+    enum State { TURNAROUND, START, COUNTDOWN, METRONOME, END }
     [Header("Parameters")]
     [SerializeField] private Image m_movingDot;
     [SerializeField] private TextMeshProUGUI m_tmp;
@@ -18,6 +18,8 @@ public class BlinkCalibration : MonoBehaviour
     [SerializeField] private Color m_movingDotOnColor;
     [SerializeField] private int m_totalOverlaps;
     [SerializeField] private string m_nextScene;
+    [SerializeField] public Vector3 m_targetForward;
+    [SerializeField] private Animator m_animator;
 
     [Header("=== OUTPUT WRITER ===")]
     [SerializeField] private CSVWriter writer;
@@ -29,22 +31,49 @@ public class BlinkCalibration : MonoBehaviour
     [SerializeField] private int m_overlaps;
     [SerializeField] private float m_movingDotSpeed;
     [SerializeField] private int m_lastOverlapDir;
+    [SerializeField] private Vector3 m_movingDotOriginPos;
 
-    void Start()
+    public static BlinkCalibration Instance;
+
+    public delegate void CalibrationFinishedEvent();
+    public CalibrationFinishedEvent onCalibrationFinished;
+
+    void Awake()
     {
-        m_moveDir = 1;
-        m_movingDotSpeed = m_movingDotExtent / m_movingDotTime;
-        m_state = State.COUNTDOWN;
-
-        // Start Writer
-        start_timestamp = Time.time;
-        writer.Initialize();
-        WriteState("Start");
+        Instance = this;
+        m_animator = GetComponent<Animator>();
+        m_movingDotOriginPos = m_movingDot.rectTransform.localPosition;
     }
 
     void Update()
     {
         switch (m_state) {
+            case State.TURNAROUND:
+                m_animator.SetTrigger("HideAll");
+                m_tmp.text = "Please turn around";
+                float diff = Vector3.Angle(m_targetForward, PlayerTracker.Instance.transform.forward);
+                if (diff < 25)
+                {
+                    m_state = State.START;
+                }
+                break;
+            case State.START:
+                m_tmp.text = "Blink when the circles overlap";
+                m_movingDot.rectTransform.localPosition = m_movingDotOriginPos;
+                m_movingDot.color = m_movingDotOffColor;
+                m_moveDir = 1;
+                m_movingDotSpeed = m_movingDotExtent / m_movingDotTime;
+                m_state = State.COUNTDOWN;
+                m_overlaps = 0;
+                m_lastOverlapDir = 0;
+                m_animator.SetTrigger("BeginCalibration");
+
+                // Start Writer
+                start_timestamp = Time.time;
+                writer.Initialize();
+                WriteState("Start");
+                break;
+
             case State.METRONOME:
                 m_movingDot.rectTransform.Translate(new Vector3(m_moveDir * m_movingDotSpeed * Time.deltaTime, 0, 0));
                 if(Mathf.Abs(m_movingDot.transform.localPosition.x) <= m_movingDotCenterLeniency)
@@ -72,18 +101,25 @@ public class BlinkCalibration : MonoBehaviour
                 {
                     m_state = State.END;
                     m_tmp.text = "Calibration complete";
-                    m_movingDot.gameObject.SetActive(false);
                     StartCoroutine(DelayThenNext());
                 }
                 break;
+
         }
     }
     public IEnumerator DelayThenNext()
     {
-        yield return new WaitForSeconds(4.0f);
+        yield return new WaitForSeconds(2.0f);
         WriteState("End");
         writer.Disable();
-        SceneManager.LoadScene(m_nextScene, LoadSceneMode.Single);
+        if(m_nextScene != "")
+            SceneManager.LoadScene(m_nextScene, LoadSceneMode.Single);
+        else
+        {
+            onCalibrationFinished?.Invoke();
+            m_state = State.TURNAROUND;
+            gameObject.SetActive(false);
+        }
     }
     public void StartAnimFinished()
     {
