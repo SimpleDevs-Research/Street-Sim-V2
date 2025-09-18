@@ -13,7 +13,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
 
     [Header("Outcomes -- READ ONLY")]
     public int index;
-
+    public GameObject m_toActivate;
 
     public static AudioSensitiveAgentsTrialController Instance;
 
@@ -27,17 +27,20 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
         blinkCalibrationController.onCalibrationFinished += onCalibrationEventFinished;
     }
 
-    public void TrialCollision(int index)
+    public void TrialCollision(int index, GameObject toActivate)
     {
         //SceneManager.UnloadSceneAsync(trialScenes[index]);
         blinkCalibrationController.gameObject.SetActive(true);
+        blinkCalibrationController.GetComponent<AudioSource>().Play();
         blinkCalibrationController.m_targetForward = new Vector3(index, 0, 0);
         onTrialChanged?.Invoke();
+        m_toActivate = toActivate;
     }
 
     private void onCalibrationEventFinished()
     {
         SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
         index += 1;
+        m_toActivate.SetActive(true);
     }
 }

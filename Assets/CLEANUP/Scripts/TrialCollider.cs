@@ -8,8 +8,7 @@ public class TrialCollider : MonoBehaviour
     public int index;
 
     private void OnTriggerEnter(Collider other) {
-        AudioSensitiveAgentsTrialController.Instance.TrialCollision(index);
-        otherCollider.SetActive(true);
+        AudioSensitiveAgentsTrialController.Instance.TrialCollision(index, otherCollider);
         gameObject.SetActive(false);   
     }
 }
