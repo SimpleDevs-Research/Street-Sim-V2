@@ -19,7 +19,11 @@ public class BlinkCalibration : MonoBehaviour
     [SerializeField] private int m_totalOverlaps;
     [SerializeField] private string m_nextScene;
 
+    [Header("=== OUTPUT WRITER ===")]
+    [SerializeField] private CSVWriter writer;
+
     [Header("Outcomes -- READ ONLY")]
+    [SerializeField] private float start_timestamp;
     [SerializeField] private State m_state;
     [SerializeField] private int m_moveDir;
     [SerializeField] private int m_overlaps;
@@ -31,6 +35,11 @@ public class BlinkCalibration : MonoBehaviour
         m_moveDir = 1;
         m_movingDotSpeed = m_movingDotExtent / m_movingDotTime;
         m_state = State.COUNTDOWN;
+
+        // Start Writer
+        start_timestamp = Time.time;
+        writer.Initialize();
+        WriteState("Start");
     }
 
     void Update()
@@ -44,6 +53,7 @@ public class BlinkCalibration : MonoBehaviour
                     if(m_lastOverlapDir != m_moveDir)
                     {
                         m_overlaps += 1;
+                        WriteOverlap();
                         m_lastOverlapDir = m_moveDir;
                     }
                 } else
@@ -71,11 +81,26 @@ public class BlinkCalibration : MonoBehaviour
     public IEnumerator DelayThenNext()
     {
         yield return new WaitForSeconds(4.0f);
+        WriteState("End");
+        writer.Disable();
         SceneManager.LoadScene(m_nextScene, LoadSceneMode.Single);
-
     }
     public void StartAnimFinished()
     {
         m_state = State.METRONOME;
+    }
+    private void WriteOverlap() {
+        writer.AddPayload(Time.frameCount); // Current frame
+        writer.AddPayload(Time.time - start_timestamp); // Relative timestamp
+        writer.AddPayload("Overlap");
+        writer.AddPayload(m_overlaps);
+        writer.WriteLine(true);
+    }
+    private void WriteState(string s) {
+        writer.AddPayload(Time.frameCount);
+        writer.AddPayload(Time.time - start_timestamp);
+        writer.AddPayload(s);
+        writer.AddPayload(m_overlaps);
+        writer.WriteLine(true);
     }
 }
