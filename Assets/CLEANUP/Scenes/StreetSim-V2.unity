@@ -565,6 +565,10 @@ PrefabInstance:
       propertyPath: m_animator
       value: 
       objectReference: {fileID: 73771043}
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_movingDotTime
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 7733192084085732420, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
       propertyPath: m_Name
       value: BlinkCalibrationCanvas

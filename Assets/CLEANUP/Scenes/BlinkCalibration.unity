@@ -433,13 +433,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_controllerAnchor: {fileID: 0}
-  m_OVRController: 0
-  m_events: []
-  m_trackInputSettings: 1
-  m_velocityFrameRate: 5
-  m_velocity: {x: 0, y: 0, z: 0}
-  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &372588908
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,13 +729,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_controllerAnchor: {fileID: 0}
-  m_OVRController: 0
-  m_events: []
-  m_trackInputSettings: 1
-  m_velocityFrameRate: 5
-  m_velocity: {x: 0, y: 0, z: 0}
-  m_angularVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &755716282
 GameObject:
   m_ObjectHideFlags: 0
@@ -2850,6 +2836,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1218869105}
     m_Modifications:
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_state
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_animator
+      value: 
+      objectReference: {fileID: 7733192082797847623}
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_nextScene
+      value: StreetSim-V2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_movingDotTime
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7733192084085732420, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
       propertyPath: m_Name
       value: BlinkCalibrationCanvas
@@ -2940,3 +2942,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+--- !u!95 &7733192082797847623 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7733192084085732430, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+  m_PrefabInstance: {fileID: 7733192082797847622}
+  m_PrefabAsset: {fileID: 0}
