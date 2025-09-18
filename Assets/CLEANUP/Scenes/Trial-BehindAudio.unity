@@ -251,12 +251,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   toActivate: {fileID: 2127052688}
+--- !u!1 &864613068
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 864613069}
+  - component: {fileID: 864613070}
+  m_Layer: 0
+  m_Name: BehindRunnerParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &864613069
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 864613068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11, y: 0, z: -1.81}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1821874555}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &864613070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 864613068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b4cef6e945d0314c9bb11c5654d3137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xExtent: 15
+  spawned: 0
 --- !u!1001 &1821874554
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 864613069}
     m_Modifications:
     - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_route.Array.size
@@ -316,7 +363,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4528386485688606762, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4528386485688606762, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -324,7 +371,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4528386485688606762, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4528386485688606762, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -368,7 +415,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7449097854808050042, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_Name
-      value: AlleywayRunner
+      value: BehindRunner
       objectReference: {fileID: 0}
     - target: {fileID: 7449097854808050042, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_IsActive
@@ -376,12 +423,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+--- !u!4 &1821874555 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4528386485688606762, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+  m_PrefabInstance: {fileID: 1821874554}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2127052688 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7449097854808050042, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
   m_PrefabInstance: {fileID: 1821874554}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2127052702
+--- !u!114 &2127052701
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -390,7 +442,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2127052688}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60d1ca97dd68e8644bb3afd44bf61c19, type: 3}
+  m_Script: {fileID: 11500000, guid: ee36188e605b77944b338d856f33fb5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endPosition: {x: 20, y: 0, z: 6}
+  m_tooCloseRadius: 3
+  m_tooCloseVoice: {fileID: 8300000, guid: addd97b6c24f09849b7771d036d3b089, type: 3}
+  spoken: 0

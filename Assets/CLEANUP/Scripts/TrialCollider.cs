@@ -9,6 +9,6 @@ public class TrialCollider : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
         AudioSensitiveAgentsTrialController.Instance.TrialCollision();
         otherCollider.SetActive(true);
-        gameObject.SetActive(false);
+        gameObject.SetActive(false);   
     }
 }

@@ -163,9 +163,10 @@ public class PedestrianController : Entity
         if (other.CompareTag("RerouteTrigger"))
         {
             List<RouteNode> route = RouteManager.instance.getRoute(m_route[0], m_routeDestination, GetComponent<PedestrianController>().m_personality);
-            float acceptableRadius = m_route[0].acceptableRadius;
 
             SetRoute(route);
+            float acceptableRadius = m_route[1].acceptableRadius;
+
             SetSegmentDestination(route[1].transform.position
                     + new Vector3(UnityEngine.Random.Range(-acceptableRadius, acceptableRadius),
                                     0,
@@ -194,6 +195,16 @@ public class PedestrianController : Entity
     {
         m_routeStart = routeNode;
     }
+    public void ResetRoute()
+    {
+        List<RouteNode> route = RouteManager.instance.getRoute(m_routeStart, m_routeDestination, GetComponent<PedestrianController>().m_personality);
+        SetRoute(route);
+        float acceptableRadius = m_route[1].acceptableRadius;
+        SetSegmentDestination(route[1].transform.position
+                + new Vector3(UnityEngine.Random.Range(-acceptableRadius, acceptableRadius),
+                                0,
+                                UnityEngine.Random.Range(-acceptableRadius, acceptableRadius)));
+    }
     public void SetRoute(List<RouteNode> route)
     {
         m_route = route;
@@ -204,6 +215,10 @@ public class PedestrianController : Entity
             pathString += " -> " + route[i].gameObject.name;
         }
         print(pathString);*/
+    }
+    public void SetGoal(Goal goal)
+    {
+        m_goal = goal;
     }
     public void OnDestroy()
     {

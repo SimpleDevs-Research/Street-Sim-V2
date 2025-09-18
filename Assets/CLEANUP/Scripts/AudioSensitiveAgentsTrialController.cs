@@ -6,10 +6,12 @@ using System.Linq;
 
 public class AudioSensitiveAgentsTrialController : MonoBehaviour
 {
-    public string initScene;
     public List<string> trialScenes;
     public static AudioSensitiveAgentsTrialController Instance;
     public int index;
+
+    public delegate void TrialChangeEvent();
+    public TrialChangeEvent onTrialChanged;
     void Start()
     {
         trialScenes = trialScenes.OrderBy(x => Random.value).ToList();
@@ -20,6 +22,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
     public void TrialCollision()
     {
         //SceneManager.UnloadSceneAsync(trialScenes[index]);
+        onTrialChanged?.Invoke();
         SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
         index += 1;
 
