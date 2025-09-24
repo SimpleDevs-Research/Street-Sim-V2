@@ -5422,8 +5422,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_controllerAnchor: {fileID: 0}
-  m_OVRController: 0
+  m_controllerAnchor: {fileID: 4484590124121710}
+  m_OVRController: 2
   m_events: []
   m_trackInputSettings: 1
   m_velocityFrameRate: 5
@@ -7260,8 +7260,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7371ecb9c97b546b382426c2adb844d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_controllerAnchor: {fileID: 0}
-  m_OVRController: 0
+  m_controllerAnchor: {fileID: 4593681934981590}
+  m_OVRController: 1
   m_events: []
   m_trackInputSettings: 1
   m_velocityFrameRate: 5
