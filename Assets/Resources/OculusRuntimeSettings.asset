@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: OculusRuntimeSettings
   m_EditorClassIdentifier: 
   handSkeletonVersion: 1
-  colorSpace: 4
+  colorSpace: 7
   requestsVisualFaceTracking: 1
   requestsAudioFaceTracking: 1
   enableFaceTrackingVisemesOutput: 0
-  telemetryProjectGuid: 79b1a481-e3c6-4dba-b102-bfd7d607c8fd
+  telemetryProjectGuid: 3163680e-e517-42b1-b95f-e69e98b95095
   bodyTrackingFidelity: 1
   bodyTrackingJointSet: 0
   allowVisibilityMesh: 0

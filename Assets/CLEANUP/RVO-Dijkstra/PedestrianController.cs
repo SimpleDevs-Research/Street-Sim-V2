@@ -41,6 +41,7 @@ public class PedestrianController : Entity
 
     public PedPersonality m_personality;
     public Goal m_goal;
+    public bool returnToManager = true;
 
     private void Awake()
     {
@@ -64,6 +65,7 @@ public class PedestrianController : Entity
     }
     private void Update()
     {
+        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, "Pedestrian", this.transform);
     }
     private void LateUpdate()
     {
@@ -96,7 +98,10 @@ public class PedestrianController : Entity
         if (m_route.Count <= 1)
         {
             GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
-            PedestrianManager.Instance.PedestrianAtEnd(this);
+            if (returnToManager)
+                PedestrianManager.Instance.PedestrianAtEnd(this);
+            else
+                gameObject.SetActive(false);
             return false;
 
         }
