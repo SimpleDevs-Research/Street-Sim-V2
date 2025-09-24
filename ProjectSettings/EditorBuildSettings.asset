@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/CLEANUP/Scenes/EyeDataMod.unity
     guid: ea3eb8280e0481f47bbc9715e9210fc2
   - enabled: 1

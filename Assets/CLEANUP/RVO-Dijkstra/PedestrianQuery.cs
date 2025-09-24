@@ -48,6 +48,7 @@ public class PedestrianQuery : MonoBehaviour
 
     }
 
+    #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
 
@@ -57,4 +58,5 @@ public class PedestrianQuery : MonoBehaviour
         Handles.Label(transform.position + Vector3.up * 6.2f, "Safety Aversion: " + (peoplewithin.Count == 0 ? 0 :sumDirtinessAversion / peoplewithin.Count).ToString("0.000"));
         Handles.Label(transform.position + Vector3.up * 6.6f, "Num Pedestrians: " + (peoplewithin.Count).ToString());
     }
+    #endif
 }

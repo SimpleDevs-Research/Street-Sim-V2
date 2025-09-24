@@ -10,6 +10,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
     [Header("Parameters")]
     public List<string> trialScenes;
     public BlinkCalibration blinkCalibrationController;
+    public EyeGazeTracker gazeTracker;
 
     [Header("Outcomes -- READ ONLY")]
     public int index;
@@ -30,6 +31,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
     public void TrialCollision(int index, GameObject toActivate)
     {
         //SceneManager.UnloadSceneAsync(trialScenes[index]);
+        gazeTracker.RecordEvent("Calibration");
         blinkCalibrationController.gameObject.SetActive(true);
         blinkCalibrationController.GetComponent<AudioSource>().Play();
         blinkCalibrationController.m_targetForward = new Vector3(index, 0, 0);
@@ -39,6 +41,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
 
     private void onCalibrationEventFinished()
     {
+        gazeTracker.RecordEvent($"{trialScenes[index]} Start");
         SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
         index += 1;
         m_toActivate.SetActive(true);

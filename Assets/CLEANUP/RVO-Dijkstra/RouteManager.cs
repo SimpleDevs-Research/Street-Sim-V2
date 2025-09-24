@@ -278,6 +278,7 @@ public class RouteManager : MonoBehaviour
         return currentBestNodeInd;
     }
 
+    #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
 
@@ -329,6 +330,8 @@ public class RouteManager : MonoBehaviour
         }*/
 
     }
+    #endif
+
     public Vector2 Vec3To2(Vector3 vec)
     {
         return new Vector2(vec.x, vec.z);

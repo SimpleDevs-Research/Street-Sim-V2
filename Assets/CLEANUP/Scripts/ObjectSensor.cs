@@ -73,10 +73,14 @@ public class ObjectSensor : MonoBehaviour
         }
 
     }
+
+    #if UNITY_EDITOR
     public void OnDrawGizmos()
     {
         Handles.Label(transform.position, "Effective Audio: " + debug_audiolevel.ToString());
     }
+    #endif
+
     public void OnTriggerExit(Collider other)
     {
         ObjectOfAttention OOA = other.GetComponent<ObjectOfAttention>();

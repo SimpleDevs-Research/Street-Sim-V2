@@ -17,21 +17,21 @@ public class EyeGazeTracker : MonoBehaviour
 
     // =======================
     [Header("=== References ===")]
+    public Camera leftCamera;
+    public Camera rightCamera;
     public Camera centerCamera;
     public Transform leftEyeGaze, rightEyeGaze;
-    public Renderer leftEyeCursor, rightEyeCursor;
+    public Renderer leftEyeCursor, rightEyeCursor, centerEyeCursor;
 
     // =======================
     [Header("=== Gaze Settings ===")]
     public float gazeDistance = 100f;
+    public float cursorRefScale;
     public LayerMask layersToInclude;
-    public bool isWriting = false;
+    [SerializeField] private bool isWriting = false;
 
     private void Awake() {
         if (force90FPS) Unity.XR.Oculus.Performance.TrySetDisplayRefreshRate(90f);
-    }
-
-    private void Start() {
         if (activateOnStart) Activate();
     }
 
@@ -54,7 +54,7 @@ public class EyeGazeTracker : MonoBehaviour
              // Initialize start time
             startTime = Time.time;
             // Add a single row to represent the start of the recording.
-            RecordEvent("Activation", Vector3.zero, Vector3.zero, Vector3.zero, "");
+            RecordEvent("Activation");
             // Let update loop take over
             isWriting = true;
         }
@@ -63,62 +63,130 @@ public class EyeGazeTracker : MonoBehaviour
     public void Deactivate() {
         isWriting = false;
         // Add final line
-        RecordEvent("Deactivate", Vector3.zero, Vector3.zero, Vector3.zero, "");
+        RecordEvent("Deactivate");
         // Disable writer
         writer.Disable();
     }
 
+    // Event Logistics only
+    public void RecordEvent(string event_description) { 
+        RecordEvent(
+            // Event Logistics
+            event_description,
+            // Gaze Data
+            Vector3.zero, Vector3.zero, Vector3.zero, 0f, "",
+            // Head Data
+            Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, 0f, "",
+            // Gaze vs Head
+            Vector3.zero, 0f
+        ); 
+    }
     public void RecordEvent(
+            // Event Logistics
             string event_description,
-            Vector3 screen_pos,
-            Vector3 world_pos,
-            Vector3 gaze_dir,
-            string gaze_target_name
+            // Gaze Data
+            Vector3 gaze_target_world_pos,
+            Vector3 gaze_target_screen_pos,
+            Vector3 gaze_direction,
+            float gaze_target_distance,
+            string gaze_target_name,
+            // Head Data
+            Vector3 head_target_world_pos,
+            Vector3 head_target_screen_pos,
+            Vector3 head_direction,
+            Vector3 head_position,
+            float head_target_distance,
+            string head_target_name,
+            // Gaze vs Head
+            Vector3 gaze_head_rel_direction,
+            float gaze_head_angle_diff
     ) {
-        // Time Logistics
+        // Event Logistics
         writer.AddPayload(GetCurrentTime());
         writer.AddPayload(Time.frameCount);
+        writer.AddPayload(event_description);
         // Gaze Data
-        writer.AddPayload(event_description);   // Event description
-        writer.AddPayload(screen_pos);          // Screen position
-        writer.AddPayload(world_pos);           // World position
-        writer.AddPayload(gaze_dir);            // Gaze direction
-        writer.AddPayload(gaze_target_name);    // Gaze target name
-        // User Data
-        writer.AddPayload(centerCamera.transform.position);     // User's position
-        writer.AddPayload(centerCamera.transform.forward);      // User's orientation
+        writer.AddPayload(gaze_target_world_pos); 
+        writer.AddPayload(gaze_target_screen_pos);
+        writer.AddPayload(gaze_direction);
+        writer.AddPayload(gaze_target_distance);
+        writer.AddPayload(gaze_target_name);
+        // Head Data
+        writer.AddPayload(head_target_world_pos);
+        writer.AddPayload(head_target_screen_pos);
+        writer.AddPayload(head_direction);
+        writer.AddPayload(head_position);
+        writer.AddPayload(head_target_distance);
+        writer.AddPayload(head_target_name);
+        // Gaze vs Head
+        writer.AddPayload(gaze_head_rel_direction);
+        writer.AddPayload(gaze_head_angle_diff);
         // Write Line
         writer.WriteLine(true);
     }
 
     private void RecordGaze() {
+        // ================= //
+        // === Gaze Data === //
+        // ================= //
         
-        // Using the left and right eye gazers, calculate the average vector
-        Vector3 gaze_direction = CalculateNormAvgVector(leftEyeGaze.forward, rightEyeGaze.forward, true);
-        
-        // Use a raycast to detect the hit.
-        RaycastHit gaze_hit;
-        Vector3 gaze_position = centerCamera.transform.position + (gaze_direction * gazeDistance);
-        float gaze_distance = gazeDistance;
-        string gaze_target_name = "";
+        // 1. Initialize gaze data for recording
         string gaze_event = "";
+        Vector3 gaze_direction = Vector3.Normalize((leftEyeCursor.transform.position + rightEyeCursor.transform.position)/2f - centerCamera.transform.position);
+        Vector3 gaze_target_world_position = centerCamera.transform.position + (gaze_direction * gazeDistance);
+        float gaze_target_distance = gazeDistance;
+        string gaze_target_name = "";
+
+        // 2. Use a raycast to detect the hit.
+        RaycastHit gaze_hit;
         if (Physics.Raycast(centerCamera.transform.position, gaze_direction, out gaze_hit, gazeDistance, layersToInclude)) {
-            gaze_position = gaze_hit.point;
-            gaze_distance = gaze_hit.distance;
-            gaze_target_name = gaze_hit.transform.gameObject.name;
             gaze_event = "Eye Hit";
+            gaze_target_world_position = gaze_hit.point;
+            gaze_target_distance = gaze_hit.distance;
+            gaze_target_name = gaze_hit.transform.gameObject.name;
         }
 
-        // Convert to screen positions for the camera
-        Vector3 centerScreenPos = centerCamera.WorldToScreenPoint(gaze_position);
+        // 3. Render the position of the center eye cursor
+        centerEyeCursor.transform.position = gaze_target_world_position;
+        centerEyeCursor.transform.localScale = Vector3.one * CalculateScaleForConstantVisualSize(gaze_target_distance, 1f, cursorRefScale);
+
+        // ================= //
+        // === Head Data === //
+        // ================= //
+
+        // 1. Initialize head data for recording
+        Vector3 head_position = centerCamera.transform.position;
+        Vector3 head_direction = centerCamera.transform.forward;
+        Vector3 head_target_world_position = head_position + head_direction * gazeDistance;
+        float head_target_distance = gazeDistance;
+        string head_target_name = "";
+
+        // 2. Use a raycast to detect a hit
+        RaycastHit head_hit;
+        if (Physics.Raycast(head_position, head_direction, out head_hit, gazeDistance, layersToInclude)) {
+            head_target_world_position = head_hit.point;
+            head_target_distance = head_hit.distance;
+            head_target_name = head_hit.transform.gameObject.name;
+        }
+
+        // Calculate screen positions
+        Vector3 gaze_target_screen_position = centerCamera.WorldToScreenPoint(gaze_target_world_position);
+        Vector3 head_target_screen_position = centerCamera.WorldToScreenPoint(head_target_world_position);
+
+        // Calculate gaze vs head specifics
+        Vector3 gaze_head_rel_direction = centerCamera.transform.InverseTransformDirection(gaze_direction);
+        float gaze_head_angle_diff = Vector3.Angle(gaze_head_rel_direction, Vector3.forward);
 
         // Center Eye Record
         RecordEvent(
+            // Event Logistics
             gaze_event,
-            centerScreenPos,
-            gaze_position,
-            gaze_direction,
-            gaze_target_name
+            // Gaze Data
+            gaze_target_world_position, gaze_target_screen_position, gaze_direction, gaze_target_distance, gaze_target_name,
+            // Head Data
+            head_target_world_position, head_target_screen_position, head_direction, head_position, head_target_distance, head_target_name, 
+            // Gaze vs Head
+            gaze_head_rel_direction, gaze_head_angle_diff
         );
     }
 
@@ -127,12 +195,24 @@ public class EyeGazeTracker : MonoBehaviour
     }
 
     public void SetEyeCursorVisibility(bool set_to) {
-        leftEyeCursor.enabled = set_to;
-        rightEyeCursor.enabled = set_to;
+        centerEyeCursor.enabled = set_to;
     }
     public void ToggleEyeCursorVisibility() {
-        leftEyeCursor.enabled = !leftEyeCursor.enabled;
-        rightEyeCursor.enabled = !rightEyeCursor.enabled;
+        centerEyeCursor.enabled = !centerEyeCursor.enabled;
+    }
+
+    public float CalculateScaleFromAngularSize(float a) {
+        // tan(a) = opp/adj. If adj==1, then tan(a)=opp
+        // Therefore, scale = 2f * tan(a)
+        return 2f*Mathf.Tan((a*Mathf.Deg2Rad)/2f);
+    }
+
+    public float CalculateScaleForConstantVisualSize(
+        float distance,     // Distance from source
+        float refDistance,  // 1 meter...
+        float refScale      // At refDistance, what should the size be
+    ) {
+        return refScale * (distance / refDistance);
     }
 
     public static Vector3 CalculateNormAvgVector(Vector3 v1, Vector3 v2, bool normalized=true) {
@@ -331,10 +411,4 @@ public class EyeGazeTracker : MonoBehaviour
         writer.Disable();
     }
     */
-
-    public float CalculateScaleFromAngularSize(float a) {
-        // tan(a) = opp/adj. If adj==1, then tan(a)=opp
-        // Therefore, scale = 2f * tan(a)
-        return 2f*Mathf.Tan((a*Mathf.Deg2Rad)/2f);
-    }
 }
