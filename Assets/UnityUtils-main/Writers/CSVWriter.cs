@@ -19,6 +19,7 @@ public class CSVWriter
 
     [SerializeField, ReadOnlyInsp] private string filePath;
     private StreamWriter eventWriter;
+    private List<string> _columns;
     private List<string> payload = new List<string>();
     private bool _is_active = false;
     public bool is_active => _is_active;
@@ -40,10 +41,12 @@ public class CSVWriter
         }
 
         eventWriter = new StreamWriter(new FileStream(filePath, FileMode.Create), Encoding.UTF8);
+        _columns = new List<string>(columns);
         // Header Line, if any columns are added to `columns`
-        if (columns.Count > 0) {
-            if (writeUnixTime) columns.Insert(0,"unix_ms");
-            eventWriter.WriteLine(String.Join(',', columns));
+        if (columns.Count > 0)
+        {
+            if (writeUnixTime) _columns.Insert(0, "unix_ms");
+            eventWriter.WriteLine(String.Join(',', _columns));
         }
 
         _is_active = true;
