@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class BlinkCalibration : MonoBehaviour
 {
-    enum State { TURNAROUND, START, COUNTDOWN, METRONOME, END }
+    enum State { TURNAROUND, START, COUNTDOWN, METRONOME, END, STUDYCOMPLETE }
     [Header("Parameters")]
     [SerializeField] private Image m_movingDot;
     [SerializeField] private TextMeshProUGUI m_tmp;
@@ -116,9 +116,8 @@ public class BlinkCalibration : MonoBehaviour
             SceneManager.LoadScene(m_nextScene, LoadSceneMode.Single);
         else
         {
-            onCalibrationFinished?.Invoke();
             m_state = State.TURNAROUND;
-            gameObject.SetActive(false);
+            onCalibrationFinished?.Invoke();
         }
     }
     public void StartAnimFinished()
@@ -138,5 +137,11 @@ public class BlinkCalibration : MonoBehaviour
         writer.AddPayload(s);
         writer.AddPayload(m_overlaps);
         writer.WriteLine(true);
+    }
+    public void ShowEnd()
+    {
+        StopCoroutine(DelayThenNext());
+        m_state = State.STUDYCOMPLETE;
+        m_tmp.text = "The study has concluded.\nPlease inform the researcher.";
     }
 }

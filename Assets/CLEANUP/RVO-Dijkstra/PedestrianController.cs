@@ -117,8 +117,11 @@ public class PedestrianController : Entity
             //If we've reached the final part of the route, end
             if (m_route.Count <= 1)
             {
-                m_pedestrianMover.m_optimalVelocity = Vector3.zero;
-                PedestrianManager.Instance.PedestrianAtEnd(this);
+                GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
+                if (returnToManager)
+                    PedestrianManager.Instance.PedestrianAtEnd(this);
+                else
+                    gameObject.SetActive(false);
                 return false;
             }
             else

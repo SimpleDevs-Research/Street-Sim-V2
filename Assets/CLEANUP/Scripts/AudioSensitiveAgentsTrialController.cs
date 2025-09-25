@@ -32,6 +32,7 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
     {
         //SceneManager.UnloadSceneAsync(trialScenes[index]);
         gazeTracker.RecordEvent("Calibration");
+        gazeTracker.SetEyeCursorVisibility(false);
         blinkCalibrationController.gameObject.SetActive(true);
         blinkCalibrationController.GetComponent<AudioSource>().Play();
         blinkCalibrationController.m_targetForward = new Vector3(index, 0, 0);
@@ -41,9 +42,17 @@ public class AudioSensitiveAgentsTrialController : MonoBehaviour
 
     private void onCalibrationEventFinished()
     {
-        gazeTracker.RecordEvent($"{trialScenes[index]} Start");
-        SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
-        index += 1;
-        m_toActivate.SetActive(true);
+        if (index < trialScenes.Count)
+        {
+            gazeTracker.RecordEvent($"{trialScenes[index]} Start");
+            SceneManager.LoadSceneAsync(trialScenes[index], LoadSceneMode.Additive);
+            index += 1;
+            m_toActivate.SetActive(true);
+            blinkCalibrationController.gameObject.SetActive(false);
+        } else
+        {
+            blinkCalibrationController.ShowEnd();
+        }
     }
+
 }

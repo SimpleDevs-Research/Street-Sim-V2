@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/CLEANUP/Scenes/EyeDataMod.unity
     guid: ea3eb8280e0481f47bbc9715e9210fc2
   - enabled: 1
+    path: Assets/CLEANUP/Scenes/BlinkCalibration.unity
+    guid: 5457bf1971f94d049b284c85d1ec62ef
+  - enabled: 1
+    path: Assets/CLEANUP/Scenes/Trial-Approach.unity
+    guid: e8618535d48578341b80c7456237b8f9
+  - enabled: 1
     path: Assets/CLEANUP/Scenes/StreetSim-V2.unity
     guid: f488b4152ca73c94cb2d1d4b34070ceb
   - enabled: 1
@@ -23,9 +29,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/CLEANUP/Scenes/Trial-Behind.unity
     guid: f00596801e988b649afde89aa261ae4c
-  - enabled: 1
-    path: Assets/CLEANUP/Scenes/Trial-Approach.unity
-    guid: e8618535d48578341b80c7456237b8f9
   - enabled: 1
     path: Assets/CLEANUP/Scenes/Trial-ApproachAudio.unity
     guid: ad758b4be3cf2fe4da0af279f9f8483d

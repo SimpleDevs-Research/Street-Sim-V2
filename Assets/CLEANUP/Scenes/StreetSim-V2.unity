@@ -916,6 +916,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1230421676}
     m_Modifications:
+    - target: {fileID: 7733192083312825813, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192083312825813, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192083369391889, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192083369391889, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192083966597730, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192083966597730, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192084026218201, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7733192084026218201, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 7733192084085732416, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
       propertyPath: m_SortingOrder
       value: 14462
@@ -16558,14 +16590,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_pedestrianPrefabs: []
-  m_numPedestrians: 30
+  m_numPedestrians: 15
   m_startNodes:
   - {fileID: 1562208360}
   - {fileID: 1890315478}
   m_endNodes:
   - {fileID: 1890315478}
   - {fileID: 1562208360}
-  m_spawnDelayMinMax: {x: 2, y: 3}
+  m_spawnDelayMinMax: {x: 4, y: 6}
   m_pedestrianParent: {fileID: 1056648992}
   m_currentDemographics: {fileID: 11400000, guid: 20a6e8caf2f86c048b22ac6418940b66, type: 2}
   m_runTime: 99999
@@ -26165,7 +26197,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1637188592
 RectTransform:
   m_ObjectHideFlags: 0
