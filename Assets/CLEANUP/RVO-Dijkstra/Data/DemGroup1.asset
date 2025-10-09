@@ -14,3 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pedestrians:
   - {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+  - {fileID: 422236672, guid: 13804acbdf17cea4b9b57174024eb427, type: 3}
+  - {fileID: 422236672, guid: 0925b60b2ca2caf44a4c5cf375eb1efd, type: 3}
+  - {fileID: 422236672, guid: eb5bf0e69b850a442a9ca08e4974a98b, type: 3}
+  - {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+  - {fileID: 422236672, guid: de4e1cfe3b7aec2408ec1acfcb2ed649, type: 3}
+  - {fileID: 422236672, guid: 47b7feaab6fb1d449891fbe7acc5c9ce, type: 3}
+  - {fileID: 422236672, guid: e87afe32fd2c8924a9d1f875cee27d80, type: 3}
