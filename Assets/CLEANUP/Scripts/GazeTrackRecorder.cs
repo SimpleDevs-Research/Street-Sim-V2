@@ -47,6 +47,7 @@ public class GazeTrackRecorder : MonoBehaviour
         // Add final line
         writer.AddPayload(GetCurrentTime());
         writer.AddPayload("");
+        writer.AddPayload("");
         writer.AddPayload("Deactivate");
         writer.AddPayload("");
         writer.AddPayload("");
@@ -63,6 +64,7 @@ public class GazeTrackRecorder : MonoBehaviour
 
         // Add a single row to represent the start of the recording.
         writer.AddPayload(GetCurrentTime());
+        writer.AddPayload("");
         writer.AddPayload("");
         writer.AddPayload("Activation");
         writer.AddPayload("");
@@ -93,6 +95,7 @@ public class GazeTrackRecorder : MonoBehaviour
             // Left Eye Record
             writer.AddPayload(GetCurrentTime());
             writer.AddPayload(Time.frameCount);
+            writer.AddPayload(IPDMeasurer.Instance.iipd);
             writer.AddPayload(eventLabel);
             writer.AddPayload("Left");
             writer.AddPayload(leftScreenPos);
@@ -102,6 +105,7 @@ public class GazeTrackRecorder : MonoBehaviour
             // Right Eye Record
             writer.AddPayload(GetCurrentTime());
             writer.AddPayload(Time.frameCount);
+            writer.AddPayload(IPDMeasurer.Instance.iipd);
             writer.AddPayload(eventLabel);
             writer.AddPayload("Right");
             writer.AddPayload(rightScreenPos);
@@ -112,6 +116,7 @@ public class GazeTrackRecorder : MonoBehaviour
             // Left Eye Record
             writer.AddPayload(GetCurrentTime());
             writer.AddPayload(Time.frameCount);
+            writer.AddPayload(IPDMeasurer.Instance.iipd);
             writer.AddPayload(eventLabel);
             writer.AddPayload("Center");
             writer.AddPayload(centerScreenPos);

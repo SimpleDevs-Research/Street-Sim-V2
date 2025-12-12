@@ -104,6 +104,7 @@ public class EyeGazeTracker : MonoBehaviour
         // Event Logistics
         writer.AddPayload(GetCurrentTime());
         writer.AddPayload(Time.frameCount);
+        writer.AddPayload(IPDMeasurer.Instance.iipd);
         writer.AddPayload(event_description);
         // Gaze Data
         writer.AddPayload(gaze_target_world_pos); 
