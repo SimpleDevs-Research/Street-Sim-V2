@@ -170,8 +170,12 @@ public class EyeGazeTracker : MonoBehaviour
         }
 
         // Calculate screen positions
+        /*
         Vector3 gaze_target_screen_position = centerCamera.WorldToScreenPoint(gaze_target_world_position);
         Vector3 head_target_screen_position = centerCamera.WorldToScreenPoint(head_target_world_position);
+        */
+        Vector3 gaze_target_screen_position = leftCamera.WorldToScreenPoint(gaze_target_world_position);
+        Vector3 head_target_screen_position = leftCamera.WorldToScreenPoint(head_target_world_position);
 
         // Calculate gaze vs head specifics
         Vector3 gaze_head_rel_direction = centerCamera.transform.InverseTransformDirection(gaze_direction);
