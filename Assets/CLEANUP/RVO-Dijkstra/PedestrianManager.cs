@@ -75,7 +75,6 @@ public class PedestrianManager : MonoBehaviour
             }
 
             int startIndex = Random.Range(0, (int)m_startNodes.Length);
-
             int endIndex = Random.Range(0, (int)m_endNodes.Length);
             while (m_startNodes[startIndex] == m_endNodes[endIndex])
             {
@@ -83,7 +82,7 @@ public class PedestrianManager : MonoBehaviour
             }
 
             RouteNode startNode = m_startNodes[startIndex];
-            RouteNode endNode = m_endNodes[endIndex]; //Forces parity between start and end nodes
+            RouteNode endNode = m_endNodes[startIndex]; //Forces parity between start and end nodes
             Vector3 startPos = startNode.transform.position;
             Quaternion startRot = startNode.transform.rotation;
 
@@ -119,7 +118,6 @@ public class PedestrianManager : MonoBehaviour
     }
 
     public void PedestrianAtEnd(Entity e) {
-        Debug.Log("At End");
         if (e.type != Entity.Type.Pedestrian) return;
         PedestrianController p = (PedestrianController)e;
         m_activePedestrians.Remove(p);

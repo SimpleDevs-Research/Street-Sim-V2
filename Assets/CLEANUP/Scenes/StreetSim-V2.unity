@@ -2395,7 +2395,7 @@ Transform:
   m_GameObject: {fileID: 177324928}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20, y: 0, z: -6}
+  m_LocalPosition: {x: -30, y: 0, z: -6}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10998,7 +10998,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   xrCamera: {fileID: 1230421676}
-  status: 3
+  status: 1
   m_carPaths:
   - name: South:West-East
     pathCreator: {fileID: 1236773459}
@@ -16608,9 +16608,13 @@ MonoBehaviour:
   m_startNodes:
   - {fileID: 1562208360}
   - {fileID: 1890315478}
+  - {fileID: 177324930}
+  - {fileID: 1255240235}
   m_endNodes:
   - {fileID: 1890315478}
   - {fileID: 1562208360}
+  - {fileID: 1255240235}
+  - {fileID: 177324930}
   m_spawnDelayMinMax: {x: 4, y: 6}
   m_pedestrianParent: {fileID: 1056648992}
   m_currentDemographics: {fileID: 11400000, guid: 20a6e8caf2f86c048b22ac6418940b66, type: 2}
@@ -20109,7 +20113,7 @@ Transform:
   m_GameObject: {fileID: 1255240233}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20, y: 0, z: -6}
+  m_LocalPosition: {x: 30, y: 0, z: -6}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25379,7 +25383,7 @@ Transform:
   m_GameObject: {fileID: 1562208358}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20, y: 0, z: 6}
+  m_LocalPosition: {x: -30, y: 0, z: 6}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26651,7 +26655,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   debugTextbox: {fileID: 0}
-  init_cycle_at_start: 0
+  init_cycle_at_start: 1
   m_carAtCrosswalkDetector: {fileID: 2019688560}
 --- !u!1 &1664485460
 GameObject:
@@ -31299,7 +31303,7 @@ Transform:
   m_GameObject: {fileID: 1890315476}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20, y: 0, z: 6}
+  m_LocalPosition: {x: 30, y: 0, z: 6}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
