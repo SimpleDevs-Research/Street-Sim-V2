@@ -17960,6 +17960,7 @@ GameObject:
   - component: {fileID: 1165343782}
   - component: {fileID: 1165343783}
   - component: {fileID: 1165343784}
+  - component: {fileID: 1165343785}
   m_Layer: 0
   m_Name: GazeTrackRecorder
   m_TagString: Untagged
@@ -18003,6 +18004,7 @@ MonoBehaviour:
     columns:
     - rel_timestamp
     - frame
+    - ipd
     - event
     - side
     - screen_pos_x
@@ -18038,6 +18040,7 @@ MonoBehaviour:
     columns:
     - rel_timestamp
     - frame
+    - ipd
     - event
     - gaze_target_world_pos_x
     - gaze_target_world_pos_y
@@ -18084,6 +18087,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2147484544
   isWriting: 0
+--- !u!114 &1165343785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165343781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27dc816e173f7b042a80bdda88e6e749, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  left_eye_ref: {fileID: 1230421672}
+  right_eye_ref: {fileID: 1230421678}
+  _ipd: 0
+  textboxes: []
 --- !u!1 &1169849060
 GameObject:
   m_ObjectHideFlags: 0
