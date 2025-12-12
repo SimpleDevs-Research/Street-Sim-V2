@@ -8,100 +8,82 @@ using Random = UnityEngine.Random;
 
 public class StreetSimCar : MonoBehaviour
 {
-    public enum StreetSimCarStatus {
-        Idle,
-        Active,
-    }
+    [Header("=== REFERENCES ===")]
     public ExperimentID id;
     private Transform currentXRCamera = null;
-    public Transform frontOfCar, backOfCar;
-    [SerializeField] private RemoteCollider frontCollider;
+    public Transform frontOfCar;
     public TrafficSignal trafficSignal;
     public Transform startTarget, middleTarget, endTarget;
-    public RemoteCollider agentDetector;
     public TestTurret testTurret = null;
-    [SerializeField] private Collider[] gazeColliders;
     [SerializeField] private Velocity Velocity;
     [SerializeField] private TrialPositionNotifier Notifier;
-
-    [SerializeField] private float m_lengthOfCar = 0f;
-    [SerializeField] private float maxSpeed = 0.5f;
-    private float m_originalMaxSpeed;
-    [SerializeField] private bool shouldStop = false;
-    public StreetSimCarStatus status = StreetSimCarStatus.Idle;
-    private float smoothTime;
-    private float currentTime = 0f;
-
-    [SerializeField] private float acceleration = 5f, deceleration = 7.5f;
-    private float m_originalDeceleration;
-
-    private Transform currentTarget;
-    private Vector3 prevTargetPos;
-
     [SerializeField] private Transform[] wheels;
     [SerializeField] private AudioSource m_audioSource;
     [SerializeField] private AudioSource m_honkSource;
 
-    private RaycastHit carRaycastHit;
-    [SerializeField] private bool foundInFront = false;
-    [SerializeField] private bool agentInFront = false;
-    [SerializeField] private StreetSimCar followingCar = null;
-    private bool m_hitMid = false;
-
-    private Vector3 prevPos;
-    public float speed = 0f;
-    [SerializeField] private Vector3 positionDiff = Vector3.zero;
-    [SerializeField] private Vector3 velocityDiff = Vector3.zero;
-    [SerializeField] private float spaceMinimal = 0.5f, spaceOptimal, spaceMaximal = 6f;
+    [Header("=== CAR SETTINGS ===")]
+    public float spaceMaximal = 6f;
     [SerializeField] private float accelerationMax = 10f, accelerationPref = 5f;
-    [SerializeField] private float accelerationExpected = 0f;
-    [SerializeField] private float speedTargeted = 10f;
-    private float originalSpeedTargeted;
-    [SerializeField] private float timePref = 1f;
-    [SerializeField] private float delayUntilHonk = 5f;
-    [SerializeField] private float timeAgentInFront = -1f;
-    [SerializeField] private float durationAgentInFront = 0f;
-    private float m_distanceTraveled = 0f;
-    [SerializeField] private bool passedTraffic = false;
-
     [SerializeField] private AnimationCurve m_maxSpeedWeight;
-    [SerializeField] private Vector2 minMaxViewAngles = new Vector2(80f,20f);
-
     [SerializeField] private bool m_addToHistory = false;
 
+    [Header("=== OUTCOMES (READ-ONLY) ===")]
+    private Transform currentTarget;
+    private RaycastHit carRaycastHit;
+    private bool m_hitMid = false;
+    private float originalSpeedTargeted;
+    private float m_distanceTraveled = 0f;
+    [SerializeField] private bool _is_active = false;
+    public bool is_active => is_active;
+    [SerializeField] private float timePref = 1f;
+    [SerializeField] private float speedTargeted = 10f;
+    [SerializeField] private float accelerationExpected = 0f;
+    [SerializeField] private float spaceMinimal, spaceOptimal;
+    [SerializeField] private float timeAgentInFront = -1f;
+    [SerializeField] private float durationAgentInFront = 0f;
+    [SerializeField] private float delayUntilHonk = 5f;
+    [SerializeField] private Vector3 positionDiff = Vector3.zero;
+    [SerializeField] private bool foundInFront = false;
+    [SerializeField] private StreetSimCar followingCar = null;
+    [SerializeField] private bool agentInFront = false;
+    [SerializeField] private bool passedTraffic = false;
+
     private void Awake() {
+        /* =================== UNKNOWN ================ */
         if (id == null) id = gameObject.GetComponent<ExperimentID>();
-        m_lengthOfCar = GetComponent<BoxCollider>().size.z * transform.localScale.z;
+        if (Notifier == null) Notifier = GetComponent<TrialPositionNotifier>();
+
+        /* ====== NECESSARY ====== */
         Velocity = GetComponent<Velocity>();
         if (testTurret == null) testTurret = GetComponent<TestTurret>();
-        m_originalDeceleration = deceleration;
-        if (Notifier == null) Notifier = GetComponent<TrialPositionNotifier>();
     }
 
     public void Initialize(Transform xrCamera, bool addToHistory) {
+
+        // This is called by the `StreetSimCarManager` script. It toggles this car into active state.
+
+        // Step 1: set the position and rotation of this car to match the start.
         transform.position = startTarget.position;
         transform.rotation = startTarget.rotation;
-        
-        foreach(Collider col in gazeColliders) col.enabled = true;
 
+        // Step 2: Set the XR camera reference
         currentXRCamera = xrCamera;
+
+        // Step 3: Set the end target
         currentTarget = endTarget;
-        prevPos = transform.position;
-        prevTargetPos = endTarget.position;
         
+        // Step 4: Turn on components
         m_audioSource.enabled = true;
         m_honkSource.enabled = true;
         testTurret.enabled = true;
-
-        m_hitMid = false;
-
-        //maxSpeed = UnityEngine.Random.Range(5f,15f);
-        maxSpeed = 5f + (CalculateMaxSpeed()/10f);
-        m_originalMaxSpeed = maxSpeed;
         if (Notifier != null) Notifier.enabled = true;
 
+        // Step 5: Let the car know they haven't crossed the midpoint yet
+        m_hitMid = false;
+
+        // Step 6: Now we set all the variou settings of this car, based on randomizers and the like.
         Velocity.manualSpeed = 0f;
-        speedTargeted = maxSpeed;
+        speedTargeted = 5f + (CalculateMaxSpeed()/10f);
         originalSpeedTargeted = speedTargeted;
         accelerationExpected = 0f;
         spaceMinimal = UnityEngine.Random.Range(0.25f,0.75f);
@@ -111,7 +93,8 @@ public class StreetSimCar : MonoBehaviour
         delayUntilHonk = Random.Range(3f,7f);
         passedTraffic = false;
 
-        status = StreetSimCarStatus.Active;
+        // Step 7: To wrap up, we set the active state of this car.
+        _is_active = true;
         m_addToHistory = addToHistory;
     }
 
@@ -143,21 +126,13 @@ public class StreetSimCar : MonoBehaviour
         m_honkSource.enabled = false;
         testTurret.SetObjects(new List<Transform>());
         testTurret.enabled = false;
-        foreach(Collider col in gazeColliders) col.enabled = false;
         Velocity.manualSpeed = 0f;
         if (Notifier != null) Notifier.enabled = false;
     }
 
-    /*
-    private Vector3 SuperSmoothLerp(Vector3 x0, Vector3 y0, Vector3 yt, float t, float k) {
-        Vector3 f = x0 - y0 + (yt - y0) / (k * t);
-        return yt - (yt - y0) / (k*t) + f * Mathf.Exp(-k*t);
-    }
-    */
-
     private void Update() {
         // Don't do anything if we're idle
-        if (status == StreetSimCarStatus.Idle) return;
+        if (!_is_active) return;
 
         // update testTurrret with most recent list of active entities
         List<Transform> agentTargets = new List<Transform>();
@@ -227,15 +202,10 @@ public class StreetSimCar : MonoBehaviour
                 new Vector3(spaceOptimal+1f,0f,0f)*(1f-L)
             )*(1f-O);
         // The bottom SHOULD be how we do this...
-        // float speedDiff = (speed-carRaycastHit.transform.GetComponent<StreetSimCar>().speed)*O + (speed*L)*(1f-O);
         float speedDiff = (foundInFront) 
             ? Velocity.manualSpeed - carRaycastHit.transform.GetComponent<Velocity>().manualSpeed 
-//            : (!passedTraffic && trafficSignal.status != TrafficSignal.TrafficSignalStatus.Go && (speed < 14f || (speed >= 14f && positionDiff.magnitude < spaceMinimal)))
             : (!passedTraffic)
-                ? (
-                    trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop 
-                    //|| agentDetector.numColliders > 0
-                ) 
+                ? (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop) 
                     ? Velocity.manualSpeed
                     : 0f
                 : 0f;
@@ -257,7 +227,7 @@ public class StreetSimCar : MonoBehaviour
 
     private void FixedUpdate() {
         // don't do anything if we're idle
-        if (status == StreetSimCarStatus.Idle) return;
+        if (!_is_active) return;
 
         // We end out of the loop if we've reached our target and that target happens to be the same position as the endtarget
         if (Vector3.Distance(transform.position,endTarget.position) <= 0.01f || m_distanceTraveled >= 150f) {
@@ -283,7 +253,7 @@ public class StreetSimCar : MonoBehaviour
         }
     }
 
-    public float GetCurrentSpeed() {
-        return Velocity.manualSpeed;
+    public void SetActiveState(bool set_to) {
+        _is_active = set_to;
     }
 }

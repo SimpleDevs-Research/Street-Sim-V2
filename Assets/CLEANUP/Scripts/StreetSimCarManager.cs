@@ -143,7 +143,6 @@ public class StreetSimCarManager : MonoBehaviour
                         nextCar.middleTarget = path.middleTarget;
                         nextCar.endTarget = path.endTarget;
                         nextCar.trafficSignal = path.trafficSignal;
-                        nextCar.agentDetector = path.agentDetector;
                         nextCar.Initialize(xrCamera, m_createHistory);
                         activeCars.Add(nextCar);
                         if (carSpawnCounter < (int)waitValues[status].z) {
@@ -172,12 +171,11 @@ public class StreetSimCarManager : MonoBehaviour
 
     public void SetCarToIdle(StreetSimCar car) {
         if (activeCars.Contains(car)) activeCars.Remove(car);
-        car.status = StreetSimCar.StreetSimCarStatus.Idle;
+        car.SetActiveState(false);
         car.startTarget = null;
         car.middleTarget = null;
         car.endTarget = null;
         car.trafficSignal = null;
-        car.agentDetector = null;
         car.transform.position = InactiveCarTargetRef.position;
         waitingCars.Enqueue(car);
     }
