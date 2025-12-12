@@ -22,6 +22,7 @@ public class BlinkCalibration : MonoBehaviour
     [SerializeField] private Animator m_animator;
 
     [Header("=== OUTPUT WRITER ===")]
+    [SerializeField] private MicrophoneSoundListener microphone = null;
     [SerializeField] private CSVWriter writer;
 
     [Header("Outcomes -- READ ONLY")]
@@ -125,11 +126,14 @@ public class BlinkCalibration : MonoBehaviour
         m_state = State.METRONOME;
     }
     private void WriteOverlap() {
+        // add to output writer
         writer.AddPayload(Time.frameCount); // Current frame
         writer.AddPayload(Time.time - start_timestamp); // Relative timestamp
         writer.AddPayload("Overlap");
         writer.AddPayload(m_overlaps);
         writer.WriteLine(true);
+        // Add click to audio, if recording
+        if (microphone != null) microphone.AddClickMarker();
     }
     private void WriteState(string s) {
         writer.AddPayload(Time.frameCount);

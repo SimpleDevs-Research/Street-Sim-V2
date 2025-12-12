@@ -961,8 +961,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 73771043}
     - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: microphone
+      value: 
+      objectReference: {fileID: 1381512969}
+    - target: {fileID: 7733192084085732417, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
       propertyPath: m_movingDotTime
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7733192084085732419, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7733192084085732420, guid: 04231d480addf194aa34e799e8bf9290, type: 3}
       propertyPath: m_Name
@@ -22244,6 +22252,11 @@ MonoBehaviour:
   sampleRate: 44100
   sampleWindow: 128
   smoothing: 10
+  record_wav: 1
+  max_recording_seconds: 600
+  fileName: microphone
+  dirName: AudioRecs
+  append_zero_to_filename: 0
 --- !u!1 &1384409136
 GameObject:
   m_ObjectHideFlags: 0

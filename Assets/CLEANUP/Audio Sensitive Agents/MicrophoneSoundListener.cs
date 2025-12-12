@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.IO;
+
 
 public class MicrophoneSoundListener : MonoBehaviour
 {
@@ -16,6 +18,13 @@ public class MicrophoneSoundListener : MonoBehaviour
 
     public float CurrentLoudness => smoothedLoudness;
 
+    [Header("Writing Output WAV")]
+    public bool record_wav = true;
+    public int max_recording_seconds = 600;
+    public string fileName = "";
+    public string dirName = "";
+    public bool append_zero_to_filename = false;
+
     void Start()
     {
         if (Microphone.devices.Length == 0)
@@ -27,7 +36,7 @@ public class MicrophoneSoundListener : MonoBehaviour
             microphoneName = Microphone.devices[0];
 
         samples = new float[sampleWindow];
-        microphoneClip = Microphone.Start(microphoneName, true, 1, sampleRate);
+        microphoneClip = Microphone.Start(microphoneName, true, max_recording_seconds, sampleRate);
         while (Microphone.GetPosition(microphoneName) <= 0) { }
     }
 
@@ -46,9 +55,56 @@ public class MicrophoneSoundListener : MonoBehaviour
         smoothedLoudness = Mathf.Lerp(smoothedLoudness, rms, Time.deltaTime * smoothing);
     }
 
+    public void AddClickMarker(float amplitude = 0.9f) {
+        if (microphoneClip == null) return;
+        int pos = Microphone.GetPosition(microphoneName);
+        int channels = microphoneClip.channels;
+        // Convert to sample index in the clip’s data array
+        int sampleIndex = pos * channels;
+        float[] data = new float[microphoneClip.samples * channels];
+        microphoneClip.GetData(data, 0);
+        // Write an impulse (1–3 samples is enough)
+        for (int c = 0; c < channels; c++) {
+            int idx = sampleIndex + c;
+            if (idx < data.Length)
+                data[idx] = amplitude;  // impulse spike
+        }
+        microphoneClip.SetData(data, 0);
+    }
+
     void OnDestroy()
     {
-        if (!string.IsNullOrEmpty(microphoneName))
+        if (!string.IsNullOrEmpty(microphoneName)) {
+            
+            int mposition = Microphone.GetPosition(microphoneName);
             Microphone.End(microphoneName);
+            
+            // Save as a wav file
+            if (microphoneClip != null) {
+
+                // Trim audio
+                AudioClip trimmed_audioclip = WavUtility.TrimClip(microphoneClip, mposition);
+
+                // Determine optimal directory name
+                string dname = $"{Application.persistentDataPath}/{Helpers.SaveSystemMethods.GetCurrentDateTime()}";
+                if (dirName != null && dirName.Length > 0) {
+                    dname = $"{Application.persistentDataPath}/{dirName}";
+                }
+
+                // Determine optimal file name and resulting filepath
+                string fname = (fileName != null && fileName.Length > 0) ? fileName : System.DateTime.Now.ToString("HH-mm-ss");
+                string filePath = (append_zero_to_filename) ? Path.Combine(dname, fname+"_0.wav") : Path.Combine(dname, fname+".wav");
+                int counter = 1;
+                while(File.Exists(filePath)) {
+                    Debug.Log("Path exists");
+                    filePath = Path.Combine(dname, fname+$"_{counter}.wav");
+                    counter++;
+                }
+
+                // Save the trimmed clip
+                WavUtility.SaveWav(filePath, trimmed_audioclip);
+
+            }
+        }
     }
 }
