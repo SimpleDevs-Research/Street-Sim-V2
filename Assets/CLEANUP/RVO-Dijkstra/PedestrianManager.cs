@@ -82,7 +82,7 @@ public class PedestrianManager : MonoBehaviour
             }
 
             RouteNode startNode = m_startNodes[startIndex];
-            RouteNode endNode = m_endNodes[startIndex]; //Forces parity between start and end nodes
+            RouteNode endNode = m_endNodes[endIndex];
             Vector3 startPos = startNode.transform.position;
             Quaternion startRot = startNode.transform.rotation;
 
