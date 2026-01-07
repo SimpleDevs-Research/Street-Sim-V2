@@ -16,6 +16,7 @@ using System.IO;
 using UnityEditor;
 #endif
 
+//This script directs pedestrian behaviors. As far as an individual pedestrian unit goes, this is the highest level for the movement/navigation system.
 public class PedestrianController : Entity
 {
     Animator m_animator;
@@ -85,6 +86,7 @@ public class PedestrianController : Entity
     //Check a pedestrians position on their global route, find the current segment destination
     public bool QueryGlobalRoute()
     {
+        //Failsafe 1 if the route doesn't exist. Tries to find a route.
         if (m_route.Count == 0)
         {
             if (m_routeStart != null && m_routeDestination != null)
@@ -94,7 +96,11 @@ public class PedestrianController : Entity
             }
             return false;
         }
+
+        //As long as we're walking a route, we want RVO to be on.
         GetComponent<PedestrianRVO>().RVOActive = true;
+
+        //Failsafe 2 if the route is too small, and it's not caught by the next part somehow. Tells the pedestrian its journey is over.
         if (m_route.Count <= 1)
         {
             GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
@@ -106,16 +112,15 @@ public class PedestrianController : Entity
 
         }
 
+        // Check if we've reached the next node on our global navigation path.
         float acceptableRadius = m_route[1].acceptableRadius;
-        // End early if we're close enough to our final destination
         if (Vector3.Distance(m_segmentDestination, transform.position) <= acceptableRadius)
         {
-
+            //The reached node becomes the new starting point of the route. The next node after is the next destination.
             List<RouteNode> route = RouteManager.instance.getRoute(m_route[1], m_routeDestination, GetComponent<PedestrianController>().m_personality);
             SetRoute(route);
 
-            //If we've reached the final part of the route, end
-            if (m_route.Count <= 1)
+            if (m_route.Count <= 1) //If there is only one node remaining in the journey, it is the beginning and end. Kill the pedestrian.
             {
                 GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
                 if (returnToManager)
@@ -124,7 +129,7 @@ public class PedestrianController : Entity
                     gameObject.SetActive(false);
                 return false;
             }
-            else
+            else // If we have a ways to go, set our next destination to the next node in the global nav path.
             {
                 SetSegmentDestination(route[1].transform.position
                     + new Vector3(UnityEngine.Random.Range(-acceptableRadius, acceptableRadius),

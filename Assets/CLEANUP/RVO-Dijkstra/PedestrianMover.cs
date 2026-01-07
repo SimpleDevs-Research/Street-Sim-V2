@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using EntityMath;
 
+// This script handles the physical locomotion of the agent, as prescribed by other components, most importantly PedestrianRVO. Consider it the lowest level of pedestrian navigation
 public class PedestrianMover : MonoBehaviour
 {
     public Vector3 m_lastPosOnNavMesh;
@@ -76,7 +77,7 @@ public class PedestrianMover : MonoBehaviour
         transform.position += transform.forward * m_currentVelocity.magnitude * Time.deltaTime;
 
         // Update the animator based on the magnitude of the current velocity
-        KeepInMesh();
+        //KeepInMesh();
 
     }
 

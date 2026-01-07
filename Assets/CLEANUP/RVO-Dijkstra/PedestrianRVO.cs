@@ -17,6 +17,7 @@ using EntityMath;
 using UnityEditor;
 #endif
 
+//This script calculates minute movement "segments" along the desired global route using RVO and Navmesh.
 public class PedestrianRVO : Entity
 {
 
@@ -288,8 +289,21 @@ public class PedestrianRVO : Entity
 
     private void UpdateDirectionBurst() {
 
-        //  1. Convert the list of visible entities into a list of structs. End early if we don't have any pedestrians to consider.
+        //  1. Convert the list of visible entities into a list of structs. End early if we don't have any pedestrians to consider, or if the way is blocked.
         List<ObstacleRVO.RVOData> pedData = GetPedData();
+        LayerMask layerMask = LayerMask.GetMask("NavObstruction");
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 1.4f, layerMask))
+        {
+            //DON'T stop if *inside* the obstruction. Just keep going.
+            if (!Physics.Raycast(transform.position, transform.TransformDirection(Vector3.back), out hit, 0.1f, layerMask))
+            {
+                GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
+                m_jobScheduled = false;
+                return;
+            }
+        }
+                
         if (pedData.Count == 0) {
             GetComponent<PedestrianMover>().m_optimalVelocity = new Vector3(m_rvoData.desiredVelocity[0], 0f, m_rvoData.desiredVelocity[1]);
             m_jobScheduled = false;
