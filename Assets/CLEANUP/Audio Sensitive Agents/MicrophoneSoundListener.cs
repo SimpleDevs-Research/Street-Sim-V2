@@ -34,6 +34,7 @@ public class MicrophoneSoundListener : MonoBehaviour
         }
         if (string.IsNullOrEmpty(microphoneName))
             microphoneName = Microphone.devices[0];
+        print($"Microphone Listening to {microphoneName}");
 
         samples = new float[sampleWindow];
         microphoneClip = Microphone.Start(microphoneName, true, max_recording_seconds, sampleRate);
@@ -72,7 +73,7 @@ public class MicrophoneSoundListener : MonoBehaviour
         microphoneClip.SetData(data, 0);
     }
 
-    void OnDestroy()
+    void OnApplicationPause()
     {
         if (!string.IsNullOrEmpty(microphoneName)) {
             
@@ -104,7 +105,11 @@ public class MicrophoneSoundListener : MonoBehaviour
                 // Save the trimmed clip
                 WavUtility.SaveWav(filePath, trimmed_audioclip);
 
+            } else {
+                Debug.Log("Microphone Clip is NULL - Cannot save audio recording");
             }
+        } else {
+            Debug.Log("No microphone name - cannot save audio recording");
         }
     }
 }

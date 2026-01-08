@@ -7455,6 +7455,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Frame Counter Canvas - Top Left Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3459451270802905898, guid: 547baca170fde4081b9da9ec96e399e5, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3970419063115778169, guid: 547baca170fde4081b9da9ec96e399e5, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -36089,19 +36093,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45fc1c96b9a4d437982af69f2af22668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positionTargetRef: {fileID: 0}
-  lookAtTargetRef: {fileID: 0}
-  movementSpeed: 1
-  movementMultiplier:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  displayType: 2
-  distanceThreshold: 2
-  fadeTimeThreshold: 2
-  fadeTimeRate: 0.5
 --- !u!225 &2120031395
 CanvasGroup:
   m_ObjectHideFlags: 0
