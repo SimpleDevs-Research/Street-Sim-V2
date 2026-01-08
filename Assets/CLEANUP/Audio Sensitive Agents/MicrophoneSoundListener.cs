@@ -75,6 +75,7 @@ public class MicrophoneSoundListener : MonoBehaviour
 
     void OnApplicationPause()
     {
+        #if UNITY_ANDROID
         if (!string.IsNullOrEmpty(microphoneName)) {
             
             int mposition = Microphone.GetPosition(microphoneName);
@@ -111,5 +112,47 @@ public class MicrophoneSoundListener : MonoBehaviour
         } else {
             Debug.Log("No microphone name - cannot save audio recording");
         }
+        #endif
+    }
+
+    void OnDestroy() {
+        #if !UNITY_ANDROID
+        if (!string.IsNullOrEmpty(microphoneName)) {
+            
+            int mposition = Microphone.GetPosition(microphoneName);
+            Microphone.End(microphoneName);
+            
+            // Save as a wav file
+            if (microphoneClip != null) {
+
+                // Trim audio
+                AudioClip trimmed_audioclip = WavUtility.TrimClip(microphoneClip, mposition);
+
+                // Determine optimal directory name
+                string dname = $"{Application.persistentDataPath}/{Helpers.SaveSystemMethods.GetCurrentDateTime()}";
+                if (dirName != null && dirName.Length > 0) {
+                    dname = $"{Application.persistentDataPath}/{dirName}";
+                }
+
+                // Determine optimal file name and resulting filepath
+                string fname = (fileName != null && fileName.Length > 0) ? fileName : System.DateTime.Now.ToString("HH-mm-ss");
+                string filePath = (append_zero_to_filename) ? Path.Combine(dname, fname+"_0.wav") : Path.Combine(dname, fname+".wav");
+                int counter = 1;
+                while(File.Exists(filePath)) {
+                    Debug.Log("Path exists");
+                    filePath = Path.Combine(dname, fname+$"_{counter}.wav");
+                    counter++;
+                }
+
+                // Save the trimmed clip
+                WavUtility.SaveWav(filePath, trimmed_audioclip);
+
+            } else {
+                Debug.Log("Microphone Clip is NULL - Cannot save audio recording");
+            }
+        } else {
+            Debug.Log("No microphone name - cannot save audio recording");
+        }
+        #endif
     }
 }
