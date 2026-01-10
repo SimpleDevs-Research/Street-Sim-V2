@@ -382,6 +382,10 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6666998036690477389, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+      propertyPath: m_rvoMask
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6666998036690477389, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_maxTranslateSpeed.value
       value: 5
       objectReference: {fileID: 0}

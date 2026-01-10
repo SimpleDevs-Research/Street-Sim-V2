@@ -2186,7 +2186,8 @@ MonoBehaviour:
     limits: {x: 0.25, y: 0.75}
   m_viewRadius: 5
   m_kAgents: 8
-  m_viewAngle: 45
+  m_rvoLayer: 1
+  m_rvoMask: -1
   m_drawPath: 0
   m_drawSuitableDirections: 0
   m_scaleViewedPedestrians: 0
@@ -2320,6 +2321,7 @@ MonoBehaviour:
       x: 0
       y: 0
     radius: 0
+    rvoLayer: 0
 --- !u!1 &7623634747289117243
 GameObject:
   m_ObjectHideFlags: 0

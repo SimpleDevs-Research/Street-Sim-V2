@@ -13,13 +13,15 @@ public class ObstacleRVO : MonoBehaviour
         public float2 velocity;
         public float2 desiredVelocity;
         public float radius;
-        public RVOData(int guid, Vector2 position, Vector2 velocity, Vector2 desiredVelocity, float radius)
+        public RVOLayer rvoLayer;
+        public RVOData(int guid, Vector2 position, Vector2 velocity, Vector2 desiredVelocity, float radius, RVOLayer rvoLayer)
         {
             this.guid = guid;
             this.position = (float2)position;
             this.velocity = (float2)velocity;
             this.desiredVelocity = (float2)desiredVelocity;
             this.radius = radius;
+            this.rvoLayer = rvoLayer;
         }
         public void UpdateData(Vector2 position, Vector2 velocity, Vector2 desiredVelocity)
         {

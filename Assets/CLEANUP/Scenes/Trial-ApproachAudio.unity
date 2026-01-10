@@ -222,6 +222,10 @@ PrefabInstance:
       propertyPath: RVOActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6666998036690477389, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
+      propertyPath: m_rvoMask
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7449097854808050042, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_Name
       value: ApproachAgent

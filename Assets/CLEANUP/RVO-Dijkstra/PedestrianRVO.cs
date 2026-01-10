@@ -17,10 +17,16 @@ using EntityMath;
 using UnityEditor;
 #endif
 
+[Flags]
+public enum RVOLayer
+{
+    Pedestrian = 1,
+    User = 2,
+}
+
 //This script calculates minute movement "segments" along the desired global route using RVO and Navmesh.
 public class PedestrianRVO : Entity
 {
-
     
     [System.Serializable]
     public struct DirData {
@@ -72,7 +78,9 @@ public class PedestrianRVO : Entity
     [SerializeField] private RandomFloat m_aggression = new RandomFloat(0.5f, true, new Vector2(0.25f, 0.75f));
     [SerializeField] private float m_viewRadius;
     [SerializeField] private int m_kAgents = 8;
-    [SerializeField] private float m_viewAngle;
+  
+    [SerializeField] private RVOLayer m_rvoLayer;
+    [SerializeField] private RVOLayer m_rvoMask;
 
     [Header("=== Debug Settings ===")]
     [SerializeField] private bool m_drawPath = false;
@@ -262,7 +270,7 @@ public class PedestrianRVO : Entity
         Vector2 vA = GetComponent<PedestrianMover>().m_currentVelocity.ToVector2();
         Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
 
-        GetComponent<ObstacleRVO>().m_rvoData = new ObstacleRVO.RVOData(guid, pA, vA, vD, m_avoidanceRadius);
+        GetComponent<ObstacleRVO>().m_rvoData = new ObstacleRVO.RVOData(guid, pA, vA, vD, m_avoidanceRadius, m_rvoLayer);
     }
     private void UpdatePedData() {
         // Calculate the current state of the pedestrian. This includes:
@@ -351,6 +359,14 @@ public class PedestrianRVO : Entity
         {
             ObstacleRVO obstacle = PedestrianKDTree.Instance.obstacles[resultIndices[i]];
             if (m_scaleViewedPedestrians)  Debug.DrawLine(transform.position, obstacle.transform.position);
+
+            //Check that the obstacle layer matches with my mask
+            if ( (m_rvoMask & obstacle.m_rvoData.rvoLayer) == 0)
+            {
+                //print($"name: {gameObject.name}, mask: {m_rvoMask} & layer: {obstacle.m_rvoData.rvoLayer}, ignore");
+                continue;
+            }
+            //print($"name: {gameObject.name}, mask: {m_rvoMask} & layer: {obstacle.m_rvoData.rvoLayer}, accept");
             //Check angle, right now it's 45 for easy calculation
             Vector2Int a = new Vector2Int(Mathf.RoundToInt(transform.forward.x*10), Mathf.RoundToInt(transform.forward.z*10));
             Vector2Int b = new Vector2Int( Mathf.RoundToInt((obstacle.transform.position.x - transform.position.x)*10), Mathf.RoundToInt((obstacle.transform.position.z - transform.position.z) * 10));
@@ -364,7 +380,7 @@ public class PedestrianRVO : Entity
             for (int i = 0; i < obstacles.Count; i++)
                 obstacles[i].transform.localScale = Vector3.one * 2f;
         }
-
+        
         return obstacles;
     }
 

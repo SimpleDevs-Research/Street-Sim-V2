@@ -11464,6 +11464,7 @@ MonoBehaviour:
       x: 0
       y: 0
     radius: 0.45
+    rvoLayer: 2
 --- !u!1001 &724303234
 PrefabInstance:
   m_ObjectHideFlags: 0
