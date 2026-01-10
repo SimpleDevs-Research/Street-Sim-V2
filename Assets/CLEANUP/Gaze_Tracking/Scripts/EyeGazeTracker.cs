@@ -74,11 +74,21 @@ public class EyeGazeTracker : MonoBehaviour
             // Event Logistics
             event_description,
             // Gaze Data
-            Vector3.zero, Vector3.zero, Vector3.zero, 0f, "",
+            Vector3.zero,   // gaze_target_world_pos
+            Vector3.zero,   // gaze_target_screen_pos
+            Vector3.zero,   // gaze_direction
+            0f,             // gaze_target_distance
+            "",             // gaze_target_name
             // Head Data
-            Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero, 0f, "",
+            Vector3.zero,   // head_target_world_pos
+            Vector3.zero,   // head_target_screen_pos
+            Vector3.zero,   // head_direction
+            Vector3.zero,   // head_position
+            0f,             // head_target_distance 
+            "",             // head_target_name
             // Gaze vs Head
-            Vector3.zero, 0f
+            Vector3.zero,   // gaze_head_rel_direction
+            0f              // gaze_head_angle_diff
         ); 
     }
     public void RecordEvent(
@@ -104,7 +114,10 @@ public class EyeGazeTracker : MonoBehaviour
         // Event Logistics
         writer.AddPayload(GetCurrentTime());
         writer.AddPayload(Time.frameCount);
-        writer.AddPayload(IPDMeasurer.Instance.iipd);
+        if (IPDMeasurer.Instance != null)
+            writer.AddPayload(IPDMeasurer.Instance.iipd);
+        else
+            writer.AddPayload(0f);
         writer.AddPayload(event_description);
         // Gaze Data
         writer.AddPayload(gaze_target_world_pos); 
