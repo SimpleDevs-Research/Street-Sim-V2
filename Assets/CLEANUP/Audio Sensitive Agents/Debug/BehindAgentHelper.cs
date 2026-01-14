@@ -25,6 +25,7 @@ public class BehindAgentHelper : MonoBehaviour
             PedestrianController ped = GetComponentInChildren<PedestrianController>();
             ped.SetRouteStart(RouteManager.instance.GetNearestNode(transform.position));
             ped.SetRouteDestination(RouteManager.instance.GetNearestNode(new Vector3( -Mathf.Sign(transform.position.x) * 20, 0, -6)));
+            ped.ResetRoute();
         }
     }
 }

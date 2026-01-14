@@ -101,7 +101,7 @@ public class PedestrianController : Entity
         GetComponent<PedestrianRVO>().RVOActive = true;
 
         //Failsafe 2 if the route is too small, and it's not caught by the next part somehow. Tells the pedestrian its journey is over.
-        if (m_route.Count <= 1)
+       /* if (m_route.Count <= 1)
         {
             GetComponent<PedestrianMover>().m_optimalVelocity = Vector3.zero;
             if (returnToManager)
@@ -110,7 +110,7 @@ public class PedestrianController : Entity
                 gameObject.SetActive(false);
             return false;
 
-        }
+        }*/
 
         // Check if we've reached the next node on our global navigation path.
         float acceptableRadius = m_route[1].acceptableRadius;

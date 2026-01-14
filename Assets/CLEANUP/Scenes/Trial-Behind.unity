@@ -329,26 +329,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
-      propertyPath: m_route.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
-      propertyPath: m_route.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
-      propertyPath: m_route.Array.data[1]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
-      propertyPath: m_route.Array.data[2]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
-      propertyPath: m_route.Array.data[3]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 422236672, guid: 2e165da069e783144a5857e9c6cd25e8, type: 3}
       propertyPath: m_segmentDestination.x
       value: -1.6264322
       objectReference: {fileID: 0}

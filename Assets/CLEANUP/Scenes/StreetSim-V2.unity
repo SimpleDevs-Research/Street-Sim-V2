@@ -9779,6 +9779,7 @@ GameObject:
   - component: {fileID: 617797440}
   - component: {fileID: 617797442}
   - component: {fileID: 617797443}
+  - component: {fileID: 617797444}
   m_Layer: 0
   m_Name: TrialController
   m_TagString: Untagged
@@ -9906,7 +9907,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 617797439}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: feac5058e6933ee4b9a4c419f5b252b6, type: 3}
   m_Name: 
@@ -9920,6 +9921,29 @@ MonoBehaviour:
   - Trial-ApproachAudio
   blinkCalibrationController: {fileID: 73771044}
   gazeTracker: {fileID: 1165343784}
+  doEyeCallibration: 1
+  index: 0
+  m_toActivate: {fileID: 0}
+--- !u!114 &617797444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 617797439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feac5058e6933ee4b9a4c419f5b252b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trialScenes:
+  - Trial-AlleyRunner
+  - Trial-AlleyRunnerAudio
+  - Trial-Behind
+  - Trial-BehindAudio
+  blinkCalibrationController: {fileID: 73771044}
+  gazeTracker: {fileID: 1165343784}
+  doEyeCallibration: 0
   index: 0
   m_toActivate: {fileID: 0}
 --- !u!1 &621907030
@@ -36094,6 +36118,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45fc1c96b9a4d437982af69f2af22668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  positionTargetRef: {fileID: 0}
+  lookAtTargetRef: {fileID: 0}
+  movementSpeed: 1
+  movementMultiplier:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  displayType: 2
+  distanceThreshold: 2
+  fadeTimeThreshold: 2
+  fadeTimeRate: 0.5
 --- !u!225 &2120031395
 CanvasGroup:
   m_ObjectHideFlags: 0
