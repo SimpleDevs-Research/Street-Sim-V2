@@ -9938,7 +9938,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trialScenes:
   - Trial-AlleyRunner
-  - Trial-AlleyRunnerAudio
+  - Trial-AlleyRunner
   - Trial-Behind
   - Trial-BehindAudio
   blinkCalibrationController: {fileID: 73771044}

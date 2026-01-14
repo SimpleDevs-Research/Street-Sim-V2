@@ -10,5 +10,6 @@ public class SetRouteFromPositions : MonoBehaviour
         PedestrianController ped = GetComponent<PedestrianController>();
         ped.SetRouteStart(RouteManager.instance.GetNearestNode(transform.position));
         ped.SetRouteDestination(RouteManager.instance.GetNearestNode(endPosition));
+        ped.ResetRoute();
     }
 }
