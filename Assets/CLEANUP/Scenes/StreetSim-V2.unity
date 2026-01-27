@@ -16770,6 +16770,7 @@ MonoBehaviour:
   m_activePedestrians: []
   m_inactivePedestrians: []
   m_TotalPedestrians: []
+  m_totalPedestrianTransforms: []
   currentDemographicCount: 
   m_toDestroy: []
   totalCreatedPedestrians: 0
@@ -26858,7 +26859,22 @@ MonoBehaviour:
     - signal: {fileID: 2036736985}
       shouldFluctuate: 0
     obstacles: []
-    duration: 13
+    duration: 10
+  - name: WalkWarnLast3,CarStop
+    goSignals: []
+    warningSignals:
+    - signal: {fileID: 539437399}
+      shouldFluctuate: 1
+    - signal: {fileID: 2036736986}
+      shouldFluctuate: 1
+    stopSignals:
+    - signal: {fileID: 539437398}
+      shouldFluctuate: 0
+    - signal: {fileID: 2036736985}
+      shouldFluctuate: 0
+    obstacles:
+    - {fileID: 2017309200}
+    duration: 3
   m_northCarDetector: {fileID: 1120813769}
   m_southCarDetector: {fileID: 345730475}
   m_northCrossMidpoint: {fileID: 1535565320}

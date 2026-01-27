@@ -192,6 +192,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8804122355537626370, guid: 4bff222c1f7f35d4c9c8a2d1d4f8483c, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 8356399354537844437}
     m_RemovedComponents:
     - {fileID: 8804122355537626373, guid: 4bff222c1f7f35d4c9c8a2d1d4f8483c, type: 3}
     m_RemovedGameObjects: []
@@ -230,6 +234,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4289113218662362401, guid: 4bff222c1f7f35d4c9c8a2d1d4f8483c, type: 3}
   m_PrefabInstance: {fileID: 709706522769054685}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8356399354537844437 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8804122355537626376, guid: 4bff222c1f7f35d4c9c8a2d1d4f8483c, type: 3}
+  m_PrefabInstance: {fileID: 709706522769054685}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8710492234998682929}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8710492234998682917 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8158412403563319032, guid: 4bff222c1f7f35d4c9c8a2d1d4f8483c, type: 3}

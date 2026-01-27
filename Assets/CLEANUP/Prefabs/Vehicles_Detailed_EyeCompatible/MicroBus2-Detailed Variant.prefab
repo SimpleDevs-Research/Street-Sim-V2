@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1660615976, guid: d7edbf0f595c5aa4a8fb241536d32c52, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 15111703315602442}
     - target: {fileID: 4787339567082589861, guid: d7edbf0f595c5aa4a8fb241536d32c52, type: 3}
       propertyPath: m_Name
       value: Vehicle.MicroBus.Door-MicroBus2.Door.FR
@@ -223,6 +227,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1511416854560382391}
   m_SourcePrefab: {fileID: 100100000, guid: d7edbf0f595c5aa4a8fb241536d32c52, type: 3}
+--- !u!114 &15111703315602442 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1660615971, guid: d7edbf0f595c5aa4a8fb241536d32c52, type: 3}
+  m_PrefabInstance: {fileID: 15111704973746473}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4775429667509792668}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &3774474220181385368 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3770656714625307057, guid: d7edbf0f595c5aa4a8fb241536d32c52, type: 3}

@@ -116,6 +116,9 @@ public class TestTurret : MonoBehaviour
     public void SetObjects(List<Transform> newObjects) {
         testObjects = newObjects;
     }
+    public void AddObject(Transform newObject) {
+        if (!testObjects.Contains(newObject)) testObjects.Add(newObject);
+    }
     public bool AnyInRange() {
         return inRange.Count > 0;
     }

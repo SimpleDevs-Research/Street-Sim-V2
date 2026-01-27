@@ -134,7 +134,7 @@ public class PedestrianRVO : Entity
 
             if (result_indices.Count > 0) {
                 for (int i = 0; i < result_indices.Count; i++) {
-                    PedestrianController ped = PedestrianManager.Instance.m_TotalPedestrians[result_indices[i]];
+                    PedestrianController ped = PedestrianManager.Instance.totalPedestrians[result_indices[i]];
                     Gizmos.DrawLine(transform.position, ped.transform.position);
                     m_gizmos_result_transforms.Add(ped.transform);
                 }

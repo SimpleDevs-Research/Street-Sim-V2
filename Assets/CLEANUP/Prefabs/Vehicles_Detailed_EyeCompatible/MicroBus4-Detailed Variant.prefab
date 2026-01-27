@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 929902127, guid: 5f75e67ab31fa7049af055b9bf7d6fa6, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 688263551180749588}
     - target: {fileID: 8119898124574689200, guid: 5f75e67ab31fa7049af055b9bf7d6fa6, type: 3}
       propertyPath: m_RootOrder
       value: 12
@@ -223,6 +227,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1350021843352793397}
   m_SourcePrefab: {fileID: 100100000, guid: 5f75e67ab31fa7049af055b9bf7d6fa6, type: 3}
+--- !u!114 &688263551180749588 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 929902122, guid: 5f75e67ab31fa7049af055b9bf7d6fa6, type: 3}
+  m_PrefabInstance: {fileID: 688263551325246782}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8728706561975914158}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &3207303237693021996 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2670517208600283666, guid: 5f75e67ab31fa7049af055b9bf7d6fa6, type: 3}

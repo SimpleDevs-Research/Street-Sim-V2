@@ -145,6 +145,9 @@ public class StreetSimCar : MonoBehaviour
         if (currentXRCamera != null) {
             agentTargets.Add(currentXRCamera);
         }
+        if (PedestrianManager.Instance != null) {
+            agentTargets.AddRange(PedestrianManager.Instance.totalPedestrianTransforms);
+        }
         testTurret.SetObjects(agentTargets);
         
         // Check if there's a car in front of us.
@@ -156,7 +159,10 @@ public class StreetSimCar : MonoBehaviour
             ? carRaycastHit.transform.GetComponent<StreetSimCar>()
             : null;
         agentInFront = testTurret.AnyInRange();
-        if (trafficSignal.status != TrafficSignal.TrafficSignalStatus.Stop && Velocity.manualSpeed < 1f && (agentInFront || foundInFront)) {
+        if (
+                trafficSignal.status != TrafficSignal.TrafficSignalStatus.Stop 
+                && Velocity.manualSpeed < 1f 
+                && (agentInFront || foundInFront)) {
             if (timeAgentInFront == -1) {
                 timeAgentInFront = Time.time;
             }
@@ -185,7 +191,7 @@ public class StreetSimCar : MonoBehaviour
 
     private void CalculateAcceleration() {
         passedTraffic = Vector3.Dot((middleTarget.position - frontOfCar.position).normalized, frontOfCar.forward) < 0f;
-        float L = (!passedTraffic && (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop || agentInFront) )
+        float L = (!passedTraffic && (trafficSignal.status == TrafficSignal.TrafficSignalStatus.Warning || trafficSignal.status == TrafficSignal.TrafficSignalStatus.Stop || agentInFront) )
             ? 1f
             : 0f;
         float O = (foundInFront)

@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1465727431, guid: ba319f5163eb3e84981b9de963990d58, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 3987692169953028346}
     - target: {fileID: 8782741385730300516, guid: ba319f5163eb3e84981b9de963990d58, type: 3}
       propertyPath: m_Name
       value: Vehicle.Car.Wheel-Car5.Wheel.FR
@@ -222,6 +226,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3333231661126832271, guid: ba319f5163eb3e84981b9de963990d58, type: 3}
   m_PrefabInstance: {fileID: 3987692170645934395}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3987692169953028346 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1465727425, guid: ba319f5163eb3e84981b9de963990d58, type: 3}
+  m_PrefabInstance: {fileID: 3987692170645934395}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5671632988004584273}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5671632988004584261 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8782741385730300542, guid: ba319f5163eb3e84981b9de963990d58, type: 3}

@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1212086637, guid: 3d860fd58e66544479951e474e9f5ee9, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 2732011608572815034}
     - target: {fileID: 3720149763211479722, guid: 3d860fd58e66544479951e474e9f5ee9, type: 3}
       propertyPath: m_RootOrder
       value: 16
@@ -496,6 +500,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300010, guid: 259af2b34332c1847843aa3f2306f2a5, type: 3}
+--- !u!114 &2732011608572815034 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1212086632, guid: 3d860fd58e66544479951e474e9f5ee9, type: 3}
+  m_PrefabInstance: {fileID: 2732011607361527762}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606287991032629592}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8964081326846103518 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6452776922011717644, guid: 3d860fd58e66544479951e474e9f5ee9, type: 3}

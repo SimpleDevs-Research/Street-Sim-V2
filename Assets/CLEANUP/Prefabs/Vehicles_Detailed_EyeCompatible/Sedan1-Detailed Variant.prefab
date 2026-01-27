@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 252741402, guid: 5a099fec926887d44b36b14db4576a99, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 2567448906136166129}
     - target: {fileID: 7634309172291131208, guid: 5a099fec926887d44b36b14db4576a99, type: 3}
       propertyPath: m_Name
       value: Vehicle.Sedan.Door-Sedan1.Door.BL
@@ -234,6 +238,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 7228659690000994393}
   m_SourcePrefab: {fileID: 100100000, guid: 5a099fec926887d44b36b14db4576a99, type: 3}
+--- !u!114 &2567448906136166129 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 252741397, guid: 5a099fec926887d44b36b14db4576a99, type: 3}
+  m_PrefabInstance: {fileID: 2567448905950599652}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5355882299991641780}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5355882299991641768 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7634309172291131212, guid: 5a099fec926887d44b36b14db4576a99, type: 3}

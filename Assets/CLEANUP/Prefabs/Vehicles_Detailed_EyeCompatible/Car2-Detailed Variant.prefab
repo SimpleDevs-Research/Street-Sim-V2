@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1687868307, guid: 1a1be4bae3dbf1040904babdf2565692, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 7814393297307231977}
     - target: {fileID: 4577290188436894496, guid: 1a1be4bae3dbf1040904babdf2565692, type: 3}
       propertyPath: m_Name
       value: Vehicle.Car.Wheel-Car2.Wheel.BL
@@ -425,6 +429,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300012, guid: 53ec6115b233000489d1dd52c385f7b0, type: 3}
+--- !u!114 &7814393297307231977 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1687868301, guid: 1a1be4bae3dbf1040904babdf2565692, type: 3}
+  m_PrefabInstance: {fileID: 7814393297784943972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6050445780811204160}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8271840520872002021 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2213860537449067649, guid: 1a1be4bae3dbf1040904babdf2565692, type: 3}

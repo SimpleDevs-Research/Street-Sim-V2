@@ -22,7 +22,10 @@ public class PedestrianManager : MonoBehaviour
     [Header("=== Outcomes - Read Only ===")]
     [SerializeField] private List<PedestrianController> m_activePedestrians;
     [SerializeField] private List<PedestrianController> m_inactivePedestrians;
-    [SerializeField] public List<PedestrianController> m_TotalPedestrians;
+    [SerializeField] private List<PedestrianController> m_TotalPedestrians;
+    public List<PedestrianController> totalPedestrians => m_TotalPedestrians;
+    [SerializeField] private List<Transform> m_totalPedestrianTransforms;
+    public List<Transform> totalPedestrianTransforms => m_totalPedestrianTransforms;
     [SerializeField] private int[] currentDemographicCount;
     public List<PedestrianController> activePedestrians => m_activePedestrians;
     [SerializeField] private List<GameObject> m_toDestroy;
@@ -47,6 +50,8 @@ public class PedestrianManager : MonoBehaviour
 
          
         //Pre-pool all pedestrians
+        m_TotalPedestrians = new List<PedestrianController>();
+        m_totalPedestrianTransforms = new List<Transform>();
         for(int i = 0; i < m_numPedestrians; i++)
         {
             PedestrianController newPed = Instantiate(m_currentDemographics.groups[0].pedestrians[i % m_currentDemographics.groups[0].pedestrians.Length],
@@ -54,6 +59,7 @@ public class PedestrianManager : MonoBehaviour
                         Quaternion.identity, m_pedestrianParent) as PedestrianController;
 
             m_TotalPedestrians.Add(newPed);
+            m_totalPedestrianTransforms.Add(newPed.transform);
             newPed.gameObject.SetActive(false);
             newPed.gameObject.name = i.ToString();
             //GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
@@ -132,8 +138,6 @@ public class PedestrianManager : MonoBehaviour
             go.transform.position = m_inactivePos;
             go.gameObject.SetActive(false);
         }
-
-
     }
 
     private void Update()

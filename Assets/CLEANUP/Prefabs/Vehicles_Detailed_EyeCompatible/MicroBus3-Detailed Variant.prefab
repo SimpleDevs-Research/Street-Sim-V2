@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1767456730, guid: 124b726f2a2fe8f4b8c14661de30628e, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 6366780119189686523}
     - target: {fileID: 4520732562755928421, guid: 124b726f2a2fe8f4b8c14661de30628e, type: 3}
       propertyPath: m_Name
       value: Vehicle.MicroBus.Body-MicroBus3.Body
@@ -228,6 +232,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5190784548810709023, guid: 124b726f2a2fe8f4b8c14661de30628e, type: 3}
   m_PrefabInstance: {fileID: 6366780119839356718}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6366780119189686523 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1767456725, guid: 124b726f2a2fe8f4b8c14661de30628e, type: 3}
+  m_PrefabInstance: {fileID: 6366780119839356718}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7415043303471642185}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7415043303471642177 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4520732562755928431, guid: 124b726f2a2fe8f4b8c14661de30628e, type: 3}

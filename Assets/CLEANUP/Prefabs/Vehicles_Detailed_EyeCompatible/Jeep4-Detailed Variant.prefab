@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 771014967, guid: 511fc8a863fe2cf4298fb3bd398033af, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 7994118312484734615}
     - target: {fileID: 681792049689786273, guid: 511fc8a863fe2cf4298fb3bd398033af, type: 3}
       propertyPath: m_Name
       value: Jeep4-Detailed Variant
@@ -501,3 +505,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 17802992216921325, guid: 511fc8a863fe2cf4298fb3bd398033af, type: 3}
   m_PrefabInstance: {fileID: 7994118312045692837}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7994118312484734615 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 771014962, guid: 511fc8a863fe2cf4298fb3bd398033af, type: 3}
+  m_PrefabInstance: {fileID: 7994118312045692837}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7459902728204726276}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

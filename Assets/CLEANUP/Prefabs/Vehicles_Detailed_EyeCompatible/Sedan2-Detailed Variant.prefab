@@ -72,6 +72,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1447101817, guid: 4873241951894944cb9db30eb6b00d49, type: 3}
+      propertyPath: testTurret
+      value: 
+      objectReference: {fileID: 1571340080655702473}
     - target: {fileID: 3904493859989645313, guid: 4873241951894944cb9db30eb6b00d49, type: 3}
       propertyPath: m_Name
       value: Sedan2-Detailed Variant
@@ -234,6 +238,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4621765588313302841}
   m_SourcePrefab: {fileID: 100100000, guid: 4873241951894944cb9db30eb6b00d49, type: 3}
+--- !u!114 &1571340080655702473 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1447101812, guid: 4873241951894944cb9db30eb6b00d49, type: 3}
+  m_PrefabInstance: {fileID: 1571340079946800317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2585357559492801724}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5aeaed3403124cdbb9fbafed9d55798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2585357559492801696 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3904493859989645341, guid: 4873241951894944cb9db30eb6b00d49, type: 3}
