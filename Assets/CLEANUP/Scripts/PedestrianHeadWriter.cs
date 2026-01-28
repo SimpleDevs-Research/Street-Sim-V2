@@ -5,8 +5,10 @@ using UnityEngine;
 public class PedestrianHeadWriter : MonoBehaviour
 {
 
+    public PedestrianController parent_agent;
+
     private void Update()
     {
-        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, "PedestrianHead", this.transform);
+        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, $"{parent_agent.agent_label}_Head", this.transform);
     }
 }

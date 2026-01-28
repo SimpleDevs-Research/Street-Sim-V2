@@ -21,6 +21,7 @@ public class PedestrianController : Entity
 {
     Animator m_animator;
     PedestrianMover m_pedestrianMover;
+    public string agent_label;
 
     [SerializeField] private RouteNode m_routeDestination;
     [SerializeField] private RouteNode m_routeStart;
@@ -62,11 +63,12 @@ public class PedestrianController : Entity
     protected override void Start()
     {
         base.Start();
+        if (agent_label == null || agent_label.Length == 0) agent_label = this.gameObject.name;
         PedestrianKDTree.Instance.AddObstacle(GetComponent<ObstacleRVO>());
     }
     private void Update()
     {
-        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, "Pedestrian", this.transform);
+        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, agent_label, this.transform);
     }
     private void LateUpdate()
     {

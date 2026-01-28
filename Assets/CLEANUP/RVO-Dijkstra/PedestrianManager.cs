@@ -62,6 +62,7 @@ public class PedestrianManager : MonoBehaviour
             m_totalPedestrianTransforms.Add(newPed.transform);
             newPed.gameObject.SetActive(false);
             newPed.gameObject.name = i.ToString();
+            //newPed.agent_label = i.ToString();
             //GetComponent<PedestrianKDTree>().AddObstacle(newPed.GetComponent<ObstacleRVO>());
         }
 

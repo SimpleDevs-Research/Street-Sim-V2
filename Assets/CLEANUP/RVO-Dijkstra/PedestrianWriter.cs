@@ -66,8 +66,10 @@ public class PedestrianWriter : MonoBehaviour
         writer.AddPayload(t.gameObject.GetInstanceID());
         writer.AddPayload(label);
         writer.AddPayload(t.position.x);
+        writer.AddPayload(t.position.y);
         writer.AddPayload(t.position.z);
         writer.AddPayload(t.forward.x);
+        writer.AddPayload(t.forward.y);
         writer.AddPayload(t.forward.z);
         writer.AddPayload(thisDeltaTime);
         writer.AddPayload(thisFPSRaw);

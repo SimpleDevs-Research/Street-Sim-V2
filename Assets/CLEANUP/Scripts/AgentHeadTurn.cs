@@ -45,6 +45,9 @@ public class AgentHeadTurn : MonoBehaviour
 
         lEyeTransform = animator.GetBoneTransform(HumanBodyBones.LeftEye);
         headTransform = animator.GetBoneTransform(HumanBodyBones.Head);
+        if (GetComponent<PedestrianController>() != null) {
+            headTransform.GetComponent<PedestrianHeadWriter>().parent_agent = GetComponent<PedestrianController>();
+        }
         Transform attentionTransform = lEyeTransform;
 
         if (lEyeTransform != null)
