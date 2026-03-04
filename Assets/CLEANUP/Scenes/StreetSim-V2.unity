@@ -22968,9 +22968,7 @@ MonoBehaviour:
   _fps: 0
   _smoothed_fps: 0
   smoothed_ratio: 0.75
-  textboxes:
-  - textbox: {fileID: 1643482550}
-    write_type: 0
+  textboxes: []
 --- !u!1 &1401775112
 GameObject:
   m_ObjectHideFlags: 0
@@ -26473,17 +26471,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1629882250}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1643482550 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4089337802557705162, guid: 547baca170fde4081b9da9ec96e399e5, type: 3}
-  m_PrefabInstance: {fileID: 452446741}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1644463664
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36136,6 +36123,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45fc1c96b9a4d437982af69f2af22668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  positionTargetRef: {fileID: 0}
+  lookAtTargetRef: {fileID: 0}
+  movementSpeed: 1
+  movementMultiplier:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  displayType: 2
+  distanceThreshold: 2
+  fadeTimeThreshold: 2
+  fadeTimeRate: 0.5
 --- !u!225 &2120031395
 CanvasGroup:
   m_ObjectHideFlags: 0
