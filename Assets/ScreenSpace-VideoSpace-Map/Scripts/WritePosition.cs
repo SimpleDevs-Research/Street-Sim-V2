@@ -8,41 +8,46 @@ public class WritePosition : MonoBehaviour
     public Camera left_eye_ref;
     public Camera right_eye_ref;
     public CSVWriter writer;
+    public bool treat_as_pedestrian;
 
-    // Start is called before the first frame update
-    void Start() {
-        if (AdditiveSceneManager.Instance != null)
+    // Frame capture
+    public bool capture_frames = true;
+    public int targetFPS = 5;
+    public string outputDir = "frames";
+
+    private float interval;
+    private float timer = 0f;
+    private int captureCount = 0;
+
+    void Start()
+    {
+        if (capture_frames)
         {
-            GameObject e;
-            if (AdditiveSceneManager.Instance.TryGetRef("center_eye", out e)) center_eye_ref = e.GetComponent<Camera>();
-            if (AdditiveSceneManager.Instance.TryGetRef("left_eye", out e)) left_eye_ref = e.GetComponent<Camera>();
-            if (AdditiveSceneManager.Instance.TryGetRef("right_eye", out e)) right_eye_ref = e.GetComponent<Camera>();
-            if (center_eye_ref != null && left_eye_ref != null && right_eye_ref != null) {
-                Debug.Log($"Position Writer for {gameObject.name} initialized!");
-                writer.Initialize();   
-            }
+            interval = 1f / targetFPS;
+            System.IO.Directory.CreateDirectory(outputDir);
         }
     }
 
     void Update()
     {
-        if (!writer.is_active) return;
+        if (capture_frames)
+        {
+            timer += Time.deltaTime;
+            if (timer >= interval)
+            {
+                ScreenCapture.CaptureScreenshot(
+                    $"{outputDir}/frame_{captureCount:D4}.png"
+                );
+                captureCount++;
+                timer = 0f;
+            }
+        }
 
-        int frame = Time.frameCount;
-        Vector3 world_pos = transform.position;
-        Vector3 center_screen_pos = center_eye_ref.WorldToScreenPoint(world_pos);
-        Vector3 left_screen_pos = left_eye_ref.WorldToScreenPoint(world_pos);
-        Vector3 right_screen_pos = right_eye_ref.WorldToScreenPoint(world_pos);
-
-        writer.AddPayload(frame);
-        writer.AddPayload(world_pos);
-        writer.AddPayload(center_screen_pos);
-        writer.AddPayload(left_screen_pos);
-        writer.AddPayload(right_screen_pos);
-        writer.WriteLine();
+        if (PedestrianWriter.current != null) PedestrianWriter.current.AddPedestrian(Time.frameCount, Time.time, gameObject.name, this.transform);
     }
 
-    void OnDestroy() {
+    void OnDestroy()
+    {
         writer.Disable();
     }
 }
